@@ -82,10 +82,8 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
     if (seen.current === undefined) { seen.current = st.spin_id; setRot(st.rot); return; }
     if (st.spin_id && st.spin_id !== seen.current) {
       seen.current = st.spin_id; setRot(st.rot); setSpinning(true);
-      const t = setTimeout(() => setSpinning(false), 4200);
-      return () => clearTimeout(t);
+      setTimeout(() => setSpinning(false), 4200);
     }
-    return undefined;
   }, [room, st]);
 
   // Log a shared Rue-view into this browser's memory book.
