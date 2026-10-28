@@ -11,6 +11,12 @@ describe("Account chat snapshots", () => {
   it("accepts live chat snapshots too", () => {
     expect(AccountChatSchema.parse({ ...snapshot, kind: "live", sourceId: "live:room" }).kind).toBe("live");
   });
+  it("preserves the full ordered thread and exact cumulative scores", () => {
+    const complete = { ...snapshot, messages: [...snapshot.messages, { sender: "a", content: "Next round" }, { sender: "rue", content: "Three points for you, two for Theo." }], scores: { a: 3, b: 2 } };
+    const restored = AccountChatSchema.parse(JSON.parse(JSON.stringify(complete)));
+    expect(restored.messages).toEqual(complete.messages);
+    expect(restored.scores).toEqual({ a: 3, b: 2 });
+  });
   it("never persists invitation or participant credentials", () => {
     const parsed = AccountChatSchema.parse({ ...snapshot, token: "private", room: { token: "private" }, invite: "private" });
     expect(parsed).not.toHaveProperty("token");
