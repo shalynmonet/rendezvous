@@ -158,7 +158,6 @@ function AppShell() {
               </Link>
             </div>
           </div>
-          <div className="houndstooth h-1.5 opacity-60" />
         </nav>
         <div className="flex-1">
           <Outlet />

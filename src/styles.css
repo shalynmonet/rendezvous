@@ -117,12 +117,6 @@
   background-repeat: repeat;
 }
 
-@utility houndstooth {
-  background-color: var(--secondary);
-  background-image:
-    repeating-conic-gradient(var(--background) 0 25%, transparent 0 50%);
-  background-size: 10px 10px;
-}
 @utility font-display { font-family: var(--font-display); }
 @utility shadow-candle { box-shadow: var(--shadow-candle); }
 @utility hero-fade { background-image: var(--gradient-hero); }

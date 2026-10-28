@@ -114,7 +114,7 @@ function RevealView({ me, active }: Ctx) {
       {err && <ErrorNote msg={err} />}
       {data && (
         <div className="space-y-6">
-          <div className="houndstooth rounded-2xl p-1">
+          <div className="rounded-2xl border border-gold/35">
             <div className="rounded-xl bg-card p-8 text-center">
               <p className="text-xs uppercase tracking-[0.3em] text-gold">Voilà</p>
               <h2 className="mt-2 text-5xl font-semibold italic">{data.reveal.headline}</h2>
