@@ -2,7 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { X, Plus, Loader2 } from "lucide-react";
-import rueHero from "@/assets/rue-hero.png.asset.json";
+import rueHero from "@/assets/ru-updated.jpg.asset.json";
+import ruPortrait from "@/assets/ru-portrait.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resolveTaste, type TasteT } from "@/lib/rue.functions";
@@ -12,9 +13,9 @@ export const RUE_IMG = rueHero.url;
 
 export function RueAvatar({ size = 44 }: { size?: number }) {
   return (
-    <img src={RUE_IMG} alt="Ru the fox" width={size} height={size}
+    <img src={ruPortrait.url} alt="Ru the fox" width={size} height={size}
       className="shrink-0 rounded-full border-2 border-gold object-cover"
-      style={{ width: size, height: size, objectPosition: "64% 22%", objectFit: "cover", transform: "scale(1)" }} />
+      style={{ width: size, height: size }} />
   );
 }
 
