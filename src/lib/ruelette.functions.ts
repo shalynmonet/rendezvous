@@ -42,7 +42,10 @@ const describe = (p: P) => `${p.name}: ${p.tastes.map((t) => `${t.label} (${t.ca
 
 export const spinRuelette = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ mode: z.enum(MODES), a: Person, b: Person }).parse(d))
-  .handler(async ({ data }): Promise<{ activity: Activity }> => {
+  .handler(async ({ data }): Promise<{ activity: Activity }> => ({ activity: await generate(data.mode, data.a, data.b) }));
+
+async function generate(mode: AiMode, pa: P, pb: P): Promise<Activity> {
+    const data = { mode, a: pa, b: pb };
     const { runAgent } = await import("./agent.server");
     const { resolveItems } = await import("./qloo.server");
     const [a, b] = await Promise.all([data.a, data.b].map(async (p) => ({ ...p, tastes: (await resolveItems(p.tastes)) as P["tastes"] })));
@@ -54,14 +57,16 @@ export const spinRuelette = createServerFn({ method: "POST" })
     });
     const act = { mode: data.mode, ...result } as Activity;
     if (act.mode === "song") act.spotify_url = `https://open.spotify.com/search/${encodeURIComponent(`${act.song} ${act.artist}`)}`;
-    return { activity: act };
-  });
+    return act;
+}
 
 export const rueView = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
     z.object({ a: z.string().max(60), b: z.string().max(60), activity: z.string().max(200), rating: z.number().int().min(1).max(5), notes: z.string().max(1000) }).parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data }) => debriefWith(data));
+
+async function debriefWith(data: { a: string; b: string; activity: string; rating: number; notes: string }) {
     const { runAgent } = await import("./agent.server");
     const { result } = await runAgent({
       system: `This is the Rue-view: a debrief after ${data.a} and ${data.b} finished a Rue-lette activity. React in your signature diva-host voice: 2-3 witty sentences responding to their rating and notes, then a short milestone title for their memory book. No tools needed.`,
@@ -70,4 +75,89 @@ export const rueView = createServerFn({ method: "POST" })
       finishDescription: "Submit your debrief.",
     });
     return result;
+}
+
+// ---------- Shared (live) Rue-lette in a private two-person room ----------
+const Key = z.string().regex(/^[a-f0-9]{64}$/);
+const RoomIn = { room: z.string().uuid(), token: Key };
+const BUCKET = "ruelette-photos";
+
+export type RoomRuelette = {
+  side: "a" | "b";
+  joined: boolean;
+  spin_id: string | null;
+  mode: "game" | AiMode | null;
+  rot: number;
+  by: "a" | "b" | null;
+  status: "generating" | "ready" | "error" | null;
+  activity: Activity | null;
+  error: string | null;
+  photos: { a: string | null; b: string | null };
+  debrief: { commentary: string; milestone: string; rating: number; notes: string; by: "a" | "b"; at: string } | null;
+};
+
+async function rpc(room: string, token: string, action: string, payload: Record<string, unknown> = {}) {
+  const { guestClient } = await import("./guest-chat.server");
+  const { data, error } = await guestClient().rpc("guest_ruelette" as never, { p_room: room, p_token: token, p_action: action, p_payload: payload } as never);
+  if (error) throw new Error((error as { message: string }).message);
+  return data as unknown as { side: "a" | "b"; joined?: boolean; ruelette: Record<string, any> };
+}
+
+async function shape(r: Awaited<ReturnType<typeof rpc>>): Promise<RoomRuelette> {
+  const rl = r.ruelette ?? {};
+  const uploads = (rl.uploads ?? {}) as { a?: string; b?: string };
+  const photos: RoomRuelette["photos"] = { a: null, b: null };
+  const paths = (["a", "b"] as const).filter((k) => uploads[k]);
+  if (paths.length) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    for (const k of paths) {
+      const { data } = await supabaseAdmin.storage.from(BUCKET).createSignedUrl(uploads[k]!, 3600);
+      photos[k] = data?.signedUrl ?? null;
+    }
+  }
+  return {
+    side: r.side, joined: r.joined ?? true, spin_id: rl.spin_id ?? null, mode: rl.mode ?? null, rot: Number(rl.rot ?? 0),
+    by: rl.by ?? null, status: rl.status ?? null, activity: rl.activity ?? null, error: rl.error ?? null, photos, debrief: rl.debrief ?? null,
+  };
+}
+
+export const roomRuelette = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object(RoomIn).parse(d))
+  .handler(async ({ data }) => shape(await rpc(data.room, data.token, "read")));
+
+export const roomSpin = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ ...RoomIn, mode: z.enum(["game", ...MODES]), rot: z.number().finite(), a: Person, b: Person }).parse(d))
+  .handler(async ({ data }) => {
+    const r = await rpc(data.room, data.token, "spin", { mode: data.mode, rot: data.rot });
+    if (data.mode === "game") return shape(r);
+    const spin_id = r.ruelette.spin_id as string;
+    try {
+      const activity = await generate(data.mode, data.a, data.b);
+      return shape(await rpc(data.room, data.token, "activity", { spin_id, activity }));
+    } catch (e) {
+      return shape(await rpc(data.room, data.token, "activity", { spin_id, error: (e as Error).message.slice(0, 300) }));
+    }
+  });
+
+export const roomUpload = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ ...RoomIn, spin_id: z.string().uuid(), image: z.string().max(8_000_000).regex(/^data:image\/(png|jpeg|webp|gif);base64,/) }).parse(d))
+  .handler(async ({ data }) => {
+    const r = await rpc(data.room, data.token, "read");
+    if (r.ruelette?.spin_id !== data.spin_id) throw new Error("That activity has changed.");
+    const [head, b64] = data.image.split(",");
+    const type = head!.slice(5, head!.indexOf(";"));
+    const bytes = Uint8Array.from(atob(b64!), (c) => c.charCodeAt(0));
+    if (bytes.length > 6 * 1024 * 1024) throw new Error("Photo is too large (6 MB max).");
+    const path = `${data.room}/${data.spin_id}/${r.side}-${crypto.randomUUID()}.${type.split("/")[1]}`;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.storage.from(BUCKET).upload(path, bytes, { contentType: type });
+    if (error) throw new Error("Upload failed. Please try again.");
+    return shape(await rpc(data.room, data.token, "upload", { spin_id: data.spin_id, path }));
+  });
+
+export const roomDebrief = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ ...RoomIn, spin_id: z.string().uuid(), a: z.string().max(60), b: z.string().max(60), activity: z.string().max(200), rating: z.number().int().min(1).max(5), notes: z.string().max(1000) }).parse(d))
+  .handler(async ({ data }) => {
+    const res = await debriefWith(data);
+    return shape(await rpc(data.room, data.token, "debrief", { spin_id: data.spin_id, debrief: { ...res, rating: data.rating, notes: data.notes } }));
   });
