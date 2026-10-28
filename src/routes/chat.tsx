@@ -8,6 +8,7 @@ import { ErrorNote, NeedPair, Page, PageTitle, RueAvatar } from "@/components/ru
 import { chatTurn, type ChatTurn } from "@/lib/rue.functions";
 import { setState, saveChat, selectedChat, type ChatMessage, type SavedChat } from "@/lib/store";
 import { LiveChat } from "@/components/live-chat";
+import { ChatSave } from "@/components/chat-save";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/chat")({
   }),
   component: () => (
     <Page>
+      <Button variant="ghost" className="mb-4" asChild><Link to="/saved-chats">Saved chats</Link></Button>
       <NeedPair>
         {(ctx) =>
           ctx.active.room ? (
@@ -150,6 +152,7 @@ function ChatView({ me, active, s }: Ctx) {
           ))}
         </div>
         <div className="mt-6">{historyList}</div>
+        <div className="mt-6 max-w-sm"><ChatSave /></div>
       </>
     );
 
@@ -239,6 +242,7 @@ function ChatView({ me, active, s }: Ctx) {
         )}
       </div>
       <aside className="space-y-4">
+        <ChatSave disabled={busy} snapshot={chatId && mood ? { sourceId: `local:${chatId}`, kind: active.demo ? "demo" : "local", a: me, b: active.profile, mood, messages: msgs, game, scores } : undefined} />
         <div className="card-luxe p-5">
           <p className="text-xs uppercase tracking-widest text-gold">Scoreboard</p>
           <p className="mt-2 flex justify-between font-display text-2xl">

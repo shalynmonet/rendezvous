@@ -1,4 +1,6 @@
 # Rendezvous roadmap
+- [x] Account-save demo and live chat snapshots with private saved-chat history
+- [x] Show guests “Create an account to save” and verify save/read across browsers
 - [x] Make Ru-lette's demo entry consistent without requiring a real invitation
 - [x] Preserve demo chat history by connection and restore it after recap/navigation/reload
 - [x] Verify demo chat → recap → return and direct Ru-lette access

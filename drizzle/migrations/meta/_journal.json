@@ -22,6 +22,20 @@
       "when": 1793193348610,
       "tag": "0002_shared_ruelette",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793195800998,
+      "tag": "0003_account_saved_chats",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793196092852,
+      "tag": "0004_saved_chats_private_grants",
+      "breakpoints": true
     }
   ]
 }

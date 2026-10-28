@@ -19,6 +19,7 @@ import { Tool, ToolHeader, ToolContent, ToolOutput } from "@/components/ai-eleme
 import { chatAccess } from "@/lib/guest-chat.functions";
 import type { GuestRoom, LiveState } from "@/lib/chat-schemas";
 import { setState } from "@/lib/store";
+import { ChatSave } from "./chat-save";
 
 export function LiveChat({ room }: { room: GuestRoom }) {
   const access = useServerFn(chatAccess);
@@ -267,6 +268,7 @@ export function LiveChat({ room }: { room: GuestRoom }) {
           </div>
         </div>
         <aside className="min-w-0 space-y-4">
+          <ChatSave room={room} disabled={sending || hosting || state.busy} snapshot={{ sourceId: `live:${state.id}`, kind: "live", a: state.a, b: state.b, mood: state.mood, messages: state.messages.map(({ sender, content }) => ({ sender, content })), game: state.game, scores: state.scores }} />
           <h2 className="text-2xl">Scoreboard</h2>
           <p className="flex justify-between gap-3">
             <span className="break-words">{state.a.name}</span>
