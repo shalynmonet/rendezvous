@@ -86,6 +86,7 @@ export type Database = {
           mood: string | null
           profile_a: Json
           profile_b: Json | null
+          ru_muted: boolean
           rue_error: string | null
           ruelette: Json
           scores: Json
@@ -105,6 +106,7 @@ export type Database = {
           mood?: string | null
           profile_a: Json
           profile_b?: Json | null
+          ru_muted?: boolean
           rue_error?: string | null
           ruelette?: Json
           scores?: Json
@@ -124,6 +126,7 @@ export type Database = {
           mood?: string | null
           profile_a?: Json
           profile_b?: Json | null
+          ru_muted?: boolean
           rue_error?: string | null
           ruelette?: Json
           scores?: Json
@@ -219,7 +222,29 @@ export type Database = {
         }
         Returns: Json
       }
+      guest_chat_access_base: {
+        Args: {
+          p_action: string
+          p_invite?: string
+          p_message_id?: string
+          p_mood?: string
+          p_profile?: Json
+          p_room?: string
+          p_text?: string
+          p_token?: string
+        }
+        Returns: Json
+      }
       guest_ruelette: {
+        Args: {
+          p_action: string
+          p_payload?: Json
+          p_room: string
+          p_token: string
+        }
+        Returns: Json
+      }
+      guest_ruelette_base: {
         Args: {
           p_action: string
           p_payload?: Json
