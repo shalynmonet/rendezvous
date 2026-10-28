@@ -109,14 +109,14 @@ export function LiveChat({ room }: { room: GuestRoom }) {
       });
       if (!response.ok) {
         const r = await response.json();
-        throw new Error(r.error || "Rue could not start.");
+        throw new Error(r.error || "Ru could not start.");
       }
       if (response.headers.get("content-type")?.includes("application/json")) {
         await refresh();
         return;
       }
       const reader = response.body?.getReader();
-      if (!reader) throw new Error("Rue’s connection was interrupted.");
+      if (!reader) throw new Error("Ru’s connection was interrupted.");
       let buffer = "";
       const decoder = new TextDecoder();
       while (true) {
@@ -157,7 +157,7 @@ export function LiveChat({ room }: { room: GuestRoom }) {
           {state.a.name} &amp; {state.b?.name ?? "your person"}
         </h1>
         <p className="mt-2 text-sm text-gold">
-          {state.b ? "Live conversation · Rue hosts, you both answer" : "Waiting for your person"}
+          {state.b ? "Live conversation · Ru hosts, you both answer" : "Waiting for your person"}
         </p>
       </header>
       <div className="grid min-w-0 gap-6 md:grid-cols-[minmax(0,1fr)_220px]">
@@ -177,7 +177,7 @@ export function LiveChat({ room }: { room: GuestRoom }) {
                       {m.sender === "rue" && <RueAvatar size={28} />}
                       <span>
                         {m.sender === "rue"
-                          ? "Rue"
+                          ? "Ru"
                           : m.sender === "a"
                             ? state.a.name
                             : state.b?.name}
@@ -211,7 +211,7 @@ export function LiveChat({ room }: { room: GuestRoom }) {
               {(hosting || state.busy) && (
                 <div className="flex items-center gap-2">
                   <RueAvatar size={28} />
-                  <Shimmer>Rue is finding your next game…</Shimmer>
+                  <Shimmer>Ru is finding your next game…</Shimmer>
                 </div>
               )}
               {!state.messages.length && (
@@ -295,7 +295,7 @@ export function LiveChat({ room }: { room: GuestRoom }) {
             disabled={!state.b || hosting || state.busy || !!state.error || (!both && !!state.game)}
             onClick={host}
           >
-            {state.game ? "Rue, next game" : "Start a game with Rue"}
+            {state.game ? "Ru, next game" : "Start a game with Ru"}
           </Button>
           {state.game && !both && (
             <p className="text-sm text-muted-foreground">Waiting for both answers.</p>

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/connections")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "Your People — Rendezvous" },
-      { name: "description", content: "Invite someone and let Rue compare your tastes." },
+      { name: "description", content: "Invite someone and let Ru compare your tastes." },
       { property: "og:title", content: "Your People — Rendezvous" },
       { property: "og:description", content: "Connections and invites." },
     ],
@@ -85,7 +85,7 @@ function Connections() {
       <PageTitle
         eyebrow="Your people"
         title="Connections"
-        sub="Rue only ever looks at the two people in a pairing — never anyone else."
+        sub="Ru only ever looks at the two people in a pairing — never anyone else."
       />
       <div className="grid gap-6 md:grid-cols-2">
         <div className="card-luxe space-y-4 p-6">

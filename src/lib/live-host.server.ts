@@ -34,7 +34,7 @@ export async function hostLiveChat(request: Request) {
   const c = Claim.parse(rpc.data);
   if (!c.claimed) return Response.json({ waiting: true });
   if (!c.claim || !c.a || !c.b || !c.scores || !c.messages)
-    return Response.json({ error: "Could not start Rue." }, { status: 500 });
+    return Response.json({ error: "Could not start Ru." }, { status: 500 });
   const claim = c.claim,
     a = c.a,
     b = c.b,
@@ -55,18 +55,18 @@ export async function hostLiveChat(request: Request) {
       const heartbeat = setInterval(() => emit({ status: "thinking" }), 1000);
       try {
         const { result, toolsUsed } = await runAgent({
-          system: `Host a live chat between two REAL participants, ${a.name} (A) and ${b.name} (B). Never impersonate either participant and never invent their answers. Return messages from Rue ONLY. Mood: ${c.mood}. Current scores A ${scores.a}, B ${scores.b}. Current game: ${JSON.stringify(c.game)}. If both people have answered, react to their actual answers and add 0-2 points each, with a short reason; otherwise do not change scores. Then start a new taste-grounded game: this_or_that, defend_your_pick, guess_my_answer, or deep_cuts. Call Qloo tools for evidence and mention specific favorite names in your reasons. One or two short Rue messages, each under 40 words. Game options must be grounded in the profiles.`,
+          system: `Host a live chat between two REAL participants, ${a.name} (A) and ${b.name} (B). Never impersonate either participant and never invent their answers. Return messages from Ru ONLY. Mood: ${c.mood}. Current scores A ${scores.a}, B ${scores.b}. Current game: ${JSON.stringify(c.game)}. If both people have answered, react to their actual answers and add 0-2 points each, with a short reason; otherwise do not change scores. Then start a new taste-grounded game: this_or_that, defend_your_pick, guess_my_answer, or deep_cuts. Call Qloo tools for evidence and mention specific favorite names in your reasons. One or two short Ru messages, each under 40 words. Game options must be grounded in the profiles.`,
           prompt: `${JSON.stringify({ a, b })}\nActual conversation:\n${
             messages
               .slice(-80)
               .map(
                 (m) =>
-                  `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Rue"}: ${m.content}`,
+                  `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Ru"}: ${m.content}`,
               )
               .join("\n") || "Greet both people and start the first game."
           }`,
           finishSchema: LiveTurnSchema,
-          finishDescription: "Submit Rue messages only, the next game and cumulative points.",
+          finishDescription: "Submit Ru messages only, the next game and cumulative points.",
         });
         const saved = await supabaseAdmin.rpc("finish_guest_chat", {
           p_room: room,
@@ -74,7 +74,7 @@ export async function hostLiveChat(request: Request) {
           p_turn: JSON.parse(JSON.stringify(result)),
           p_tools: toolsUsed,
         });
-        if (saved.error || !saved.data) throw new Error("Could not save Rue’s game.");
+        if (saved.error || !saved.data) throw new Error("Could not save Ru’s game.");
         emit({ done: true });
       } catch (e) {
         const error = (e as Error).message;

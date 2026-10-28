@@ -19,7 +19,7 @@ describe("Guest profile and real-person chat rules", () => {
   it("accepts a taste profile with no account or email", () => {
     expect(TasteProfileSchema.parse(profile).name).toBe("Judge");
   });
-  it("never accepts a simulated partner message in a live Rue turn", () => {
+  it("never accepts a simulated partner message in a live Ru turn", () => {
     expect(
       LiveTurnSchema.safeParse({
         messages: [{ sender: "b", content: "An invented answer" }],

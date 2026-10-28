@@ -18,7 +18,7 @@ export const Route = createFileRoute("/recap")({
       { title: "Recap — Rendezvous" },
       { name: "description", content: "A shareable summary of your Rendezvous." },
       { property: "og:title", content: "Our Rendezvous recap" },
-      { property: "og:description", content: "Rue knows." },
+      { property: "og:description", content: "Ru knows." },
     ],
   }),
   component: () => (
@@ -37,7 +37,7 @@ function RecapView({ me, active, s }: Ctx) {
     `Rendezvous: ${me.name} & ${active.profile.name}`,
     plan && `${plan.title}: ${plan.stops.map((x) => x.name).join(" → ")}`,
     chat && `Game score ${chat.scores.a}–${chat.scores.b}`,
-    "Rue knows.",
+    "Ru knows.",
   ]
     .filter(Boolean)
     .join("\n");
@@ -78,7 +78,7 @@ function RecapView({ me, active, s }: Ctx) {
                     Game night: <b>{chat.scores.a}</b> – <b>{chat.scores.b}</b>
                   </p>
                 )}
-                <p className="font-display text-lg italic text-gold">Rue knows.</p>
+                <p className="font-display text-lg italic text-gold">Ru knows.</p>
               </div>
             </div>
           </div>

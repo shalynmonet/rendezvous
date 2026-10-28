@@ -19,9 +19,9 @@ export const Route = createFileRoute("/profile")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "Your Taste Profile — Rendezvous" },
-      { name: "description", content: "Tell Rue what you love; Qloo maps it." },
+      { name: "description", content: "Tell Ru what you love; Qloo maps it." },
       { property: "og:title", content: "Your Taste Profile — Rendezvous" },
-      { property: "og:description", content: "Build the taste profile Rue uses everywhere." },
+      { property: "og:description", content: "Build the taste profile Ru uses everywhere." },
     ],
   }),
   component: ProfilePage,
@@ -55,7 +55,7 @@ function ProfilePage() {
       return;
     }
     update((st) => ({ ...st, me: { name: name.trim(), city: city.trim() || "Chicago", tastes } }));
-    toast.success("Saved. Rue knows.");
+    toast.success("Saved. Ru knows.");
     setSaved(true);
     if (user) {
       try {
@@ -82,7 +82,7 @@ function ProfilePage() {
       <PageTitle
         eyebrow="Step one"
         title="Your Taste Profile"
-        sub="Sixty seconds. Pick from Qloo's suggestions so Rue can read the taste graph precisely."
+        sub="Sixty seconds. Pick from Qloo's suggestions so Ru can read the taste graph precisely."
       />
       <div className="card-luxe space-y-6 p-6">
         <RueSays>Tell me three things you'd defend at a dinner party.</RueSays>

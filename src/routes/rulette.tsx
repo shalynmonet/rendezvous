@@ -13,20 +13,20 @@ import { rueView, spinRuelette, roomRuelette, roomSpin, roomUpload, roomDebrief,
 import type { GuestRoom } from "@/lib/chat-schemas";
 import { setState, type Profile, type Memory } from "@/lib/store";
 
-export const Route = createFileRoute("/ruelette")({
+export const Route = createFileRoute("/rulette")({
   head: () => ({
     meta: [
-      { title: "Rue-lette — spin for a date-night activity | Rendezvous" },
-      { name: "description", content: "Spin Rue's wheel for a taste-matched game, song, recipe, photo booth or portrait challenge for two." },
-      { property: "og:title", content: "Rue-lette — Rue spins your next date activity" },
-      { property: "og:description", content: "Six playful activity modes built from both your tastes, hosted by Rue the fox." },
+      { title: "Rulette — spin for a date-night activity | Rendezvous" },
+      { name: "description", content: "Spin Ru's wheel for a taste-matched game, song, recipe, photo booth or portrait challenge for two." },
+      { property: "og:title", content: "Rulette — Ru spins your next date activity" },
+      { property: "og:description", content: "Six playful activity modes built from both your tastes, hosted by Ru the fox." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: () => (
     <Page>
-      <PageTitle eyebrow="Rue-lette" title="Spin the wheel, darling" sub="Six ways to play tonight. Rue picks; your tastes decide the details." />
+      <PageTitle eyebrow="Rulette" title="Spin the wheel, darling" sub="Six ways to play tonight. Ru picks; your tastes decide the details." />
       <NeedPair>{(ctx) => <Ruelette me={ctx.me} partner={ctx.active.profile} connectionId={ctx.active.id} memories={ctx.s.memories ?? []} room={ctx.active.room} />}</NeedPair>
     </Page>
   ),
@@ -86,18 +86,18 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
     }
   }, [room, st]);
 
-  // Log a shared Rue-view into this browser's memory book.
+  // Log a shared Ru-view into this browser's memory book.
   useEffect(() => {
     if (!st?.debrief || !st.spin_id) return;
     const id = st.spin_id; const d = st.debrief;
     if (memories.some((m) => m.id === id)) return;
-    setState((s) => ({ ...s, memories: [{ id, connectionId, activity: st.activity?.title ?? SLICES.find((x) => x.mode === st.mode)?.label ?? "Rue-lette", milestone: d.milestone, rating: d.rating, notes: d.notes, commentary: d.commentary, at: d.at }, ...(s.memories ?? [])] }));
+    setState((s) => ({ ...s, memories: [{ id, connectionId, activity: st.activity?.title ?? SLICES.find((x) => x.mode === st.mode)?.label ?? "Rulette", milestone: d.milestone, rating: d.rating, notes: d.notes, commentary: d.commentary, at: d.at }, ...(s.memories ?? [])] }));
   }, [st, memories, connectionId]);
 
   const mode: Mode | null = room ? (spinning ? null : st?.mode ?? null) : localMode;
   const activity = room ? (spinning ? null : st?.activity ?? null) : localActivity;
   const busy = room ? st?.status === "generating" : localBusy;
-  const shownErr = room ? (st?.status === "error" ? st.error ?? "Rue fumbled the cards. Spin again." : shared.err || err) : err;
+  const shownErr = room ? (st?.status === "error" ? st.error ?? "Ru fumbled the cards. Spin again." : shared.err || err) : err;
   const waiting = !!room && st !== null && !st.joined;
 
   const loadLocal = async (m: Mode) => {
@@ -138,10 +138,10 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
       </p>
       <div className="grid items-center gap-8 md:grid-cols-[1fr_1.1fr]">
         <div className="relative overflow-hidden rounded-2xl border border-gold/35">
-          <img src={rueletta.url} alt="Rue the fox in heart sunglasses and a houndstooth scarf at a café table" className="aspect-[4/3] w-full object-cover object-[40%_30%]" />
+          <img src={rueletta.url} alt="Ru the fox in heart sunglasses and a houndstooth scarf at a café table" className="aspect-[4/3] w-full object-cover object-[40%_30%]" />
           <div className="hero-fade absolute inset-0" />
           <div className="absolute bottom-4 left-4 right-4">
-            <RueSays>{spinning ? "Round and round… faites vos jeux." : mode ? `${label}${spunBy ? ` (${spunBy} spun)` : ""}. Rue has spoken.` : `${me.name}, ${partner.name} — shall we play?`}</RueSays>
+            <RueSays>{spinning ? "Round and round… faites vos jeux." : mode ? `${label}${spunBy ? ` (${spunBy} spun)` : ""}. Ru has spoken.` : `${me.name}, ${partner.name} — shall we play?`}</RueSays>
           </div>
         </div>
         <div className="flex flex-col items-center gap-6">
@@ -163,7 +163,7 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
             </motion.div>
           </div>
           <Button size="lg" className="shadow-candle" onClick={doSpin} disabled={spinning || busy || waiting}>
-            {spinning ? "Spinning…" : mode ? "Spin again" : "Spin the Rue-lette"}
+            {spinning ? "Spinning…" : mode ? "Spin again" : "Spin the Rulette"}
           </Button>
           <div className="flex flex-wrap justify-center gap-2">
             {SLICES.map((s, i) => (
@@ -184,14 +184,14 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
             {activity && <ActivityCard a={activity} me={me} partner={partner} shared={sharedCtx} />}
             {st?.debrief && mode && (
               <div className="card-luxe space-y-2 p-5">
-                <p className="text-xs uppercase tracking-widest text-gold">Rue-view · {st.debrief.by === st.side ? "you" : partner.name} reported {"♥".repeat(st.debrief.rating)}</p>
+                <p className="text-xs uppercase tracking-widest text-gold">Ru-view · {st.debrief.by === st.side ? "you" : partner.name} reported {"♥".repeat(st.debrief.rating)}</p>
                 {st.debrief.notes && <p className="text-sm text-muted-foreground">“{st.debrief.notes}”</p>}
                 <RueSays>{st.debrief.commentary}</RueSays>
                 <p className="text-sm text-gold">Saved to your memory book: <strong>{st.debrief.milestone}</strong></p>
               </div>
             )}
             {(mode === "game" || activity) && !st?.debrief && (
-              <div className="flex justify-end"><Button onClick={() => setDebrief(true)}><Check className="mr-2 h-4 w-4" />We finished — Rue-view</Button></div>
+              <div className="flex justify-end"><Button onClick={() => setDebrief(true)}><Check className="mr-2 h-4 w-4" />We finished — Ru-view</Button></div>
             )}
           </motion.section>
         )}
@@ -207,7 +207,7 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
                 <h3 className="mt-1 text-2xl font-semibold">{m.milestone}</h3>
                 <p className="mt-1 text-gold">{"♥".repeat(m.rating)}<span className="text-muted-foreground">{"♥".repeat(5 - m.rating)}</span></p>
                 {m.notes && <p className="mt-2 text-sm text-muted-foreground">“{m.notes}”</p>}
-                <p className="mt-2 font-display text-lg italic">Rue: {m.commentary}</p>
+                <p className="mt-2 font-display text-lg italic">Ru: {m.commentary}</p>
               </div>
             ))}
           </div>
@@ -389,14 +389,14 @@ function Debrief({ open, onOpenChange, a, b, activity, connectionId, shared }: {
     <Dialog open={open} onOpenChange={close}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="font-display text-3xl italic">The Rue-view</DialogTitle>
+          <DialogTitle className="font-display text-3xl italic">The Ru-view</DialogTitle>
           <DialogDescription>So, {a} and {b}… how was “{activity}”? Spare no detail.</DialogDescription>
         </DialogHeader>
         {res ? (
           <div className="space-y-3">
             <RueSays>{res.commentary}</RueSays>
             <p className="text-center text-sm text-gold">Saved to your memory book: <strong>{res.milestone}</strong></p>
-            <Button className="w-full" onClick={() => close(false)}>Merci, Rue</Button>
+            <Button className="w-full" onClick={() => close(false)}>Merci, Ru</Button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -407,7 +407,7 @@ function Debrief({ open, onOpenChange, a, b, activity, connectionId, shared }: {
             </div>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Best moment, worst moment, who won…" maxLength={1000} />
             {err && <ErrorNote msg={err} />}
-            <Button className="w-full" onClick={submit} disabled={busy}>{busy ? "Rue is composing her verdict…" : "Tell Rue"}</Button>
+            <Button className="w-full" onClick={submit} disabled={busy}>{busy ? "Ru is composing her verdict…" : "Tell Ru"}</Button>
           </div>
         )}
       </DialogContent>

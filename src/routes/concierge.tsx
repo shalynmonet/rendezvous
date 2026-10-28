@@ -24,10 +24,10 @@ export const Route = createFileRoute("/concierge")({
       {
         name: "description",
         content:
-          "Premium: Rue builds a Taste Portrait of your loved one; Shalyn reviews and books.",
+          "Premium: Ru builds a Taste Portrait of your loved one; Shalyn reviews and books.",
       },
       { property: "og:title", content: "Rendezvous Concierge" },
-      { property: "og:description", content: "Leave the details to Rue — and Shalyn." },
+      { property: "og:description", content: "Leave the details to Ru — and Shalyn." },
     ],
   }),
   component: Concierge,
@@ -125,10 +125,10 @@ function Concierge() {
       <PageTitle
         eyebrow="Premium · Concierge"
         title="Plan for someone you love"
-        sub="Rue builds a Taste Portrait and a draft plan. Shalyn, our human concierge, perfects it and books."
+        sub="Ru builds a Taste Portrait and a draft plan. Shalyn, our human concierge, perfects it and books."
       />
       {busy ? (
-        <RueThinking label="Rue is painting their Taste Portrait…" />
+        <RueThinking label="Ru is painting their Taste Portrait…" />
       ) : (
         <div className="card-luxe space-y-4 p-6">
           <div className="grid gap-3 md:grid-cols-2">
@@ -175,13 +175,13 @@ function Concierge() {
           <p className="pt-2 font-display text-xl">What do they love?</p>
           <TasteEditor value={tastes} onChange={setTastes} />
           <Textarea
-            placeholder="Anything else Rue should know?"
+            placeholder="Anything else Ru should know?"
             value={f.notes}
             onChange={set("notes")}
           />
           {err && <ErrorNote msg={err} />}
           <Button size="lg" onClick={go}>
-            Send to Rue
+            Send to Ru
           </Button>
         </div>
       )}
