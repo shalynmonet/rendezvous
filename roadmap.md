@@ -1,4 +1,5 @@
 # Rendezvous roadmap
+- [ ] Verify saved thread completeness and scores, prevent stale account history, and show save timestamps
 - [x] Account-save demo and live chat snapshots with private saved-chat history
 - [x] Show guests “Create an account to save” and verify save/read across browsers
 - [x] Make Ru-lette's demo entry consistent without requiring a real invitation
