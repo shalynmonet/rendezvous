@@ -237,7 +237,7 @@ export function LiveChat({ room }: { room: GuestRoom }) {
               {!state.muted && (hosting || state.busy) && (
                 <div className="flex items-center gap-2">
                   <RueAvatar size={28} />
-                  <Shimmer>Ru is finding your next game…</Shimmer>
+                  <Shimmer>Ru is thinking…</Shimmer>
                 </div>
               )}
               {!state.messages.length && (
@@ -322,7 +322,7 @@ export function LiveChat({ room }: { room: GuestRoom }) {
             disabled={state.muted || !state.b || hosting || state.busy || (!both && !!state.game && !state.error)}
             onClick={host}
           >
-            {state.error || error ? "Retry Ru" : state.game ? "Ru, next game" : "Start a game with Ru"}
+            {state.error || error ? "Retry Ru" : state.game ? "Ru, continue" : "Start chatting with Ru"}
           </Button>
           {state.game && !both && (
             <p className="text-sm text-muted-foreground">Waiting for both answers.</p>

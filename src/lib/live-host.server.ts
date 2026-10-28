@@ -2,6 +2,7 @@ import { z } from "zod";
 import { GuestKeySchema, LiveTurnSchema, TasteProfileSchema } from "./chat-schemas";
 import { guestClient } from "./guest-chat.server";
 import { runAgent } from "./agent.server";
+import { conversationDirection, preserveConversationScores } from "./conversation-style";
 
 const Input = z.object({
   room: z.string().uuid(),
@@ -55,19 +56,19 @@ export async function hostLiveChat(request: Request) {
       const heartbeat = setInterval(() => emit({ status: "thinking" }), 1000);
       try {
         const { result, toolsUsed } = await runAgent({
-          system: `Host a live chat between two REAL participants, ${a.name} (A) and ${b.name} (B). Never impersonate either participant and never invent their answers. Return messages from Ru ONLY. Mood: ${c.mood}. Current scores A ${scores.a}, B ${scores.b}. Current game: ${JSON.stringify(c.game)}. If both people have answered, react to their actual answers and add 0-2 points each, with a short reason; otherwise do not change scores. Then start a new taste-grounded game: this_or_that, defend_your_pick, guess_my_answer, or deep_cuts. Call Qloo tools for evidence and mention specific favorite names in your reasons. One or two short Ru messages, each under 40 words. Game options must be grounded in the profiles.`,
+          system: `Host a live conversation between two REAL participants, ${a.name} (A) and ${b.name} (B). Never impersonate either participant or invent their answers. Return messages from Ru ONLY. Mood: ${c.mood}. Current scores A ${scores.a}, B ${scores.b}. Current conversation card: ${JSON.stringify(c.game)}. React warmly and specifically to their actual answers. Only award 0-2 points each when they answered a scored game, never for personal stories or ordinary conversation. ${conversationDirection(c.game)} Use the taste profiles for personal grounding; call Qloo for discovery recommendations or game evidence, not unnecessarily on ordinary follow-ups. One or two short Ru messages, each under 40 words.`,
           prompt: `${JSON.stringify({ a, b })}\nActual conversation:\n${
             messages
-              .slice(-80)
               .map(
                 (m) =>
                   `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Ru"}: ${m.content}`,
               )
-              .join("\n") || "Greet both people and start the first game."
+              .join("\n") || "Greet both people and open with a warm question."
           }`,
           finishSchema: LiveTurnSchema,
-          finishDescription: "Submit Ru messages only, the next game and cumulative points.",
+          finishDescription: "Submit Ru messages only, the next conversation card and cumulative points.",
         });
+        result.points = preserveConversationScores(c.game, scores, result.points);
         const saved = await supabaseAdmin.rpc("finish_guest_chat", {
           p_room: room,
           p_claim: claim,

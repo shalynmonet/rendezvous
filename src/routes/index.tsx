@@ -1,16 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { MessageCircleHeart, MapPinned, Crown, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { RUE_IMG } from "@/components/rue";
+import homeArtwork from "@/assets/rendezvous-main.jpg.asset.json";
 import { startDemo } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      ...(RUE_IMG.startsWith("https://")
+      ...(homeArtwork.url.startsWith("https://")
         ? [
-            { property: "og:image", content: RUE_IMG },
-            { name: "twitter:image", content: RUE_IMG },
+            { property: "og:image", content: homeArtwork.url },
+            { name: "twitter:image", content: homeArtwork.url },
           ]
         : []),
       { property: "og:type", content: "website" },
@@ -61,7 +61,7 @@ function Home() {
     <>
       <section className="relative min-h-[78vh] overflow-hidden">
         <img
-          src={RUE_IMG}
+          src={homeArtwork.url}
           alt="Ru the fox in a houndstooth scarf at a candlelit table"
           className="absolute inset-0 h-full w-full object-cover object-[50%_30%]"
         />

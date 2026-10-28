@@ -91,12 +91,12 @@ function ChatView({ me, active, s }: Ctx) {
       ))}
     </section>
   );
-  const turn = async (history: Msg[], m = mood, id = chatId, points = scores) => {
+  const turn = async (history: Msg[], m = mood, id = chatId, points = scores, currentGame = game) => {
     if (!m || !id) return;
     setBusy(true);
     setErr("");
     try {
-      const r = await run({ data: { a: me, b: active.profile, mood: m, history, scores: points } });
+      const r = await run({ data: { a: me, b: active.profile, mood: m, history, scores: points, game: currentGame } });
       if (mutedRef.current) return;
       const next = [...history, ...r.turn.messages];
       setMsgs(next);
@@ -147,7 +147,7 @@ function ChatView({ me, active, s }: Ctx) {
                 const id = crypto.randomUUID();
                 setChatId(id);
                 persist(id, m.id, [], null, { a: 0, b: 0 });
-                void turn([], m.id, id, { a: 0, b: 0 });
+                void turn([], m.id, id, { a: 0, b: 0 }, null);
               }}
               className="h-auto justify-start p-6 text-left font-display text-2xl"
             >
