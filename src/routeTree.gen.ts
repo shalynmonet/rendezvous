@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ConciergeRouteImport } from './routes/concierge'
+import { Route as ConnectionsRouteImport } from './routes/connections'
+import { Route as InviteRouteImport } from './routes/invite'
+import { Route as PlanRouteImport } from './routes/plan'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RecapRouteImport } from './routes/recap'
+import { Route as RevealRouteImport } from './routes/reveal'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConciergeRoute = ConciergeRouteImport.update({
+  id: '/concierge',
+  path: '/concierge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectionsRoute = ConnectionsRouteImport.update({
+  id: '/connections',
+  path: '/connections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteRoute = InviteRouteImport.update({
+  id: '/invite',
+  path: '/invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanRoute = PlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecapRoute = RecapRouteImport.update({
+  id: '/recap',
+  path: '/recap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevealRoute = RevealRouteImport.update({
+  id: '/reveal',
+  path: '/reveal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/chat': typeof ChatRoute
+  '/concierge': typeof ConciergeRoute
+  '/connections': typeof ConnectionsRoute
+  '/invite': typeof InviteRoute
+  '/plan': typeof PlanRoute
+  '/profile': typeof ProfileRoute
+  '/recap': typeof RecapRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/chat': typeof ChatRoute
+  '/concierge': typeof ConciergeRoute
+  '/connections': typeof ConnectionsRoute
+  '/invite': typeof InviteRoute
+  '/plan': typeof PlanRoute
+  '/profile': typeof ProfileRoute
+  '/recap': typeof RecapRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/chat': typeof ChatRoute
+  '/concierge': typeof ConciergeRoute
+  '/connections': typeof ConnectionsRoute
+  '/invite': typeof InviteRoute
+  '/plan': typeof PlanRoute
+  '/profile': typeof ProfileRoute
+  '/recap': typeof RecapRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/chat'
+    | '/concierge'
+    | '/connections'
+    | '/invite'
+    | '/plan'
+    | '/profile'
+    | '/recap'
+    | '/reveal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/chat'
+    | '/concierge'
+    | '/connections'
+    | '/invite'
+    | '/plan'
+    | '/profile'
+    | '/recap'
+    | '/reveal'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/chat'
+    | '/concierge'
+    | '/connections'
+    | '/invite'
+    | '/plan'
+    | '/profile'
+    | '/recap'
+    | '/reveal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  ChatRoute: typeof ChatRoute
+  ConciergeRoute: typeof ConciergeRoute
+  ConnectionsRoute: typeof ConnectionsRoute
+  InviteRoute: typeof InviteRoute
+  PlanRoute: typeof PlanRoute
+  ProfileRoute: typeof ProfileRoute
+  RecapRoute: typeof RecapRoute
+  RevealRoute: typeof RevealRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/concierge': {
+      id: '/concierge'
+      path: '/concierge'
+      fullPath: '/concierge'
+      preLoaderRoute: typeof ConciergeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connections': {
+      id: '/connections'
+      path: '/connections'
+      fullPath: '/connections'
+      preLoaderRoute: typeof ConnectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite': {
+      id: '/invite'
+      path: '/invite'
+      fullPath: '/invite'
+      preLoaderRoute: typeof InviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan': {
+      id: '/plan'
+      path: '/plan'
+      fullPath: '/plan'
+      preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recap': {
+      id: '/recap'
+      path: '/recap'
+      fullPath: '/recap'
+      preLoaderRoute: typeof RecapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reveal': {
+      id: '/reveal'
+      path: '/reveal'
+      fullPath: '/reveal'
+      preLoaderRoute: typeof RevealRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  ChatRoute: ChatRoute,
+  ConciergeRoute: ConciergeRoute,
+  ConnectionsRoute: ConnectionsRoute,
+  InviteRoute: InviteRoute,
+  PlanRoute: PlanRoute,
+  ProfileRoute: ProfileRoute,
+  RecapRoute: RecapRoute,
+  RevealRoute: RevealRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
