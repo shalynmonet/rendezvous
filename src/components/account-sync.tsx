@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { readAccountWorkspace, saveAccountWorkspace } from "@/lib/account-workspace.functions";
 import { storeSnapshot, subscribeStore, switchAccountStore, type State } from "@/lib/store";
+import { mergeWorkspace } from "@/lib/merge-workspace";
 
 export function AccountSync({ children }: { children: ReactNode }) {
   const { user, ready } = useAccount();
@@ -14,6 +15,7 @@ export function AccountSync({ children }: { children: ReactNode }) {
   const query = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
   const [choice, setChoice] = useState<{ local: State; saved: State; revision: number } | null>(null);
   const revision = useRef(0);
   const owner = useRef<string | null>(null);
@@ -65,12 +67,12 @@ export function AccountSync({ children }: { children: ReactNode }) {
           setChoice({ local, saved: savedState, revision: saved.revision }); setLoading(false);
           flush.current = () => { start(storeSnapshot(), revision.current); dirty = true; void persist(); };
         } else start(savedState, saved.revision);
-      } catch (e) { if (!stopped) { setError((e as Error).message); setLoading(true); } }
+      } catch (e) { if (!stopped) { setError((e as Error).message); setLoading(true); flush.current = () => setRetry((n) => n + 1); } }
     })();
     const onHidden = () => { if (document.hidden && dirty) void persist(); };
     document.addEventListener("visibilitychange", onHidden);
     return () => { stopped = true; clearTimeout(timer); unsubscribe?.(); flush.current = null; document.removeEventListener("visibilitychange", onHidden); };
-  }, [user?.id, ready, read, save, query]);
+  }, [user?.id, ready, read, save, query, retry]);
   const choose = (state: State) => {
     if (!choice || !user) return;
     revision.current = choice.revision;
@@ -82,7 +84,7 @@ export function AccountSync({ children }: { children: ReactNode }) {
     {loading ? <p role="status" className="p-8 text-center">Restoring your account…</p> : choice ? null : children}
     <Dialog open={!!choice}><DialogContent><DialogHeader><DialogTitle>Keep your account data</DialogTitle><DialogDescription>This browser has a separate guest profile or activity. Choose what to keep in your account.</DialogDescription></DialogHeader>
       <Button onClick={() => choice && choose(choice.saved)}>Use account data</Button>
-      <Button variant="outline" onClick={() => choice && choose({ ...choice.saved, ...choice.local, connections: [...choice.local.connections, ...choice.saved.connections.filter((c) => !choice.local.connections.some((l) => l.id === c.id))], chats: { ...choice.saved.chats, ...choice.local.chats }, memories: [...choice.local.memories ?? [], ...(choice.saved.memories ?? []).filter((m) => !(choice.local.memories ?? []).some((l) => l.id === m.id))] })}>Import browser data into account</Button>
+      <Button variant="outline" onClick={() => choice && choose(mergeWorkspace(choice.saved, choice.local))}>Import browser data into account</Button>
     </DialogContent></Dialog>
   </>;
 }
