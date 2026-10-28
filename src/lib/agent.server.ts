@@ -148,7 +148,7 @@ export async function runAgent<T>(opts: {
   const tools: ToolSet = {
     ...qlooTools(),
     ...(opts.extraTools ?? {}),
-    finish: tool({ description: opts.finishDescription, inputSchema: opts.finishSchema as any }),
+    finish: tool({ description: opts.finishDescription, inputSchema: opts.finishSchema }),
   };
   const res = streamText({
     model: provider.responses(MODEL),
