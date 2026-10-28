@@ -16,6 +16,7 @@
 - Guest chat access goes through capability-checking database RPCs; hashed invitation and participant keys are distinct, direct anonymous table access is forbidden, and server completions require a database-issued claim to avoid duplicate Ru turns.
 - Live chat is a shared multi-human game, not a standard single-user AI transcript: human messages sync via authorized polling, and the hosted structured finish turn uses an NDJSON heartbeat stream so both humans can keep chatting independently of Ru.
 - Live host scheduling follows a client-safe eligibility policy and database claims; shared room mute invalidates in-flight completions so paused hosting cannot publish late turns.
+- Chat uses shared conversation-style rules for open questions, stories, follow-ups and occasional games; every turn retains a non-null conversation card for answer gating, and only scored-game answers can change scores.
 - Account state has one root provider; saving/restoring guest tastes requires confirmed authentication and explicit conflict resolution, and QR images are generated locally from the sharing link.
 - Shared Ru-lette state lives on the private guest room and goes only through the capability-checked guest_ruelette RPC; photos sit in a private bucket served by short-lived signed URLs after that check, so only the two participants can see them.
 - Subsequent shared spins use a room-locked proposal approved by the other participant and an expected spin ID; this preserves current activity state and rejects stale or duplicate replacements.

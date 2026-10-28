@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { conversationDirection, preserveConversationScores } from "./conversation-style";
 
 const Category = z.enum(["artist", "film", "tv", "restaurant", "cuisine", "place", "book", "brand"]);
 const Taste = z.object({ category: Category, label: z.string().min(1).max(120), entity_id: z.string().optional(), name: z.string().optional() });
@@ -83,7 +84,7 @@ export type ChatTurn = z.infer<typeof GameSchema>;
 
 export const chatTurn = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) =>
-    z.object({ a: Person, b: Person, mood: z.string().max(40), history: z.array(Msg).max(80), scores: z.object({ a: z.number(), b: z.number() }) }).parse(d),
+    z.object({ a: Person, b: Person, mood: z.string().max(40), history: z.array(Msg).max(300), scores: z.object({ a: z.number(), b: z.number() }), game: GameSchema.shape.game.optional() }).parse(d),
   )
   .handler(async ({ data }) => {
     const { runAgent } = await import("./agent.server");
@@ -91,10 +92,10 @@ export const chatTurn = createServerFn({ method: "POST" })
     const [a, b] = await resolvePeople(data.a, data.b);
     const { result, toolsUsed } = await runAgent({
       system: `You host a playful chat between ${a.name} (person A, the live user) and ${b.name} (person B, whom you SIMULATE faithfully from their tastes — natural, short, human replies).
-Mood: ${data.mood}. Games: this_or_that (two options drawn from both people's tastes or Qloo picks), defend_your_pick, guess_my_answer, deep_cuts.
-Each turn: react to A's last message in one witty line; if a game is running, have B answer too, then award points (0-2 each, added to current scores) with a light reason; then start the next game with start_game. Use Qloo tools to build options grounded in their tastes.
+Mood: ${data.mood}. Current conversation card: ${JSON.stringify(data.game)}.
+Each turn: react specifically to A's answer, let simulated B answer naturally, then lead with the next question. Only award 0-2 points each for answers to a scored game, never for stories or ordinary conversation. ${conversationDirection(data.game)} Use start_game only when the next style is game. Use tastes for grounding; call Qloo for discoveries and game evidence, not unnecessarily for ordinary follow-ups.
 Messages: 1-3 total, sender "rue" or "b". Keep each under 40 words. Current scores: A ${data.scores.a}, B ${data.scores.b}. Return updated cumulative points.`,
-      prompt: `${describe(a)}\n${describe(b)}\n\nChat so far:\n${data.history.map((m) => `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Ru"}: ${m.content}`).join("\n") || "(just started — greet them and launch the first game)"}`,
+      prompt: `${describe(a)}\n${describe(b)}\n\nChat so far:\n${data.history.map((m) => `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Ru"}: ${m.content}`).join("\n") || "(just started — greet them and ask a warm question)"}`,
       finishSchema: GameSchema,
       finishDescription: "Submit Ru's (and simulated B's) messages, the next game card, and cumulative points.",
       extraTools: {
@@ -105,6 +106,7 @@ Messages: 1-3 total, sender "rue" or "b". Keep each under 40 words. Current scor
         }),
       },
     });
+    result.points = preserveConversationScores(data.game, data.scores, result.points);
     return { turn: result, toolsUsed };
   });
 
