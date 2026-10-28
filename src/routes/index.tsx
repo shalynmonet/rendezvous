@@ -93,13 +93,13 @@ function Home() {
         </div>
       </section>
       <section className="mx-auto max-w-6xl px-5 pt-14">
-        <Link to="/rulette" className="card-luxe group flex items-center gap-6 p-6 transition hover:-translate-y-1 hover:shadow-candle">
+        <Link to="/ru-lette" className="card-luxe group flex items-center gap-6 p-6 transition hover:-translate-y-1 hover:shadow-candle">
           <div className="ruelette-wheel flex h-20 w-20 shrink-0 animate-[spin_8s_linear_infinite] items-center justify-center rounded-full border-2 border-gold group-hover:animate-[spin_1.5s_linear_infinite]">
             <Heart className="h-7 w-7 fill-primary text-gold" />
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-gold">New · Play tonight</p>
-            <h2 className="mt-1 text-3xl font-semibold">Rulette</h2>
+            <h2 className="mt-1 text-3xl font-semibold">Ru-lette</h2>
             <p className="mt-1 text-muted-foreground">Spin Ru's wheel for a game, song, date menu, photo booth or portrait challenge.</p>
           </div>
         </Link>
