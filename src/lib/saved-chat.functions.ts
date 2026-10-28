@@ -15,7 +15,7 @@ export const saveAccountChat = createServerFn({ method: "POST" })
     if ("room" in data) {
       const { data: result, error } = await context.supabase.rpc("guest_chat_access", { p_action: "read", p_room: data.room, p_token: data.token });
       if (error) throw new Error("Could not open this private chat.");
-      const live = LiveStateSchema.parse((result as { state?: unknown })?.state);
+      const live = LiveStateSchema.parse(result);
       snapshot = AccountChatSchema.parse({ sourceId: `live:${live.id}`, kind: "live", a: live.a, b: live.b, mood: live.mood, messages: live.messages.map(({ sender, content }) => ({ sender, content })), game: live.game, scores: live.scores });
     } else snapshot = data.snapshot;
     const { error } = await context.supabase.from("saved_chats").upsert({ user_id: context.userId, source_id: snapshot.sourceId, snapshot, updated_at: new Date().toISOString() }, { onConflict: "user_id,source_id" });
