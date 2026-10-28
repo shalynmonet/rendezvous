@@ -23,6 +23,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RevealRouteImport } from './routes/reveal'
 import { Route as RuLetteRouteImport } from './routes/ru-lette'
 import { Route as RuletteRouteImport } from './routes/rulette'
+import { Route as SavedChatsRouteImport } from './routes/saved-chats'
 import { Route as ApiPublicLiveHostRouteImport } from './routes/api/public/live-host'
 
 const IndexRoute = IndexRouteImport.update({
@@ -95,6 +96,11 @@ const RuletteRoute = RuletteRouteImport.update({
   path: '/rulette',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SavedChatsRoute = SavedChatsRouteImport.update({
+  id: '/saved-chats',
+  path: '/saved-chats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicLiveHostRoute = ApiPublicLiveHostRouteImport.update({
   id: '/api/public/live-host',
   path: '/api/public/live-host',
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/reveal': typeof RevealRoute
   '/ru-lette': typeof RuLetteRoute
   '/rulette': typeof RuletteRoute
+  '/saved-chats': typeof SavedChatsRoute
   '/api/public/live-host': typeof ApiPublicLiveHostRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/reveal': typeof RevealRoute
   '/ru-lette': typeof RuLetteRoute
   '/rulette': typeof RuletteRoute
+  '/saved-chats': typeof SavedChatsRoute
   '/api/public/live-host': typeof ApiPublicLiveHostRoute
 }
 export interface FileRoutesById {
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/reveal': typeof RevealRoute
   '/ru-lette': typeof RuLetteRoute
   '/rulette': typeof RuletteRoute
+  '/saved-chats': typeof SavedChatsRoute
   '/api/public/live-host': typeof ApiPublicLiveHostRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/reveal'
     | '/ru-lette'
     | '/rulette'
+    | '/saved-chats'
     | '/api/public/live-host'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/reveal'
     | '/ru-lette'
     | '/rulette'
+    | '/saved-chats'
     | '/api/public/live-host'
   id:
     | '__root__'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/reveal'
     | '/ru-lette'
     | '/rulette'
+    | '/saved-chats'
     | '/api/public/live-host'
   fileRoutesById: FileRoutesById
 }
@@ -222,6 +234,7 @@ export interface RootRouteChildren {
   RevealRoute: typeof RevealRoute
   RuLetteRoute: typeof RuLetteRoute
   RuletteRoute: typeof RuletteRoute
+  SavedChatsRoute: typeof SavedChatsRoute
   ApiPublicLiveHostRoute: typeof ApiPublicLiveHostRoute
 }
 
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RuletteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/saved-chats': {
+      id: '/saved-chats'
+      path: '/saved-chats'
+      fullPath: '/saved-chats'
+      preLoaderRoute: typeof SavedChatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/live-host': {
       id: '/api/public/live-host'
       path: '/api/public/live-host'
@@ -350,6 +370,7 @@ const rootRouteChildren: RootRouteChildren = {
   RevealRoute: RevealRoute,
   RuLetteRoute: RuLetteRoute,
   RuletteRoute: RuletteRoute,
+  SavedChatsRoute: SavedChatsRoute,
   ApiPublicLiveHostRoute: ApiPublicLiveHostRoute,
 }
 export const routeTree = rootRouteImport
