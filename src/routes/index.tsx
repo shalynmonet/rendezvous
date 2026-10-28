@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { MessageCircleHeart, MapPinned, Crown, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import homeArtwork from "@/assets/rendezvous-main.jpg.asset.json";
+import homeArtwork from "@/assets/rendezvous-main-2.jpg.asset.json";
 import { startDemo } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
@@ -62,8 +62,8 @@ function Home() {
       <section className="relative min-h-[78vh] overflow-hidden">
         <img
           src={homeArtwork.url}
-          alt="Ru the fox in a houndstooth scarf at a candlelit table"
-          className="absolute inset-0 h-full w-full object-cover object-[50%_30%]"
+          alt="Ru the fox at a candlelit jazz lounge table, heart glasses and houndstooth scarf, with a band on stage and a moonlit Paris window"
+          className="absolute inset-0 h-full w-full object-cover object-[78%_55%]"
         />
         <div className="hero-fade absolute inset-0" />
         <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-5 py-16">
