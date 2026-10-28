@@ -9,16 +9,16 @@ describe("People from account-saved chats", () => {
   it("returns the real partner in a fresh browser without room credentials", () => {
     const people = savedPeople([chat], DEMO_A, []);
     expect(people).toHaveLength(1);
-    expect(people[0].profile.name).toBe("Partner");
-    expect(people[0].chatId).toBe("saved-1");
+    expect(people[0]?.profile.name).toBe("Partner");
+    expect(people[0]?.chatId).toBe("saved-1");
     expect(people[0]).not.toHaveProperty("room");
   });
   it("uses the saving participant's side even when both names match", () => {
     const people = savedPeople([{ ...chat, snapshot: { ...snapshot, ownerSide: "b", b: { ...DEMO_B, name: DEMO_A.name } } }], null, []);
-    expect(people[0].profile.tastes).toEqual(DEMO_A.tastes);
+    expect(people[0]?.profile.tastes).toEqual(DEMO_A.tastes);
   });
   it("recognizes the second participant in older saved chats using their saved profile", () => {
-    expect(savedPeople([chat], snapshot.b, [])[0].profile.name).toBe("Noor");
+    expect(savedPeople([chat], snapshot.b, [])[0]?.profile.name).toBe("Noor");
   });
   it("excludes demo partners from saved real people", () => {
     expect(savedPeople([{ ...chat, snapshot: { ...snapshot, kind: "demo" } }], DEMO_A, [])).toEqual([]);
@@ -29,6 +29,6 @@ describe("People from account-saved chats", () => {
   it("uses the latest saved thread for the same room", () => {
     const people = savedPeople([chat, { ...chat, id: "saved-2", updatedAt: "2026-10-28T22:00:00Z" }], DEMO_A, []);
     expect(people).toHaveLength(1);
-    expect(people[0].chatId).toBe("saved-2");
+    expect(people[0]?.chatId).toBe("saved-2");
   });
 });

@@ -8,7 +8,7 @@ import { Page, PageTitle, ErrorNote, RueAvatar } from "@/components/rue";
 import { listAccountChats } from "@/lib/saved-chat.functions";
 
 export const Route = createFileRoute("/saved-chats")({
-  validateSearch: (search: Record<string, unknown>): { chat?: string } => ({ chat: typeof search.chat === "string" ? search.chat : undefined }),
+  validateSearch: (search: Record<string, unknown>): { chat?: string } => typeof search["chat"] === "string" ? { chat: search["chat"] } : {},
   head: () => ({ meta: [
     { title: "Saved chats — Rendezvous" }, { name: "description", content: "Your private saved conversations with Ru and your people." },
     { property: "og:title", content: "Saved chats — Rendezvous" }, { property: "og:description", content: "Revisit your saved Rendezvous conversations." },
