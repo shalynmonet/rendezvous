@@ -32,7 +32,7 @@ export function qlooTools(): ToolSet {
       description: "Taste-matched venues in a city. place_kind: dinner | activity | nightcap | museum | bar | cocktail_bar.",
       inputSchema: z.object({ entity_ids: z.array(z.string()), city: z.string(), place_kind: z.string() }),
       execute: async ({ entity_ids, city, place_kind }) =>
-        (await insights({ type: "urn:entity:place", entityIds: entity_ids, location: city, tag: PLACE_KIND_TAG[place_kind] ?? PLACE_KIND_TAG.dinner, take: 8 })).map((e) => ({
+        (await insights({ type: "urn:entity:place", entityIds: entity_ids, location: city, tag: PLACE_KIND_TAG[place_kind] ?? PLACE_KIND_TAG["dinner"], take: 8 })).map((e) => ({
           id: e.id, name: e.name, address: e.address, affinity: e.affinity, tags: e.tags,
         })),
     }),

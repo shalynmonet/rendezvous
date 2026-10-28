@@ -21,7 +21,7 @@ function ProfilePage() {
   useEffect(() => { if (ready && s.me) { setName(s.me.name); setCity(s.me.city); setTastes(s.me.tastes); } }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const save = () => {
-    if (!name.trim() || tastes.length < 3) return toast.error("A name and at least three favorites, s'il vous plaît.");
+    if (!name.trim() || tastes.length < 3) { toast.error("A name and at least three favorites, s'il vous plaît."); return; }
     update((st) => ({ ...st, me: { name: name.trim(), city: city.trim() || "Chicago", tastes } }));
     toast.success("Saved. Rue knows.");
     nav({ to: "/connections" });

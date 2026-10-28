@@ -10,10 +10,11 @@ export type PersonT = z.infer<typeof Person>;
 const describe = (p: PersonT) =>
   `${p.name}: ${p.tastes.map((t) => `${t.label} (${t.category}${t.entity_id ? `, qloo:${t.entity_id}` : ""})`).join("; ")}`;
 
-async function resolvePeople(...people: PersonT[]) {
+async function resolveOne(p: PersonT): Promise<PersonT> {
   const { resolveItems } = await import("./qloo.server");
-  return Promise.all(people.map(async (p) => ({ ...p, tastes: await resolveItems(p.tastes) })));
+  return { ...p, tastes: (await resolveItems(p.tastes)) as PersonT["tastes"] };
 }
+const resolvePeople = (a: PersonT, b: PersonT) => Promise.all([resolveOne(a), resolveOne(b)]);
 
 export const resolveTaste = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ label: z.string().min(1).max(120), category: Category }).parse(d))
@@ -49,7 +50,7 @@ export const tasteReveal = createServerFn({ method: "POST" })
 const Stop = z.object({ type: z.string(), name: z.string(), address: z.string(), qloo_entity_id: z.string(), reason: z.string() });
 const Song = z.object({ song: z.string(), artist: z.string(), reason: z.string() });
 const PlanSchema = z.object({ title: z.string(), rue_line: z.string(), stops: z.array(Stop), soundtrack: z.array(Song) });
-export type Plan = z.infer<typeof PlanSchema> & { soundtrack: (z.infer<typeof Song> & { spotify_url: string })[] };
+export type Plan = Omit<z.infer<typeof PlanSchema>, "soundtrack"> & { soundtrack: (z.infer<typeof Song> & { spotify_url: string })[] };
 
 const spotify = (s: { song: string; artist: string }) => `https://open.spotify.com/search/${encodeURIComponent(`${s.song} ${s.artist}`)}`;
 
@@ -129,7 +130,7 @@ export const submitConcierge = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { runAgent } = await import("./agent.server");
-    const [lo] = await resolvePeople({ name: data.loved_one_name, tastes: data.loved_one_tastes });
+    const lo = await resolveOne({ name: data.loved_one_name, tastes: data.loved_one_tastes });
     const { result } = await runAgent({
       system: `A planner wants a ${data.format} for ${lo.name} (${data.occasion}) in ${data.city_or_destination}, ${data.dates}, budget ${data.budget}. Notes: ${data.notes}.
 Build a Taste Portrait (headline, 2-3 sentence summary, 3-4 signals each with a reason citing Qloo affinities, one surprise idea) using get_affinities across a few types. Then a draft plan of 3 stops using find_places in the destination, each with a reason.`,

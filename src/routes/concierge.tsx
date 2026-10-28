@@ -24,7 +24,7 @@ function Concierge() {
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
 
   const go = async () => {
-    if (!f.planner_name || !f.planner_email || !f.loved_one_name || !f.city_or_destination || !tastes.length) return setErr("Your name, email, their name, a destination and at least one of their favorites, please.");
+    if (!f.planner_name || !f.planner_email || !f.loved_one_name || !f.city_or_destination || !tastes.length) { setErr("Your name, email, their name, a destination and at least one of their favorites, please."); return; }
     setBusy(true); setErr("");
     try { setRes(await submit({ data: { ...f, loved_one_tastes: tastes } })); } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
   };

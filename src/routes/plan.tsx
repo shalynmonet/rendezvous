@@ -37,7 +37,7 @@ function PlanView({ me, active }: Ctx) {
     if (!plan) return;
     setSwapping(i); setErr("");
     try {
-      const r = await run({ data: { ...base, swap: { type: plan.stops[i].type, avoid: plan.stops.map((s) => s.name) } } });
+      const r = await run({ data: { ...base, swap: { type: plan.stops[i]?.type ?? "dinner", avoid: plan.stops.map((s) => s.name) } } });
       const next = r.plan.stops[0];
       if (next) { const p = { ...plan, stops: plan.stops.map((s, j) => (j === i ? next : s)) }; setPlan(p); setState((s) => ({ ...s, lastPlan: p })); }
     } catch (e) { setErr((e as Error).message); } finally { setSwapping(null); }

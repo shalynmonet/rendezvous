@@ -2,7 +2,7 @@
 const BASE = "https://hackathon.api.qloo.com";
 
 export type TasteCategory = "artist" | "film" | "tv" | "restaurant" | "cuisine" | "place" | "book" | "brand";
-export type TasteItem = { category: TasteCategory; label: string; entity_id?: string; name?: string };
+export type TasteItem = { category: TasteCategory; label: string; entity_id?: string | undefined; name?: string | undefined };
 
 export const CATEGORY_TYPE: Record<TasteCategory, string> = {
   artist: "urn:entity:artist",
@@ -43,7 +43,7 @@ async function qloo(path: string, params: Record<string, string | number | undef
   return res.json() as Promise<any>;
 }
 
-export type Entity = { id: string; name: string; type?: string; affinity?: number; address?: string; tags?: string[]; image?: string; description?: string };
+export type Entity = { id: string; name: string; type?: string | undefined; affinity?: number | undefined; address?: string | undefined; tags?: string[] | undefined; image?: string | undefined; description?: string | undefined };
 
 function mapEntity(e: any): Entity {
   return {
@@ -78,7 +78,7 @@ export async function resolveItems(items: TasteItem[]): Promise<TasteItem[]> {
   );
 }
 
-export async function insights(opts: { type: string; entityIds: string[]; location?: string; tag?: string; take?: number }): Promise<Entity[]> {
+export async function insights(opts: { type: string; entityIds: string[]; location?: string | undefined; tag?: string | undefined; take?: number | undefined }): Promise<Entity[]> {
   if (!opts.entityIds.length) return [];
   const d = await qloo("/v2/insights", {
     "filter.type": opts.type,
