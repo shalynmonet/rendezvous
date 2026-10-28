@@ -57,9 +57,13 @@ export function Page({ children }: { children: ReactNode }) {
 }
 
 /** Ensures a profile and a partner exist; otherwise offers demo or setup. */
-export function NeedPair({ children }: { children: (ctx: ReturnType<typeof useStore> & { active: NonNullable<ReturnType<typeof useStore>["active"]>; me: NonNullable<ReturnType<typeof useStore>["s"]["me"]> }) => ReactNode }) {
+export function NeedPair({ children, autoDemo = false }: { autoDemo?: boolean; children: (ctx: ReturnType<typeof useStore> & { active: NonNullable<ReturnType<typeof useStore>["active"]>; me: NonNullable<ReturnType<typeof useStore>["s"]["me"]> }) => ReactNode }) {
   const st = useStore();
+  useEffect(() => {
+    if (autoDemo && st.ready && (!st.s.me || !st.active)) startDemo();
+  }, [autoDemo, st.ready, st.s.me, st.active]);
   if (!st.ready) return null;
+  if (autoDemo && (!st.s.me || !st.active)) return null;
   if (!st.s.me || !st.active) {
     return (
       <div className="card-luxe space-y-4 p-8">
