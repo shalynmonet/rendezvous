@@ -9,5 +9,6 @@
 - [x] Concierge form + admin review (Shalyn)
 - [x] Demo mode
 - [x] MIT license + README
+- [x] Rue-lette wheel with 6 modes + Rue-view debrief
 - [ ] GitHub connection — blocked: user connects via Project settings → Git
 - [x] Grant Shalyn admin to aiwithshai@gmail.com
