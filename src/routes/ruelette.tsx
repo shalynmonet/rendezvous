@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Copy, Heart, Check, Upload, Music, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ErrorNote, NeedPair, Page, PageTitle, RueSays, RueThinking, WhyChip } from "@/components/rue";
-import { rueView, spinRuelette, type Activity, type AiMode } from "@/lib/ruelette.functions";
+import { rueView, spinRuelette, roomRuelette, roomSpin, roomUpload, roomDebrief, type Activity, type AiMode, type RoomRuelette } from "@/lib/ruelette.functions";
+import type { GuestRoom } from "@/lib/chat-schemas";
 import { setState, type Profile, type Memory } from "@/lib/store";
 
 export const Route = createFileRoute("/ruelette")({
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/ruelette")({
   component: () => (
     <Page>
       <PageTitle eyebrow="Rue-lette" title="Spin the wheel, darling" sub="Six ways to play tonight. Rue picks; your tastes decide the details." />
-      <NeedPair>{(ctx) => <Ruelette me={ctx.me} partner={ctx.active.profile} connectionId={ctx.active.id} memories={ctx.s.memories ?? []} />}</NeedPair>
+      <NeedPair>{(ctx) => <Ruelette me={ctx.me} partner={ctx.active.profile} connectionId={ctx.active.id} memories={ctx.s.memories ?? []} room={ctx.active.room} />}</NeedPair>
     </Page>
   ),
 });
@@ -41,45 +42,107 @@ const SLICES: { mode: Mode; label: string; emoji: string }[] = [
   { mode: "portrait", label: "Portraits", emoji: "🎨" },
 ];
 
-function Ruelette({ me, partner, connectionId, memories }: { me: Profile; partner: Profile; connectionId: string; memories: Memory[] }) {
+type Shared = { room: GuestRoom; state: RoomRuelette | null; setState: (r: RoomRuelette) => void };
+
+function useSharedRuelette(room: GuestRoom | undefined) {
+  const read = useServerFn(roomRuelette);
+  const [state, set] = useState<RoomRuelette | null>(null);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    if (!room) return;
+    let stop = false; let t: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try { const r = await read({ data: { room: room.id, token: room.token } }); if (!stop) { set(r); setErr(""); } }
+      catch (e) { if (!stop) setErr((e as Error).message); }
+      if (!stop) t = setTimeout(poll, document.hidden ? 8000 : 2000);
+    };
+    void poll();
+    return () => { stop = true; clearTimeout(t); };
+  }, [room, read]);
+  return { state, set, err };
+}
+
+function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; partner: Profile; connectionId: string; memories: Memory[]; room?: GuestRoom }) {
   const spin = useServerFn(spinRuelette);
+  const spinRoom = useServerFn(roomSpin);
+  const shared = useSharedRuelette(room);
   const [rot, setRot] = useState(0);
   const [spinning, setSpinning] = useState(false);
-  const [mode, setMode] = useState<Mode | null>(null);
-  const [activity, setActivity] = useState<Activity | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [localMode, setLocalMode] = useState<Mode | null>(null);
+  const [localActivity, setLocalActivity] = useState<Activity | null>(null);
+  const [localBusy, setLocalBusy] = useState(false);
   const [err, setErr] = useState("");
   const [debrief, setDebrief] = useState(false);
+  const seen = useRef<string | null | undefined>(undefined);
+  const st = shared.state;
 
-  const load = async (m: Mode) => {
-    setMode(m); setActivity(null); setErr("");
+  // When the shared spin changes, animate the wheel for both people.
+  useEffect(() => {
+    if (!room || !st) return;
+    if (seen.current === undefined) { seen.current = st.spin_id; setRot(st.rot); return; }
+    if (st.spin_id && st.spin_id !== seen.current) {
+      seen.current = st.spin_id; setRot(st.rot); setSpinning(true);
+      const t = setTimeout(() => setSpinning(false), 4200);
+      return () => clearTimeout(t);
+    }
+  }, [room, st]);
+
+  // Log a shared Rue-view into this browser's memory book.
+  useEffect(() => {
+    if (!st?.debrief || !st.spin_id) return;
+    const id = st.spin_id; const d = st.debrief;
+    if (memories.some((m) => m.id === id)) return;
+    setState((s) => ({ ...s, memories: [{ id, connectionId, activity: st.activity?.title ?? SLICES.find((x) => x.mode === st.mode)?.label ?? "Rue-lette", milestone: d.milestone, rating: d.rating, notes: d.notes, commentary: d.commentary, at: d.at }, ...(s.memories ?? [])] }));
+  }, [st, memories, connectionId]);
+
+  const mode: Mode | null = room ? (spinning ? null : st?.mode ?? null) : localMode;
+  const activity = room ? (spinning ? null : st?.activity ?? null) : localActivity;
+  const busy = room ? st?.status === "generating" : localBusy;
+  const shownErr = room ? (st?.status === "error" ? st.error ?? "Rue fumbled the cards. Spin again." : shared.err || err) : err;
+  const waiting = !!room && st !== null && !st.joined;
+
+  const loadLocal = async (m: Mode) => {
+    setLocalMode(m); setLocalActivity(null); setErr("");
     if (m === "game") return;
-    setBusy(true);
-    try { setActivity((await spin({ data: { mode: m, a: me, b: partner } })).activity); }
+    setLocalBusy(true);
+    try { setLocalActivity((await spin({ data: { mode: m, a: me, b: partner } })).activity); }
     catch (e) { setErr((e as Error).message); }
-    finally { setBusy(false); }
+    finally { setLocalBusy(false); }
   };
 
-  const doSpin = () => {
-    if (spinning) return;
-    const i = Math.floor(Math.random() * SLICES.length);
-    // pointer at top; slice i centered at i*60+30 deg
-    const target = rot - (rot % 360) + 360 * 5 + (360 - (i * 60 + 30));
-    setSpinning(true); setRot(target); setMode(null); setActivity(null);
-    setTimeout(() => { setSpinning(false); void load(SLICES[i]!.mode); }, 4200);
+  const go = (i: number, animate: boolean) => {
+    const target = animate ? rot - (rot % 360) + 360 * 5 + (360 - (i * 60 + 30)) : rot;
+    const m = SLICES[i]!.mode;
+    if (room) {
+      setErr("");
+      // The player who spins sends both profiles in room order (a = creator).
+      const [a, b] = st?.side === "b" ? [partner, me] : [me, partner];
+      spinRoom({ data: { room: room.id, token: room.token, mode: m, rot: target, a, b } })
+        .then((r) => shared.set(r)).catch((e) => setErr((e as Error).message));
+      return;
+    }
+    if (!animate) { void loadLocal(m); return; }
+    setSpinning(true); setRot(target); setLocalMode(null); setLocalActivity(null);
+    setTimeout(() => { setSpinning(false); void loadLocal(m); }, 4200);
   };
+  const doSpin = () => { if (!spinning && !busy) go(Math.floor(Math.random() * SLICES.length), true); };
 
   const label = SLICES.find((s) => s.mode === mode)?.label ?? "";
   const mine = memories.filter((m) => m.connectionId === connectionId);
+  const sharedCtx: Shared | undefined = room ? { room, state: st, setState: shared.set } : undefined;
+  const spunBy = room && st?.by ? (st.by === st.side ? "You" : partner.name) : null;
 
   return (
     <div className="space-y-10">
+      <p className="rounded-full border border-gold/40 bg-muted px-4 py-2 text-center text-sm text-muted-foreground">
+        {room ? (waiting ? `Waiting for ${partner.name} to accept your invitation — then you'll share this table live.` : <>🔴 Live table with {partner.name} — you both see every spin, card and photo.</>) : <>Playing on this device. Invite {partner.name} from <a href="/connections" className="text-gold underline">People</a> to share the table live from anywhere.</>}
+      </p>
       <div className="grid items-center gap-8 md:grid-cols-[1fr_1.1fr]">
         <div className="relative overflow-hidden rounded-2xl border border-gold/35">
           <img src={rueletta.url} alt="Rue the fox in heart sunglasses and a houndstooth scarf at a café table" className="aspect-[4/3] w-full object-cover object-[40%_30%]" />
           <div className="hero-fade absolute inset-0" />
           <div className="absolute bottom-4 left-4 right-4">
-            <RueSays>{spinning ? "Round and round… faites vos jeux." : mode ? `${label}. Rue has spoken.` : `${me.name}, ${partner.name} — shall we play?`}</RueSays>
+            <RueSays>{spinning ? "Round and round… faites vos jeux." : mode ? `${label}${spunBy ? ` (${spunBy} spun)` : ""}. Rue has spoken.` : `${me.name}, ${partner.name} — shall we play?`}</RueSays>
           </div>
         </div>
         <div className="flex flex-col items-center gap-6">
@@ -88,7 +151,7 @@ function Ruelette({ me, partner, connectionId, memories }: { me: Profile; partne
             <motion.div
               className="ruelette-wheel absolute inset-0 rounded-full border-4 border-gold shadow-candle"
               animate={{ rotate: rot }}
-              transition={{ duration: 4, ease: [0.15, 0.85, 0.2, 1] }}
+              transition={{ duration: spinning ? 4 : 0, ease: [0.15, 0.85, 0.2, 1] }}
             >
               {SLICES.map((s, i) => (
                 <div key={s.mode} className="absolute inset-0" style={{ transform: `rotate(${i * 60 + 30}deg)` }}>
@@ -100,12 +163,12 @@ function Ruelette({ me, partner, connectionId, memories }: { me: Profile; partne
               <div className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-gold bg-background houndstooth-dot" />
             </motion.div>
           </div>
-          <Button size="lg" className="shadow-candle" onClick={doSpin} disabled={spinning || busy}>
+          <Button size="lg" className="shadow-candle" onClick={doSpin} disabled={spinning || busy || waiting}>
             {spinning ? "Spinning…" : mode ? "Spin again" : "Spin the Rue-lette"}
           </Button>
           <div className="flex flex-wrap justify-center gap-2">
-            {SLICES.map((s) => (
-              <button key={s.mode} onClick={() => !spinning && !busy && load(s.mode)} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:border-gold hover:text-foreground">
+            {SLICES.map((s, i) => (
+              <button key={s.mode} disabled={spinning || busy || waiting} onClick={() => go(i, false)} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:border-gold hover:text-foreground disabled:opacity-50">
                 {s.emoji} {s.label}
               </button>
             ))}
@@ -114,13 +177,21 @@ function Ruelette({ me, partner, connectionId, memories }: { me: Profile; partne
       </div>
 
       <AnimatePresence mode="wait">
-        {mode && (
-          <motion.section key={mode + (activity ? "1" : "0")} initial={{ opacity: 0, rotateX: -12, y: 20 }} animate={{ opacity: 1, rotateX: 0, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45 }} className="space-y-4">
-            {err && <ErrorNote msg={err} />}
+        {(mode || shownErr) && (
+          <motion.section key={(st?.spin_id ?? mode ?? "") + (activity ? "1" : "0")} initial={{ opacity: 0, rotateX: -12, y: 20 }} animate={{ opacity: 1, rotateX: 0, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45 }} className="space-y-4">
+            {shownErr && <ErrorNote msg={shownErr} />}
             {busy && <RueThinking />}
-            {mode === "game" && <TasteQuiz me={me} partner={partner} />}
-            {activity && <ActivityCard a={activity} me={me} partner={partner} />}
-            {(mode === "game" || activity) && (
+            {mode === "game" && <TasteQuiz key={st?.spin_id ?? "local"} me={me} partner={partner} seed={st?.spin_id ?? null} />}
+            {activity && <ActivityCard a={activity} me={me} partner={partner} shared={sharedCtx} />}
+            {st?.debrief && mode && (
+              <div className="card-luxe space-y-2 p-5">
+                <p className="text-xs uppercase tracking-widest text-gold">Rue-view · {st.debrief.by === st.side ? "you" : partner.name} reported {"♥".repeat(st.debrief.rating)}</p>
+                {st.debrief.notes && <p className="text-sm text-muted-foreground">“{st.debrief.notes}”</p>}
+                <RueSays>{st.debrief.commentary}</RueSays>
+                <p className="text-sm text-gold">Saved to your memory book: <strong>{st.debrief.milestone}</strong></p>
+              </div>
+            )}
+            {(mode === "game" || activity) && !st?.debrief && (
               <div className="flex justify-end"><Button onClick={() => setDebrief(true)}><Check className="mr-2 h-4 w-4" />We finished — Rue-view</Button></div>
             )}
           </motion.section>
@@ -144,16 +215,21 @@ function Ruelette({ me, partner, connectionId, memories }: { me: Profile; partne
         </section>
       )}
 
-      <Debrief open={debrief} onOpenChange={setDebrief} a={me.name} b={partner.name} activity={activity?.title ?? label} connectionId={connectionId} />
+      <Debrief open={debrief} onOpenChange={setDebrief} a={me.name} b={partner.name} activity={activity?.title ?? label} connectionId={connectionId} shared={sharedCtx} />
     </div>
   );
 }
 
-function TasteQuiz({ me, partner }: { me: Profile; partner: Profile }) {
+function TasteQuiz({ me, partner, seed }: { me: Profile; partner: Profile; seed: string | null }) {
   const deck = useMemo(() => {
     const all = [...me.tastes.map((t) => ({ t, who: "a" as const })), ...partner.tastes.map((t) => ({ t, who: "b" as const }))];
-    return all.sort(() => Math.random() - 0.5).slice(0, 8);
-  }, [me, partner]);
+    // Shared tables use the spin id as a seed so both people get the same cards.
+    let x = seed ? parseInt(seed.replace(/-/g, "").slice(0, 8), 16) : Math.floor(Math.random() * 2 ** 31);
+    const rnd = () => ((x = (x * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
+    const sorted = [...all].sort((p, q) => (p.t.label < q.t.label ? -1 : 1));
+    for (let i = sorted.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [sorted[i], sorted[j]] = [sorted[j]!, sorted[i]!]; }
+    return sorted.slice(0, 8);
+  }, [me, partner, seed]);
   const [i, setI] = useState(0);
   const [score, setScore] = useState(0);
   const [last, setLast] = useState<boolean | null>(null);
@@ -197,7 +273,9 @@ function CopyBtn({ text }: { text: string }) {
 }
 const Pre = ({ children }: { children: string }) => <p className="whitespace-pre-wrap rounded-lg border border-border bg-muted p-4 text-sm">{children}</p>;
 
-function ActivityCard({ a, me, partner }: { a: Activity; me: Profile; partner: Profile }) {
+function ActivityCard({ a, me, partner, shared }: { a: Activity; me: Profile; partner: Profile; shared?: Shared }) {
+  const upload = useServerFn(roomUpload);
+  const [upBusy, setUpBusy] = useState(false);
   const [checked, setChecked] = useState<number[]>([]);
   const [imgs, setImgs] = useState<[string | null, string | null]>([null, null]);
   return (
@@ -245,14 +323,33 @@ function ActivityCard({ a, me, partner }: { a: Activity; me: Profile; partner: P
         <Pre>{a.prompt}</Pre><CopyBtn text={a.prompt} />
         <p className="text-sm"><span className="text-gold">Twist: </span>{a.twist}</p>
         <div className="grid grid-cols-2 gap-3">
-          {[me.name, partner.name].map((n, i) => (
-            <label key={n} className="flex aspect-square cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-gold/50 bg-muted text-sm text-muted-foreground">
-              {imgs[i] ? <img src={imgs[i]!} alt={`${n}'s result`} className="h-full w-full object-cover" /> : <><Upload className="mb-2 h-6 w-6" />{n}'s result</>}
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setImgs((p) => { const c = [...p] as typeof p; c[i] = URL.createObjectURL(f); return c; }); }} />
-            </label>
-          ))}
+          {[me.name, partner.name].map((n, i) => {
+            const st = shared?.state;
+            const slot = st ? (i === 0 ? st.side : st.side === "a" ? "b" : "a") : null;
+            const src = st && slot ? st.photos[slot] : imgs[i];
+            const canUpload = !shared || i === 0;
+            return (
+              <label key={n} className={`relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-gold/50 bg-muted text-sm text-muted-foreground ${canUpload ? "cursor-pointer" : ""}`}>
+                {src ? <img src={src} alt={`${n}'s result`} className="h-full w-full object-cover" /> : <><Upload className="mb-2 h-6 w-6" />{canUpload ? `${n}'s result` : `Waiting for ${n}…`}</>}
+                {i === 0 && upBusy && <span className="absolute inset-x-0 bottom-0 bg-background/80 py-1 text-center text-xs">Uploading…</span>}
+                {canUpload && <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0]; if (!f) return;
+                  if (!shared) { setImgs((p) => { const c = [...p] as typeof p; c[i] = URL.createObjectURL(f); return c; }); return; }
+                  if (f.size > 6 * 1024 * 1024) { toast.error("Photos must be under 6 MB."); return; }
+                  const st2 = shared.state; if (!st2?.spin_id) return;
+                  const reader = new FileReader();
+                  reader.onload = async () => {
+                    setUpBusy(true);
+                    try { shared.setState(await upload({ data: { room: shared.room.id, token: shared.room.token, spin_id: st2.spin_id!, image: String(reader.result) } })); }
+                    catch (err) { toast.error((err as Error).message); } finally { setUpBusy(false); }
+                  };
+                  reader.readAsDataURL(f);
+                }} />}
+              </label>
+            );
+          })}
         </div>
-        <p className="text-xs text-muted-foreground">Photos stay on this device.</p>
+        <p className="text-xs text-muted-foreground">{shared ? "Photos are private to the two of you and appear on both screens." : "Photos stay on this device."}</p>
       </>)}
       {a.mode === "portrait" && (
         <div className="grid gap-4 md:grid-cols-2">
@@ -266,8 +363,9 @@ function ActivityCard({ a, me, partner }: { a: Activity; me: Profile; partner: P
   );
 }
 
-function Debrief({ open, onOpenChange, a, b, activity, connectionId }: { open: boolean; onOpenChange: (v: boolean) => void; a: string; b: string; activity: string; connectionId: string }) {
+function Debrief({ open, onOpenChange, a, b, activity, connectionId, shared }: { open: boolean; onOpenChange: (v: boolean) => void; a: string; b: string; activity: string; connectionId: string; shared?: Shared }) {
   const run = useServerFn(rueView);
+  const runRoom = useServerFn(roomDebrief);
   const [rating, setRating] = useState(4);
   const [notes, setNotes] = useState("");
   const [busy, setBusy] = useState(false);
@@ -277,6 +375,12 @@ function Debrief({ open, onOpenChange, a, b, activity, connectionId }: { open: b
   const submit = async () => {
     setBusy(true); setErr("");
     try {
+      if (shared?.state?.spin_id) {
+        const st = await runRoom({ data: { room: shared.room.id, token: shared.room.token, spin_id: shared.state.spin_id, a, b, activity, rating, notes } });
+        shared.setState(st);
+        if (st.debrief) setRes(st.debrief);
+        return; // memory is logged from the shared state for both people
+      }
       const r = await run({ data: { a, b, activity, rating, notes } });
       setRes(r);
       setState((s) => ({ ...s, memories: [{ id: crypto.randomUUID(), connectionId, activity, rating, notes, ...r, at: new Date().toISOString() }, ...(s.memories ?? [])] }));
