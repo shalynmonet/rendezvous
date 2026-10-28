@@ -1,10 +1,11 @@
 // Client-side taste profiles & connections (kept in this browser).
 import { useEffect, useState, useCallback } from "react";
 import type { PersonT, TasteT } from "./rue.functions";
+import { TasteProfileSchema, type GuestRoom } from './chat-schemas';
 
 export type Profile = PersonT & { city: string };
-export type Connection = { id: string; label: string; profile: Profile; demo?: boolean };
-export type State = { me: Profile | null; connections: Connection[]; activeId: string | null; lastPlan?: unknown; lastChat?: { mood: string; scores: { a: number; b: number }; highlight: string } };
+export type Connection = { id: string; label: string; profile: Profile; demo?: boolean; room?: GuestRoom };
+export type State = { me: Profile | null; connections: Connection[]; activeId: string | null; pendingRoom?: GuestRoom; pendingInvite?: string; lastPlan?: unknown; lastChat?: { mood: string; scores: { a: number; b: number }; highlight: string } };
 
 const KEY = "rendezvous.v1";
 const empty: State = { me: null, connections: [], activeId: null };
@@ -61,7 +62,7 @@ export function startDemo() {
 
 export const encodeInvite = (p: Profile) => btoa(unescape(encodeURIComponent(JSON.stringify(p))));
 export const decodeInvite = (d: string): Profile | null => {
-  try { return JSON.parse(decodeURIComponent(escape(atob(d)))); } catch { return null; }
+  try { return TasteProfileSchema.parse(JSON.parse(decodeURIComponent(escape(atob(d))))); } catch { return null; }
 };
 
 export const CATEGORIES: { id: TasteT["category"]; label: string }[] = [
