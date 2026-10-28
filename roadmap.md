@@ -1,7 +1,7 @@
 # Rendezvous roadmap
 - [x] Real-person invitations and shared live chat with Rue
 - [x] Optional account saving after guest taste-profile creation
-- [ ] Verify account save/restore end-to-end — blocked: no signed-up account is available
+- [ ] Verify account save/restore end-to-end — blocked: aiwithshai@gmail.com must sign up and confirm their email first
 - [x] QR code, share link, and sharing buttons for taste profiles
 - [x] Qloo + Rue agent on the server
 - [x] Design system + home with Rue art
@@ -10,4 +10,4 @@
 - [x] Demo mode
 - [x] MIT license + README
 - [ ] GitHub connection — blocked: user connects via Project settings → Git
-- [ ] Grant Shalyn admin — blocked: needs her account email
+- [ ] Grant Shalyn admin — blocked: aiwithshai@gmail.com must create their account first
