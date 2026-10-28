@@ -273,7 +273,7 @@ function CopyBtn({ text }: { text: string }) {
 }
 const Pre = ({ children }: { children: string }) => <p className="whitespace-pre-wrap rounded-lg border border-border bg-muted p-4 text-sm">{children}</p>;
 
-function ActivityCard({ a, me, partner, shared }: { a: Activity; me: Profile; partner: Profile; shared?: Shared }) {
+function ActivityCard({ a, me, partner, shared }: { a: Activity; me: Profile; partner: Profile; shared?: Shared | undefined }) {
   const upload = useServerFn(roomUpload);
   const [upBusy, setUpBusy] = useState(false);
   const [checked, setChecked] = useState<number[]>([]);
@@ -363,7 +363,7 @@ function ActivityCard({ a, me, partner, shared }: { a: Activity; me: Profile; pa
   );
 }
 
-function Debrief({ open, onOpenChange, a, b, activity, connectionId, shared }: { open: boolean; onOpenChange: (v: boolean) => void; a: string; b: string; activity: string; connectionId: string; shared?: Shared }) {
+function Debrief({ open, onOpenChange, a, b, activity, connectionId, shared }: { open: boolean; onOpenChange: (v: boolean) => void; a: string; b: string; activity: string; connectionId: string; shared?: Shared | undefined }) {
   const run = useServerFn(rueView);
   const runRoom = useServerFn(roomDebrief);
   const [rating, setRating] = useState(4);

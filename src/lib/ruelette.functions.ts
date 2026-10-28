@@ -96,16 +96,18 @@ export type RoomRuelette = {
   debrief: { commentary: string; milestone: string; rating: number; notes: string; by: "a" | "b"; at: string } | null;
 };
 
+type RawRl = { spin_id?: string; mode?: RoomRuelette["mode"]; rot?: number; by?: "a" | "b"; status?: RoomRuelette["status"]; activity?: Activity | null; error?: string | null; uploads?: { a?: string; b?: string }; debrief?: RoomRuelette["debrief"] };
+
 async function rpc(room: string, token: string, action: string, payload: Record<string, unknown> = {}) {
   const { guestClient } = await import("./guest-chat.server");
   const { data, error } = await guestClient().rpc("guest_ruelette" as never, { p_room: room, p_token: token, p_action: action, p_payload: payload } as never);
   if (error) throw new Error((error as { message: string }).message);
-  return data as unknown as { side: "a" | "b"; joined?: boolean; ruelette: Record<string, any> };
+  return data as unknown as { side: "a" | "b"; joined?: boolean; ruelette: RawRl };
 }
 
 async function shape(r: Awaited<ReturnType<typeof rpc>>): Promise<RoomRuelette> {
-  const rl = r.ruelette ?? {};
-  const uploads = (rl.uploads ?? {}) as { a?: string; b?: string };
+  const rl: RawRl = r.ruelette ?? {};
+  const uploads = rl.uploads ?? {};
   const photos: RoomRuelette["photos"] = { a: null, b: null };
   const paths = (["a", "b"] as const).filter((k) => uploads[k]);
   if (paths.length) {
