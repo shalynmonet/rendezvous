@@ -16,16 +16,19 @@ export type Database = {
     Tables: {
       account_room_links: {
         Row: {
+          invitation_key: string | null
           participant_key: string
           room_id: string
           user_id: string
         }
         Insert: {
+          invitation_key?: string | null
           participant_key: string
           room_id: string
           user_id: string
         }
         Update: {
+          invitation_key?: string | null
           participant_key?: string
           room_id?: string
           user_id?: string

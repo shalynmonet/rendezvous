@@ -1,0 +1,2 @@
+ALTER TABLE public.account_room_links ADD COLUMN invitation_key text;
+COMMENT ON COLUMN public.account_room_links.invitation_key IS 'Server-only invitation backup for the creator; never included in saved chat snapshots.';
