@@ -5,7 +5,7 @@ import { TasteProfileSchema, type GuestRoom } from './chat-schemas';
 
 export type Profile = PersonT & { city: string };
 export type Connection = { id: string; label: string; profile: Profile; demo?: boolean; room?: GuestRoom };
-export type State = { me: Profile | null; connections: Connection[]; activeId: string | null; pendingRoom?: GuestRoom; pendingInvite?: string; lastPlan?: unknown; lastChat?: { mood: string; scores: { a: number; b: number }; highlight: string } };
+export type State = { me: Profile | null; connections: Connection[]; activeId: string | null; pendingRoom?: GuestRoom | undefined; pendingInvite?: string | undefined; lastPlan?: unknown; lastChat?: { mood: string; scores: { a: number; b: number }; highlight: string } };
 
 const KEY = "rendezvous.v1";
 const empty: State = { me: null, connections: [], activeId: null };

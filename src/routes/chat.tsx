@@ -7,10 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { ErrorNote, NeedPair, Page, PageTitle, RueAvatar } from "@/components/rue";
 import { chatTurn, type ChatTurn } from "@/lib/rue.functions";
 import { setState } from "@/lib/store";
+import {LiveChat} from '@/components/live-chat';
 
 export const Route = createFileRoute("/chat")({
   head: () => ({ meta: [{ title: "Chat with Rue — Rendezvous" }, { name: "description", content: "Rue hosts taste-based games for two." }, { property: "og:title", content: "Chat with Rue — Rendezvous" }, { property: "og:description", content: "This or That, Defend Your Pick, Deep Cuts and more." }] }),
-  component: () => <Page><NeedPair>{(ctx) => <ChatView {...ctx} />}</NeedPair></Page>,
+  component: () => <Page><NeedPair>{(ctx) => ctx.active.room?<LiveChat key={ctx.active.room.id} room={ctx.active.room}/>:<ChatView key={ctx.active.id} {...ctx} />}</NeedPair></Page>,
 });
 
 type Ctx = Parameters<Parameters<typeof NeedPair>[0]["children"]>[0];
@@ -34,7 +35,8 @@ function ChatView({ me, active }: Ctx) {
   useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, busy]);
   useEffect(() => { if (!busy) ta.current?.focus(); }, [busy, mood]);
 
-  const turn = async (history: Msg[], m = mood!) => {
+  const turn = async (history: Msg[], m = mood) => {
+    if(!m)return;
     setBusy(true); setErr("");
     try {
       const r = await run({ data: { a: me, b: active.profile, mood: m, history, scores } });

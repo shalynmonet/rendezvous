@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ function ProfilePage() {
   const { s, ready, update } = useStore();
   const {user}=useAccount();
   const accountSave=useServerFn(saveAccountProfile);
+  const nav=useNavigate();
   const [saved,setSaved]=useState(false);
   const [origin,setOrigin]=useState('');
   useEffect(()=>setOrigin(window.location.origin),[]);
@@ -35,6 +36,7 @@ function ProfilePage() {
     toast.success("Saved. Rue knows.");
     setSaved(true);
     if(user){try{await accountSave({data:{name:name.trim(),city:city.trim()||'Chicago',tastes}});toast.success('Saved to your account.');}catch(e){toast.error((e as Error).message);}}
+    if(s.pendingInvite)nav({to:'/invite',search:{i:s.pendingInvite}});
   };
 
   return (
