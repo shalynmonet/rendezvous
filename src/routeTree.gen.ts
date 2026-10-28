@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ConnectionsRouteImport } from './routes/connections'
@@ -18,6 +19,7 @@ import { Route as InviteRouteImport } from './routes/invite'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RecapRouteImport } from './routes/recap'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RevealRouteImport } from './routes/reveal'
 
 const IndexRoute = IndexRouteImport.update({
@@ -28,6 +30,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -65,6 +72,11 @@ const RecapRoute = RecapRouteImport.update({
   path: '/recap',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RevealRoute = RevealRouteImport.update({
   id: '/reveal',
   path: '/reveal',
@@ -74,6 +86,7 @@ const RevealRoute = RevealRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
@@ -81,11 +94,13 @@ export interface FileRoutesByFullPath {
   '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
   '/recap': typeof RecapRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reveal': typeof RevealRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
@@ -93,12 +108,14 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
   '/recap': typeof RecapRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reveal': typeof RevealRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
@@ -106,6 +123,7 @@ export interface FileRoutesById {
   '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
   '/recap': typeof RecapRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/reveal': typeof RevealRoute
 }
 export interface FileRouteTypes {
@@ -113,6 +131,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/auth'
     | '/chat'
     | '/concierge'
     | '/connections'
@@ -120,11 +139,13 @@ export interface FileRouteTypes {
     | '/plan'
     | '/profile'
     | '/recap'
+    | '/reset-password'
     | '/reveal'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/auth'
     | '/chat'
     | '/concierge'
     | '/connections'
@@ -132,11 +153,13 @@ export interface FileRouteTypes {
     | '/plan'
     | '/profile'
     | '/recap'
+    | '/reset-password'
     | '/reveal'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/auth'
     | '/chat'
     | '/concierge'
     | '/connections'
@@ -144,12 +167,14 @@ export interface FileRouteTypes {
     | '/plan'
     | '/profile'
     | '/recap'
+    | '/reset-password'
     | '/reveal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  AuthRoute: typeof AuthRoute
   ChatRoute: typeof ChatRoute
   ConciergeRoute: typeof ConciergeRoute
   ConnectionsRoute: typeof ConnectionsRoute
@@ -157,6 +182,7 @@ export interface RootRouteChildren {
   PlanRoute: typeof PlanRoute
   ProfileRoute: typeof ProfileRoute
   RecapRoute: typeof RecapRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   RevealRoute: typeof RevealRoute
 }
 
@@ -174,6 +200,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -225,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reveal': {
       id: '/reveal'
       path: '/reveal'
@@ -238,6 +278,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  AuthRoute: AuthRoute,
   ChatRoute: ChatRoute,
   ConciergeRoute: ConciergeRoute,
   ConnectionsRoute: ConnectionsRoute,
@@ -245,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanRoute: PlanRoute,
   ProfileRoute: ProfileRoute,
   RecapRoute: RecapRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   RevealRoute: RevealRoute,
 }
 export const routeTree = rootRouteImport
