@@ -22,4 +22,5 @@
 - Subsequent shared spins use a room-locked proposal approved by the other participant and an expected spin ID; this preserves current activity state and rejects stale or duplicate replacements.
 - Simulated chats are browser-local sessions keyed by connection; persist messages, game, mood and scores before navigation, and derive demo recaps from the selected session rather than the global live-chat summary.
 - Account chat saving is explicit and stores credential-free snapshots in owner-scoped saved_chats; live snapshots are read through room capability checks server-side, and saved history is read-only rather than restoring room access.
+- People lists account-saved non-demo partners directly from owner-scoped snapshots, without importing them into the guest store or restoring room capabilities; new live snapshots retain the saving participant's side for correct partner identification.
 - Ru-lette initializes a local demo pair only when no usable pair exists, preserving an existing personal taste profile and any selected live room.

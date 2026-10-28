@@ -8,6 +8,7 @@ import { Page, PageTitle, ErrorNote, RueAvatar } from "@/components/rue";
 import { listAccountChats } from "@/lib/saved-chat.functions";
 
 export const Route = createFileRoute("/saved-chats")({
+  validateSearch: (search: Record<string, unknown>): { chat?: string } => ({ chat: typeof search.chat === "string" ? search.chat : undefined }),
   head: () => ({ meta: [
     { title: "Saved chats — Rendezvous" }, { name: "description", content: "Your private saved conversations with Ru and your people." },
     { property: "og:title", content: "Saved chats — Rendezvous" }, { property: "og:description", content: "Revisit your saved Rendezvous conversations." },
@@ -17,12 +18,13 @@ export const Route = createFileRoute("/saved-chats")({
 });
 
 function SavedChats() {
+  const search = Route.useSearch();
   const { user, ready } = useAccount();
   const read = useServerFn(listAccountChats);
   const [selected, setSelected] = useState<string | null>(null);
   const query = useQuery({ queryKey: ["account-chats", user?.id], queryFn: () => read(), enabled: !!user });
   const chats = user ? query.data ?? [] : [];
-  const current = chats.find((chat) => chat.id === selected) ?? chats[0];
+  const current = chats.find((chat) => chat.id === (selected ?? search.chat)) ?? chats[0];
   const savedTime = (at: string) => new Date(at).toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit", timeZoneName: "short" });
   return <Page><PageTitle eyebrow="Your account" title="Saved chats" />
     {!ready ? <p>Opening your account…</p> : !user ? <Button asChild><Link to="/auth">Create an account to save</Link></Button> : <>

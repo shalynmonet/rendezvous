@@ -9,6 +9,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { chatAccess } from "@/lib/guest-chat.functions";
 import { newGuestKey } from "@/lib/chat-schemas";
 import { ProfileShare } from "@/components/profile-share";
+import { useQuery } from "@tanstack/react-query";
+import { useAccount } from "@/components/account-provider";
+import { listAccountChats } from "@/lib/saved-chat.functions";
+import { readSavedProfile } from "@/lib/profile.functions";
+import { savedPeople } from "@/lib/saved-people";
+import { ErrorNote } from "@/components/rue";
 
 export const Route = createFileRoute("/connections")({
   head: () => ({
@@ -27,6 +33,12 @@ export const Route = createFileRoute("/connections")({
 function Connections() {
   const { s, ready, active, update } = useStore();
   const access = useServerFn(chatAccess);
+  const { user } = useAccount();
+  const readChats = useServerFn(listAccountChats);
+  const readProfile = useServerFn(readSavedProfile);
+  const accountChats = useQuery({ queryKey: ["account-chats", user?.id], queryFn: () => readChats(), enabled: !!user });
+  const accountProfile = useQuery({ queryKey: ["account-profile", user?.id], queryFn: () => readProfile(), enabled: !!user });
+  const people = savedPeople(user ? accountChats.data ?? [] : [], user ? accountProfile.data ?? s.me : s.me, s.connections);
   const [busy, setBusy] = useState(false);
   const [origin, setOrigin] = useState("");
   useEffect(() => setOrigin(window.location.origin), []);
@@ -142,7 +154,9 @@ function Connections() {
           </Button>
         </div>
         <div className="space-y-3">
-          {!s.connections.length && <RueSays>No one yet. A fox can wait — briefly.</RueSays>}
+          {user && accountChats.isPending && <p role="status">Loading your saved people…</p>}
+          {user && accountChats.error && <ErrorNote msg={accountChats.error.message} />}
+          {!s.connections.length && !people.length && (!user || !accountChats.isPending) && <RueSays>No one yet. A fox can wait — briefly.</RueSays>}
           {s.connections.map((c) => (
             <div
               key={c.id}
@@ -192,6 +206,21 @@ function Connections() {
                 >
                   Remove
                 </Button>
+              </div>
+            </div>
+          ))}
+          {people.map((person) => (
+            <div key={person.id} className="card-luxe space-y-3 p-5">
+              <h2 className="font-display text-2xl">{person.profile.name}</h2>
+              <p className="text-xs text-muted-foreground">Saved connection · {person.profile.tastes.length} tastes</p>
+              <p className="text-sm text-muted-foreground">Your saved conversation is here. Share a new invitation to chat live again from this browser.</p>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" asChild><Link to="/saved-chats" search={{ chat: person.chatId }}>Saved chats</Link></Button>
+                <Button size="sm" variant="outline" disabled={busy} onClick={() => {
+                  if (!s.me) { toast.info("Restore your saved tastes or create a profile before inviting someone."); return; }
+                  if (s.pendingRoom) { toast.info("Your invitation is ready in Invite someone."); return; }
+                  void create();
+                }}>Invite again</Button>
               </div>
             </div>
           ))}
