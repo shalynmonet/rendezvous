@@ -13,12 +13,12 @@ import { rueView, spinRuelette, roomRuelette, roomSpin, roomUpload, roomDebrief,
 import type { GuestRoom } from "@/lib/chat-schemas";
 import { setState, type Profile, type Memory } from "@/lib/store";
 
-export const Route = createFileRoute("/rulette")({
+export const Route = createFileRoute("/ru-lette")({
   head: () => ({
     meta: [
-      { title: "Rulette — spin for a date-night activity | Rendezvous" },
+      { title: "Ru-lette — spin for a date-night activity | Rendezvous" },
       { name: "description", content: "Spin Ru's wheel for a taste-matched game, song, recipe, photo booth or portrait challenge for two." },
-      { property: "og:title", content: "Rulette — Ru spins your next date activity" },
+      { property: "og:title", content: "Ru-lette — Ru spins your next date activity" },
       { property: "og:description", content: "Six playful activity modes built from both your tastes, hosted by Ru the fox." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/rulette")({
   }),
   component: () => (
     <Page>
-      <PageTitle eyebrow="Rulette" title="Spin the wheel, darling" sub="Six ways to play tonight. Ru picks; your tastes decide the details." />
+      <PageTitle eyebrow="Ru-lette" title="Spin the wheel, darling" sub="Six ways to play tonight. Ru picks; your tastes decide the details." />
       <NeedPair>{(ctx) => <Ruelette me={ctx.me} partner={ctx.active.profile} connectionId={ctx.active.id} memories={ctx.s.memories ?? []} room={ctx.active.room} />}</NeedPair>
     </Page>
   ),
@@ -91,7 +91,7 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
     if (!st?.debrief || !st.spin_id) return;
     const id = st.spin_id; const d = st.debrief;
     if (memories.some((m) => m.id === id)) return;
-    setState((s) => ({ ...s, memories: [{ id, connectionId, activity: st.activity?.title ?? SLICES.find((x) => x.mode === st.mode)?.label ?? "Rulette", milestone: d.milestone, rating: d.rating, notes: d.notes, commentary: d.commentary, at: d.at }, ...(s.memories ?? [])] }));
+    setState((s) => ({ ...s, memories: [{ id, connectionId, activity: st.activity?.title ?? SLICES.find((x) => x.mode === st.mode)?.label ?? "Ru-lette", milestone: d.milestone, rating: d.rating, notes: d.notes, commentary: d.commentary, at: d.at }, ...(s.memories ?? [])] }));
   }, [st, memories, connectionId]);
 
   const mode: Mode | null = room ? (spinning ? null : st?.mode ?? null) : localMode;
@@ -163,7 +163,7 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
             </motion.div>
           </div>
           <Button size="lg" className="shadow-candle" onClick={doSpin} disabled={spinning || busy || waiting}>
-            {spinning ? "Spinning…" : mode ? "Spin again" : "Spin the Rulette"}
+            {spinning ? "Spinning…" : mode ? "Spin again" : "Spin the Ru-lette"}
           </Button>
           <div className="flex flex-wrap justify-center gap-2">
             {SLICES.map((s, i) => (

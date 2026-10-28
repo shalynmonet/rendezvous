@@ -21,7 +21,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RecapRouteImport } from './routes/recap'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RevealRouteImport } from './routes/reveal'
-import { Route as RuletteRouteImport } from './routes/rulette'
+import { Route as RuLetteRouteImport } from './routes/ru-lette'
 import { Route as ApiPublicLiveHostRouteImport } from './routes/api/public/live-host'
 
 const IndexRoute = IndexRouteImport.update({
@@ -84,9 +84,9 @@ const RevealRoute = RevealRouteImport.update({
   path: '/reveal',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RuletteRoute = RuletteRouteImport.update({
-  id: '/rulette',
-  path: '/rulette',
+const RuLetteRoute = RuLetteRouteImport.update({
+  id: '/ru-lette',
+  path: '/ru-lette',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicLiveHostRoute = ApiPublicLiveHostRouteImport.update({
@@ -108,7 +108,7 @@ export interface FileRoutesByFullPath {
   '/recap': typeof RecapRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reveal': typeof RevealRoute
-  '/rulette': typeof RuletteRoute
+  '/ru-lette': typeof RuLetteRoute
   '/api/public/live-host': typeof ApiPublicLiveHostRoute
 }
 export interface FileRoutesByTo {
@@ -124,7 +124,7 @@ export interface FileRoutesByTo {
   '/recap': typeof RecapRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reveal': typeof RevealRoute
-  '/rulette': typeof RuletteRoute
+  '/ru-lette': typeof RuLetteRoute
   '/api/public/live-host': typeof ApiPublicLiveHostRoute
 }
 export interface FileRoutesById {
@@ -141,7 +141,7 @@ export interface FileRoutesById {
   '/recap': typeof RecapRoute
   '/reset-password': typeof ResetPasswordRoute
   '/reveal': typeof RevealRoute
-  '/rulette': typeof RuletteRoute
+  '/ru-lette': typeof RuLetteRoute
   '/api/public/live-host': typeof ApiPublicLiveHostRoute
 }
 export interface FileRouteTypes {
@@ -159,7 +159,7 @@ export interface FileRouteTypes {
     | '/recap'
     | '/reset-password'
     | '/reveal'
-    | '/rulette'
+    | '/ru-lette'
     | '/api/public/live-host'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -175,7 +175,7 @@ export interface FileRouteTypes {
     | '/recap'
     | '/reset-password'
     | '/reveal'
-    | '/rulette'
+    | '/ru-lette'
     | '/api/public/live-host'
   id:
     | '__root__'
@@ -191,7 +191,7 @@ export interface FileRouteTypes {
     | '/recap'
     | '/reset-password'
     | '/reveal'
-    | '/rulette'
+    | '/ru-lette'
     | '/api/public/live-host'
   fileRoutesById: FileRoutesById
 }
@@ -208,7 +208,7 @@ export interface RootRouteChildren {
   RecapRoute: typeof RecapRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RevealRoute: typeof RevealRoute
-  RuletteRoute: typeof RuletteRoute
+  RuLetteRoute: typeof RuLetteRoute
   ApiPublicLiveHostRoute: typeof ApiPublicLiveHostRoute
 }
 
@@ -298,11 +298,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RevealRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/rulette': {
-      id: '/rulette'
-      path: '/rulette'
-      fullPath: '/rulette'
-      preLoaderRoute: typeof RuletteRouteImport
+    '/ru-lette': {
+      id: '/ru-lette'
+      path: '/ru-lette'
+      fullPath: '/ru-lette'
+      preLoaderRoute: typeof RuLetteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/live-host': {
@@ -328,7 +328,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecapRoute: RecapRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RevealRoute: RevealRoute,
-  RuletteRoute: RuletteRoute,
+  RuLetteRoute: RuLetteRoute,
   ApiPublicLiveHostRoute: ApiPublicLiveHostRoute,
 }
 export const routeTree = rootRouteImport

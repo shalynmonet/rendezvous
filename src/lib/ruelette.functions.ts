@@ -50,10 +50,10 @@ async function generate(mode: AiMode, pa: P, pb: P): Promise<Activity> {
     const { resolveItems } = await import("./qloo.server");
     const [a, b] = await Promise.all([data.a, data.b].map(async (p) => ({ ...p, tastes: (await resolveItems(p.tastes)) as P["tastes"] })));
     const { result } = await runAgent({
-      system: `You are hosting Rulette, a spin-the-wheel date activity. ${BRIEF[data.mode]} Keep it fun and grounded in their real tastes; 'reason' cites the specific taste signals. rue_line is your one-line diva host intro.`,
+      system: `You are hosting Ru-lette, a spin-the-wheel date activity. ${BRIEF[data.mode]} Keep it fun and grounded in their real tastes; 'reason' cites the specific taste signals. rue_line is your one-line diva host intro.`,
       prompt: `${describe(a!)}\n${describe(b!)}`,
       finishSchema: SCHEMAS[data.mode] as z.ZodType<Record<string, unknown>>,
-      finishDescription: "Submit the Rulette activity.",
+      finishDescription: "Submit the Ru-lette activity.",
     });
     const act = { mode: data.mode, ...result } as Activity;
     if (act.mode === "song") act.spotify_url = `https://open.spotify.com/search/${encodeURIComponent(`${act.song} ${act.artist}`)}`;
@@ -69,7 +69,7 @@ export const rueView = createServerFn({ method: "POST" })
 async function debriefWith(data: { a: string; b: string; activity: string; rating: number; notes: string }) {
     const { runAgent } = await import("./agent.server");
     const { result } = await runAgent({
-      system: `This is the Ru-view: a debrief after ${data.a} and ${data.b} finished a Rulette activity. React in your signature diva-host voice: 2-3 witty sentences responding to their rating and notes, then a short milestone title for their memory book. No tools needed.`,
+      system: `This is the Ru-view: a debrief after ${data.a} and ${data.b} finished a Ru-lette activity. React in your signature diva-host voice: 2-3 witty sentences responding to their rating and notes, then a short milestone title for their memory book. No tools needed.`,
       prompt: `Activity: ${data.activity}\nRating: ${data.rating}/5\nTheir notes: ${data.notes || "(none)"}`,
       finishSchema: z.object({ commentary: z.string(), milestone: z.string() }),
       finishDescription: "Submit your debrief.",
@@ -77,7 +77,7 @@ async function debriefWith(data: { a: string; b: string; activity: string; ratin
     return result;
 }
 
-// ---------- Shared (live) Rulette in a private two-person room ----------
+// ---------- Shared (live) Ru-lette in a private two-person room ----------
 const Key = z.string().regex(/^[a-f0-9]{64}$/);
 const RoomIn = { room: z.string().uuid(), token: Key };
 const BUCKET = "ruelette-photos";
