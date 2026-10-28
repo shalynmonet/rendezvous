@@ -1,7 +1,7 @@
 # Rendezvous roadmap
-- [ ] Use the new wide artwork on the home page
-- [ ] Mix natural questions and follow-ups with games in live and demo chat
-- [ ] Verify conversation variety and preserved two-person turn gating
+- [x] Use the new wide artwork on the home page
+- [x] Mix natural questions and follow-ups with games in live and demo chat
+- [x] Verify conversation variety and preserved two-person turn gating
 - [x] Make Ru host live conversations automatically, with shared mute/unmute controls
 - [x] Protect shared Ru-lette activities from unilateral re-spins while someone is responding
 - [x] Show “Waiting for [partner] to approve respin” until the second person approves
