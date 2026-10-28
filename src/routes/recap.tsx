@@ -59,7 +59,7 @@ function RecapView({ me, active, s }: Ctx) {
         <div className="mx-auto max-w-md">
           <div className="rounded-3xl border border-gold/35 shadow-candle">
             <div className="overflow-hidden rounded-[1.25rem] bg-card">
-              <img src={RUE_IMG} alt="" className="h-44 w-full object-cover object-[70%_30%]" />
+              <img src={RUE_IMG} alt="Ru at her café table" className="h-44 w-full object-cover object-[50%_25%]" />
               <div className="space-y-4 p-6">
                 <p className="text-xs uppercase tracking-[0.3em] text-gold">A Rendezvous</p>
                 <h2 className="text-4xl font-semibold italic">

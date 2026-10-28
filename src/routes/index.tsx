@@ -63,7 +63,7 @@ function Home() {
         <img
           src={RUE_IMG}
           alt="Ru the fox in a houndstooth scarf at a candlelit table"
-          className="absolute inset-0 h-full w-full object-cover object-[70%_center]"
+          className="absolute inset-0 h-full w-full object-cover object-[50%_30%]"
         />
         <div className="hero-fade absolute inset-0" />
         <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-5 py-16">
