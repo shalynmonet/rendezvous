@@ -10,7 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as PlanRouteImport } from './routes/plan'
@@ -23,9 +25,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChatRoute = ChatRouteImport.update({
   id: '/chat',
   path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConciergeRoute = ConciergeRouteImport.update({
+  id: '/concierge',
+  path: '/concierge',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConnectionsRoute = ConnectionsRouteImport.update({
@@ -61,7 +73,9 @@ const RevealRoute = RevealRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
+  '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
   '/invite': typeof InviteRoute
   '/plan': typeof PlanRoute
@@ -71,7 +85,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
+  '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
   '/invite': typeof InviteRoute
   '/plan': typeof PlanRoute
@@ -82,7 +98,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/chat': typeof ChatRoute
+  '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
   '/invite': typeof InviteRoute
   '/plan': typeof PlanRoute
@@ -94,7 +112,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/chat'
+    | '/concierge'
     | '/connections'
     | '/invite'
     | '/plan'
@@ -104,7 +124,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/chat'
+    | '/concierge'
     | '/connections'
     | '/invite'
     | '/plan'
@@ -114,7 +136,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/chat'
+    | '/concierge'
     | '/connections'
     | '/invite'
     | '/plan'
@@ -125,7 +149,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   ChatRoute: typeof ChatRoute
+  ConciergeRoute: typeof ConciergeRoute
   ConnectionsRoute: typeof ConnectionsRoute
   InviteRoute: typeof InviteRoute
   PlanRoute: typeof PlanRoute
@@ -143,11 +169,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chat': {
       id: '/chat'
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/concierge': {
+      id: '/concierge'
+      path: '/concierge'
+      fullPath: '/concierge'
+      preLoaderRoute: typeof ConciergeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/connections': {
@@ -197,7 +237,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   ChatRoute: ChatRoute,
+  ConciergeRoute: ConciergeRoute,
   ConnectionsRoute: ConnectionsRoute,
   InviteRoute: InviteRoute,
   PlanRoute: PlanRoute,
