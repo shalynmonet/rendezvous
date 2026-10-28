@@ -90,6 +90,8 @@
   --gradient-glow: radial-gradient(ellipse at top, oklch(0.4 0.14 35 / 0.35), transparent 60%);
   --gradient-hero: linear-gradient(90deg, oklch(0.17 0.03 20) 0%, oklch(0.17 0.03 20 / 0.85) 38%, transparent 70%);
   --shadow-candle: 0 20px 50px -20px oklch(0.66 0.17 45 / 0.45);
+  --qr-paper: #ffffff;
+  --qr-ink: #000000;
 }
 
 @layer base {
@@ -101,8 +103,11 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
-  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: 0; }
 }
+
+.profile-qr { background: var(--qr-paper); padding: 12px; width: 216px; max-width: 100%; }
+.profile-qr svg { display: block; width: 100%; height: auto; }
 
 @utility houndstooth {
   background-color: var(--secondary);

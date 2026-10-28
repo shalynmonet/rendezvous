@@ -12,4 +12,7 @@
 ## Rendezvous architecture
 - Qloo calls live only in `src/lib/qloo.server.ts` (hackathon base URL); keeps the key server-side.
 - Rue is an AI SDK tool-calling agent in `src/lib/agent.server.ts` that ends with a structured `finish` tool; every result carries a `reason` citing taste data.
-- Taste profiles and connections live in browser storage (`src/lib/store.ts`) so the demo has no login wall; only concierge requests are stored in the database, readable by admins only.
+- Guest taste profiles and connections remain browser-local with no login wall; optional account profiles use owner-only storage and private shared guest chat sessions are the only additional cloud-stored pairing snapshots and messages.
+- Guest chat access goes through capability-checking database RPCs; hashed invitation and participant keys are distinct, direct anonymous table access is forbidden, and server completions require a database-issued claim to avoid duplicate Rue turns.
+- Live chat is a shared multi-human game, not a standard single-user AI transcript: human messages sync via authorized polling, and the hosted structured finish turn uses an NDJSON heartbeat stream so both humans can keep chatting independently of Rue.
+- Account state has one root provider; saving/restoring guest tastes requires confirmed authentication and explicit conflict resolution, and QR images are generated locally from the sharing link.

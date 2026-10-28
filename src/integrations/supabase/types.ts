@@ -71,6 +71,81 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_chats: {
+        Row: {
+          a_hash: string
+          b_hash: string | null
+          claim: string | null
+          claimed_at: string | null
+          expires_at: string
+          game: Json | null
+          id: string
+          invite_hash: string
+          last_rue_index: number
+          messages: Json
+          mood: string | null
+          profile_a: Json
+          profile_b: Json | null
+          rue_error: string | null
+          scores: Json
+          tools: Json
+        }
+        Insert: {
+          a_hash: string
+          b_hash?: string | null
+          claim?: string | null
+          claimed_at?: string | null
+          expires_at?: string
+          game?: Json | null
+          id?: string
+          invite_hash: string
+          last_rue_index?: number
+          messages?: Json
+          mood?: string | null
+          profile_a: Json
+          profile_b?: Json | null
+          rue_error?: string | null
+          scores?: Json
+          tools?: Json
+        }
+        Update: {
+          a_hash?: string
+          b_hash?: string | null
+          claim?: string | null
+          claimed_at?: string | null
+          expires_at?: string
+          game?: Json | null
+          id?: string
+          invite_hash?: string
+          last_rue_index?: number
+          messages?: Json
+          mood?: string | null
+          profile_a?: Json
+          profile_b?: Json | null
+          rue_error?: string | null
+          scores?: Json
+          tools?: Json
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          id: string
+          taste_profile: Json | null
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          taste_profile?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          taste_profile?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -94,6 +169,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      finish_guest_chat: {
+        Args: {
+          p_claim: string
+          p_error?: string
+          p_room: string
+          p_tools: Json
+          p_turn: Json
+        }
+        Returns: boolean
+      }
+      guest_chat_access: {
+        Args: {
+          p_action: string
+          p_invite?: string
+          p_message_id?: string
+          p_mood?: string
+          p_profile?: Json
+          p_room?: string
+          p_text?: string
+          p_token?: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
