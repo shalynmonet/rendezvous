@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AccountProvider, useAccount } from "@/components/account-provider";
+import { AccountSync } from "@/components/account-sync";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -127,7 +128,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AccountProvider>
-        <AppShell />
+        <AccountSync><AppShell /></AccountSync>
       </AccountProvider>
     </QueryClientProvider>
   );

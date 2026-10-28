@@ -22,6 +22,9 @@ export type State = {
   chats?: Record<string, SavedChat[]>;
   selectedChats?: Record<string, string | null>;
   memories?: Memory[];
+  ruelette?: Record<string, unknown>;
+  plans?: Record<string, unknown>;
+  reveals?: Record<string, unknown>;
 };
 export type ChatMessage = { sender: "rue" | "a" | "b"; content: string };
 export type SavedChat = {
@@ -60,6 +63,7 @@ export type Memory = {
 };
 
 const KEY = "rendezvous.v1";
+let storageKey = KEY;
 const empty: State = { me: null, connections: [], activeId: null };
 
 export const DEMO_A: Profile = {
@@ -92,15 +96,22 @@ const subs = new Set<(s: State) => void>();
 function load(): State {
   if (typeof window === "undefined") return empty;
   try {
-    return { ...empty, ...JSON.parse(localStorage.getItem(KEY) || "{}") };
+    return { ...empty, ...JSON.parse(localStorage.getItem(storageKey) || "{}") };
   } catch {
     return empty;
   }
 }
 export function setState(fn: (s: State) => State) {
   mem = fn(mem);
-  localStorage.setItem(KEY, JSON.stringify(mem));
+  try { localStorage.setItem(storageKey, JSON.stringify(mem)); } catch { /* Account autosave still receives larger photo updates. */ }
   subs.forEach((f) => f(mem));
+}
+
+export function storeSnapshot() { return mem; }
+export function subscribeStore(fn: (s: State) => void) { subs.add(fn); return () => { subs.delete(fn); }; }
+export function switchAccountStore(userId: string | null, state?: State) {
+  storageKey = userId ? `${KEY}.account.${userId}` : KEY;
+  setState(() => state ?? load());
 }
 
 export function useStore() {
