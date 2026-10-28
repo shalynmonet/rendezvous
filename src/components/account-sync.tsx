@@ -67,7 +67,7 @@ export function AccountSync({ children }: { children: ReactNode }) {
         } else start(savedState, saved.revision);
       } catch (e) { if (!stopped) { setError((e as Error).message); setLoading(true); } }
     })();
-    const onHidden = () => { if (document.hidden) void persist(); };
+    const onHidden = () => { if (document.hidden && dirty) void persist(); };
     document.addEventListener("visibilitychange", onHidden);
     return () => { stopped = true; clearTimeout(timer); unsubscribe?.(); flush.current = null; document.removeEventListener("visibilitychange", onHidden); };
   }, [user?.id, ready, read, save, query]);

@@ -78,6 +78,29 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
   const [debrief, setDebrief] = useState(false);
   const seen = useRef<string | null | undefined>(undefined);
   const st = shared.state;
+  const archived = useRef<string | null>(null);
+  useEffect(() => {
+    if (!room || !st?.spin_id || !st.mode || st.status === "generating") return;
+    const signature = JSON.stringify([st.spin_id, st.activity, st.photos, st.debrief]);
+    if (archived.current === signature) return;
+    archived.current = signature;
+    let stopped = false;
+    void (async () => {
+      const slots = st.side === "a" ? [st.photos.a, st.photos.b] : [st.photos.b, st.photos.a];
+      const images = await Promise.all(slots.map(async (url) => {
+        if (!url) return null;
+        try {
+          const response = await fetch(url);
+          if (!response.ok) return null;
+          const blob = await response.blob();
+          return await new Promise<string>((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsDataURL(blob); });
+        } catch { return null; }
+      }));
+      if (stopped) return;
+      setState((s) => ({ ...s, ruelette: { ...s.ruelette, [connectionId]: { ...(s.ruelette?.[connectionId] as Record<string, unknown> | undefined), mode: st.mode, activity: st.activity, seed: st.spin_id, ...(st.activity && images.some(Boolean) ? { [`photos:${st.activity.title}`]: images } : {}) } } }));
+    })();
+    return () => { stopped = true; };
+  }, [room, st, connectionId]);
 
   // When the shared spin changes, animate the wheel for both people.
   useEffect(() => {
