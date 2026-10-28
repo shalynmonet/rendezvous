@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Page, PageTitle, RueSays, TasteEditor } from "@/components/rue";
 import { useStore } from "@/lib/store";
 import type { TasteT } from "@/lib/rue.functions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LIFESTYLE_TOPICS, type LifestyleT } from "@/lib/lifestyle";
 import { useServerFn } from "@tanstack/react-start";
 import { useAccount } from "@/components/account-provider";
 import { saveAccountProfile, readSavedProfile } from "@/lib/profile.functions";
@@ -41,11 +43,13 @@ function ProfilePage() {
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
   const [tastes, setTastes] = useState<TasteT[]>([]);
+  const [lifestyle, setLifestyle] = useState<NonNullable<LifestyleT>>({});
   useEffect(() => {
     if (ready && s.me) {
       setName(s.me.name);
       setCity(s.me.city);
       setTastes(s.me.tastes);
+      setLifestyle(s.me.lifestyle ?? {});
     }
   }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -54,12 +58,12 @@ function ProfilePage() {
       toast.error("A name and at least three favorites, s'il vous plaît.");
       return;
     }
-    update((st) => ({ ...st, me: { name: name.trim(), city: city.trim() || "Chicago", tastes } }));
+    update((st) => ({ ...st, me: { name: name.trim(), city: city.trim() || "Chicago", tastes, lifestyle } }));
     toast.success("Saved. Ru knows.");
     setSaved(true);
     if (user) {
       try {
-        const local = { name: name.trim(), city: city.trim() || "Chicago", tastes };
+        const local = { name: name.trim(), city: city.trim() || "Chicago", tastes, lifestyle };
         const existing = await accountRead();
         if (needsProfileChoice(local, existing)) {
           toast.info(
@@ -94,7 +98,60 @@ function ProfilePage() {
           />
           <Input placeholder="Your city" value={city} onChange={(e) => setCity(e.target.value)} />
         </div>
-        <TasteEditor value={tastes} onChange={setTastes} />
+        <Tabs defaultValue="tastes">
+          <TabsList>
+            <TabsTrigger value="tastes">Tastes</TabsTrigger>
+            <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
+          </TabsList>
+          <TabsContent value="tastes" className="pt-4">
+            <TasteEditor value={tastes} onChange={setTastes} />
+          </TabsContent>
+          <TabsContent value="lifestyle" className="space-y-5 pt-4">
+            <p className="text-sm text-muted-foreground">
+              Optional. Ru uses this to suggest dates you'll both be comfortable with — never to judge.
+            </p>
+            {LIFESTYLE_TOPICS.map((t) => (
+              <fieldset key={t.key} className="space-y-2">
+                <legend className="font-medium">{t.label}</legend>
+                <div className="flex flex-wrap gap-2">
+                  {t.options.map((o) => (
+                    <Button
+                      key={o}
+                      type="button"
+                      size="sm"
+                      variant={lifestyle[t.key] === o ? "default" : "outline"}
+                      aria-pressed={lifestyle[t.key] === o}
+                      onClick={() =>
+                        setLifestyle((l) => ({ ...l, [t.key]: l[t.key] === o ? undefined : o }))
+                      }
+                    >
+                      {o}
+                    </Button>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+            <fieldset className="space-y-2">
+              <legend className="font-medium">Okay if my date partakes?</legend>
+              <div className="flex flex-wrap gap-2">
+                {([["Yes", true], ["Prefer they don't", false]] as const).map(([lbl, v]) => (
+                  <Button
+                    key={lbl}
+                    type="button"
+                    size="sm"
+                    variant={lifestyle.openToPartner === v ? "default" : "outline"}
+                    aria-pressed={lifestyle.openToPartner === v}
+                    onClick={() =>
+                      setLifestyle((l) => ({ ...l, openToPartner: l.openToPartner === v ? undefined : v }))
+                    }
+                  >
+                    {lbl}
+                  </Button>
+                ))}
+              </div>
+            </fieldset>
+          </TabsContent>
+        </Tabs>
         <Button onClick={save}>Save my tastes</Button>
       </div>
       {saved && (
