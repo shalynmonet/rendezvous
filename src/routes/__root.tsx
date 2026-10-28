@@ -103,6 +103,7 @@ function RootComponent() {
 function AppShell() {
   const {user}=useAccount();
   return (
+    <>
       <div className="flex min-h-screen flex-col">
         <nav className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center gap-4 overflow-x-auto px-5 py-3">

@@ -3,6 +3,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool, stepCountIs, type ToolSet } from "ai";
 import { z } from "zod";
 import { compareTastes, insights, PLACE_KIND_TAG, searchEntities, type TasteCategory } from "./qloo.server";
+import { createLovableAiGatewayRunIdFetch } from './run-id.server';
 
 const MODEL = "openai/gpt-6-astra";
 
@@ -63,10 +64,12 @@ export function qlooTools(): ToolSet {
 export async function runAgent<T>(opts: { system: string; prompt: string; finishSchema: z.ZodType<T>; finishDescription: string; extraTools?: ToolSet }): Promise<{ result: T; toolsUsed: string[] }> {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
+  const runId = createLovableAiGatewayRunIdFetch();
   const provider = createOpenAI({
     baseURL: "https://ai.gateway.lovable.dev/v1",
     apiKey,
     headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+    fetch: runId.fetch,
   });
   const tools: ToolSet = {
     ...qlooTools(),
@@ -79,12 +82,12 @@ export async function runAgent<T>(opts: { system: string; prompt: string; finish
     prompt: opts.prompt,
     tools,
     stopWhen: stepCountIs(50),
-    providerOptions: { openai: { store: false } },
+    providerOptions: { openai: { store: false, forceReasoning: true, reasoningEffort: 'medium', reasoningSummary: 'auto', include: ['reasoning.encrypted_content'] } },
   });
   const steps = await res.steps;
   const toolsUsed: string[] = [];
   for (const s of steps) for (const c of s.toolCalls) {
-    if (c.toolName === "finish") return { result: c.input as T, toolsUsed };
+    if (c.toolName === "finish") return { result: opts.finishSchema.parse(c.input), toolsUsed };
     toolsUsed.push(c.toolName);
   }
   throw new Error("Rue lost her train of thought. Please try again.");
