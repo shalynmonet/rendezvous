@@ -79,7 +79,7 @@ export async function runAgent<T>(opts: { system: string; prompt: string; finish
     prompt: opts.prompt,
     tools,
     stopWhen: stepCountIs(50),
-    providerOptions: { openai: { store: false, reasoningEffort: "low" } },
+    providerOptions: { openai: { store: false } },
   });
   const steps = await res.steps;
   const toolsUsed: string[] = [];
