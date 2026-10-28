@@ -1,4 +1,5 @@
 # Rendezvous roadmap
+- [ ] Real-person invitations and shared live chat with Rue
 - [x] Qloo + Rue agent on the server
 - [x] Design system + home with Rue art
 - [x] Taste profile, connections/invite, Taste Reveal, Date Plan, Chat, Recap
