@@ -155,7 +155,7 @@ function AppShell() {
                 </Link>
               ))}
               <Link to="/auth" className="whitespace-nowrap px-3 py-1.5 text-sm text-gold">
-                {user ? "Account" : "Save my tastes"}
+                {user ? "Account" : "Sign in"}
               </Link>
             </div>
           </div>
