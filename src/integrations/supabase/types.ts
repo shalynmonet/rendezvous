@@ -149,6 +149,30 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_chats: {
+        Row: {
+          id: string
+          snapshot: Json
+          source_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          snapshot: Json
+          source_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          snapshot?: Json
+          source_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
