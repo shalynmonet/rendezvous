@@ -1,8 +1,8 @@
 # Rendezvous roadmap
-- [ ] Make Ru host live conversations automatically, with shared mute/unmute controls
-- [ ] Protect shared Ru-lette activities from unilateral re-spins while someone is responding
-- [ ] Show “Waiting for [partner] to approve respin” until the second person approves
-- [ ] Verify two-person hosting, mute persistence, and protected next spins
+- [x] Make Ru host live conversations automatically, with shared mute/unmute controls
+- [x] Protect shared Ru-lette activities from unilateral re-spins while someone is responding
+- [x] Show “Waiting for [partner] to approve respin” until the second person approves
+- [x] Verify two-person hosting, mute persistence, and protected next spins
 - [x] Verify saved thread completeness and scores, prevent stale account history, and show save timestamps
 - [x] Account-save demo and live chat snapshots with private saved-chat history
 - [x] Show guests “Create an account to save” and verify save/read across browsers

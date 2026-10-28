@@ -41,4 +41,12 @@ describe.skipIf(!url || !key)("Shared room controls", () => {
   it("rejects private controls without a participant key", async () => {
     await expect(rpc("guest_chat_access", { p_action: "mute", p_room: room, p_token: newGuestKey() })).rejects.toThrow("denied");
   });
+  it("lets the partner decline a respin without replacing the current activity", async () => {
+    const spin = (token: string, action: string, payload: Record<string, unknown> = {}) => rpc("guest_ruelette", { p_room: room, p_token: token, p_action: action, p_payload: payload });
+    const current = (await spin(a, "read")).ruelette;
+    const requested = (await spin(a, "spin", { mode: "game", rot: 1050, expected_spin: current.spin_id })).ruelette;
+    const kept = (await spin(b, "cancel_spin", { expected_spin: current.spin_id, proposal_id: requested.next_spin.id })).ruelette;
+    expect(kept.spin_id).toBe(current.spin_id);
+    expect(kept.next_spin).toBeUndefined();
+  });
 });
