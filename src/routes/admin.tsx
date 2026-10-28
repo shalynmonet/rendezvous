@@ -17,7 +17,7 @@ export const Route = createFileRoute("/admin")({
       { title: "Concierge Desk — Rendezvous" },
       { name: "description", content: "Shalyn's review desk for concierge requests." },
       { property: "og:title", content: "Concierge Desk — Rendezvous" },
-      { property: "og:description", content: "Review and refine Rue's drafts." },
+      { property: "og:description", content: "Review and refine Ru's drafts." },
       { name: "robots", content: "noindex" },
     ],
   }),

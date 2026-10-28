@@ -20,7 +20,7 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Rue can't find this table</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Ru can't find this table</h2>
         <div className="mt-6">
           <Link
             to="/"
@@ -76,7 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Rendezvous — Rue knows." },
+      { title: "Rendezvous — Ru knows." },
       { name: "description", content: "A taste-aware relationship host powered by Qloo." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -117,7 +117,7 @@ const NAV = [
   { to: "/connections", label: "People" },
   { to: "/reveal", label: "Reveal" },
   { to: "/chat", label: "Chat" },
-  { to: "/ruelette", label: "Rue-lette" },
+  { to: "/rulette", label: "Rulette" },
   { to: "/plan", label: "Plan a date" },
   { to: "/concierge", label: "Concierge" },
 ] as const;
@@ -164,7 +164,7 @@ function AppShell() {
           <Outlet />
         </div>
         <footer className="banner-velvet border-t py-6 text-center text-xs text-foreground">
-          Rue knows. · Taste data by Qloo ·{" "}
+          Ru knows. · Taste data by Qloo ·{" "}
           <Link to="/admin" className="underline">
             Concierge desk
           </Link>

@@ -14,9 +14,9 @@ export const Route = createFileRoute("/chat")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "Chat with Rue — Rendezvous" },
-      { name: "description", content: "Rue hosts taste-based games for two." },
-      { property: "og:title", content: "Chat with Rue — Rendezvous" },
+      { title: "Chat with Ru — Rendezvous" },
+      { name: "description", content: "Ru hosts taste-based games for two." },
+      { property: "og:title", content: "Chat with Ru — Rendezvous" },
       {
         property: "og:description",
         content: "This or That, Defend Your Pick, Deep Cuts and more.",
@@ -102,12 +102,12 @@ function ChatView({ me, active }: Ctx) {
     return (
       <>
         <PageTitle
-          eyebrow="Chat with Rue"
+          eyebrow="Chat with Ru"
           title="Pick a mood"
           sub={
             active.demo
-              ? `Rue plays ${active.profile.name} from their real tastes, so you can try every game solo.`
-              : `Rue answers for ${active.profile.name} from their taste profile until they join.`
+              ? `Ru plays ${active.profile.name} from their real tastes, so you can try every game solo.`
+              : `Ru answers for ${active.profile.name} from their taste profile until they join.`
           }
         />
         <div className="grid gap-3 md:grid-cols-3">
@@ -128,7 +128,7 @@ function ChatView({ me, active }: Ctx) {
     );
 
   const name = (s: Msg["sender"]) =>
-    s === "a" ? me.name : s === "b" ? active.profile.name : "Rue";
+    s === "a" ? me.name : s === "b" ? active.profile.name : "Ru";
   return (
     <div className="grid gap-6 md:grid-cols-[1fr_220px]">
       <div className="card-luxe flex h-[70vh] flex-col">
@@ -153,7 +153,7 @@ function ChatView({ me, active }: Ctx) {
           {busy && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Rue is shuffling the cards…
+              Ru is shuffling the cards…
             </div>
           )}
           <div ref={end} />

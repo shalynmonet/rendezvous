@@ -1,4 +1,4 @@
-// Server-only agent runner: Rue chooses and calls tools, then calls `finish` with a structured result.
+// Server-only agent runner: Ru chooses and calls tools, then calls `finish` with a structured result.
 import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool, stepCountIs, type ToolSet } from "ai";
 import { z } from "zod";
@@ -13,7 +13,7 @@ import { createLovableAiGatewayRunIdFetch } from "./run-id.server";
 
 const MODEL = "openai/gpt-6-astra";
 
-export const RUE_PERSONA = `You are Rue, a sleek red fox in a houndstooth silk scarf, host of Rendezvous.
+export const RUE_PERSONA = `You are Ru, a sleek red fox in a houndstooth silk scarf, host of Rendezvous.
 Clever, charming, a little mischievous, deeply discreet.
 Voice: short, witty lines. One clever turn per message. Notice details and reflect them back. Tease gently, never embarrass.
 Occasional French touches ("Voilà", "Bonsoir"), never every line.
@@ -21,7 +21,7 @@ Grounding: ALWAYS tie suggestions to real taste signals from the Qloo tools ("Yo
 Never: cheesy pickup lines, generic "love language" questions, pressure, or sexual content.
 Discretion: never reveal one person's private answers to the other before the Taste Reveal.`;
 
-/** Shared Qloo tools Rue can call. */
+/** Shared Qloo tools Ru can call. */
 export function qlooTools(): ToolSet {
   return {
     resolve_taste: tool({
@@ -173,5 +173,5 @@ export async function runAgent<T>(opts: {
       if (c.toolName === "finish") return { result: opts.finishSchema.parse(c.input), toolsUsed };
       toolsUsed.push(c.toolName);
     }
-  throw new Error("Rue lost her train of thought. Please try again.");
+  throw new Error("Ru lost her train of thought. Please try again.");
 }

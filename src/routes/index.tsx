@@ -15,13 +15,13 @@ export const Route = createFileRoute("/")({
         : []),
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "Rendezvous — Rue plans dates from your real tastes" },
+      { title: "Rendezvous — Ru plans dates from your real tastes" },
       {
         name: "description",
         content:
-          "Rue, a houndstooth-scarfed fox, uses Qloo's taste graph to plan dates, reveal shared tastes, and host playful chats for two.",
+          "Ru, a houndstooth-scarfed fox, uses Qloo's taste graph to plan dates, reveal shared tastes, and host playful chats for two.",
       },
-      { property: "og:title", content: "Rendezvous — Rue knows." },
+      { property: "og:title", content: "Rendezvous — Ru knows." },
       {
         property: "og:description",
         content: "Taste-matched dates, reveals and games for two, powered by Qloo.",
@@ -35,9 +35,9 @@ const DOORS = [
   {
     to: "/chat",
     icon: MessageCircleHeart,
-    title: "Chat with Rue",
+    title: "Chat with Ru",
     tier: "Free",
-    body: "Rue hosts the two of you with games built from both your tastes.",
+    body: "Ru hosts the two of you with games built from both your tastes.",
   },
   {
     to: "/plan",
@@ -51,7 +51,7 @@ const DOORS = [
     icon: Crown,
     title: "Concierge",
     tier: "Premium",
-    body: "Tell Rue about someone you love. She drafts; Shalyn perfects and books.",
+    body: "Tell Ru about someone you love. She drafts; Shalyn perfects and books.",
   },
 ] as const;
 
@@ -62,14 +62,14 @@ function Home() {
       <section className="relative min-h-[78vh] overflow-hidden">
         <img
           src={RUE_IMG}
-          alt="Rue the fox in a houndstooth scarf at a candlelit table"
+          alt="Ru the fox in a houndstooth scarf at a candlelit table"
           className="absolute inset-0 h-full w-full object-cover object-[70%_center]"
         />
         <div className="hero-fade absolute inset-0" />
         <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-5 py-16">
-          <p className="text-xs uppercase tracking-[0.35em] text-gold">Bonsoir. I'm Rue.</p>
+          <p className="text-xs uppercase tracking-[0.35em] text-gold">Bonsoir. I'm Ru.</p>
           <h1 className="mt-4 max-w-xl text-6xl font-semibold leading-[0.95] md:text-8xl">
-            Leave the details to Rue.
+            Leave the details to Ru.
           </h1>
           <p className="mt-6 max-w-md text-lg text-muted-foreground">
             I read the taste graph — what you love, what they love, and the secret bridge between —
@@ -93,14 +93,14 @@ function Home() {
         </div>
       </section>
       <section className="mx-auto max-w-6xl px-5 pt-14">
-        <Link to="/ruelette" className="card-luxe group flex items-center gap-6 p-6 transition hover:-translate-y-1 hover:shadow-candle">
+        <Link to="/rulette" className="card-luxe group flex items-center gap-6 p-6 transition hover:-translate-y-1 hover:shadow-candle">
           <div className="ruelette-wheel flex h-20 w-20 shrink-0 animate-[spin_8s_linear_infinite] items-center justify-center rounded-full border-2 border-gold group-hover:animate-[spin_1.5s_linear_infinite]">
             <Heart className="h-7 w-7 fill-primary text-gold" />
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-gold">New · Play tonight</p>
-            <h2 className="mt-1 text-3xl font-semibold">Rue-lette</h2>
-            <p className="mt-1 text-muted-foreground">Spin Rue's wheel for a game, song, date menu, photo booth or portrait challenge.</p>
+            <h2 className="mt-1 text-3xl font-semibold">Rulette</h2>
+            <p className="mt-1 text-muted-foreground">Spin Ru's wheel for a game, song, date menu, photo booth or portrait challenge.</p>
           </div>
         </Link>
       </section>
@@ -119,10 +119,10 @@ function Home() {
         ))}
       </section>
       <section className="mx-auto max-w-3xl px-5 pb-16 text-center">
-        <h2 className="text-4xl font-semibold italic">Why Rue isn't guessing</h2>
+        <h2 className="text-4xl font-semibold italic">Why Ru isn't guessing</h2>
         <p className="mt-3 text-muted-foreground">
           Every pick comes from Qloo's cross-domain taste graph: your favorite artists predict
-          restaurants, films predict nightcaps, and Rue shows you the signal behind each one.
+          restaurants, films predict nightcaps, and Ru shows you the signal behind each one.
         </p>
       </section>
     </>

@@ -100,7 +100,7 @@ function RevealView({ me, active }: Ctx) {
       <PageTitle
         eyebrow="The Taste Reveal"
         title={`${me.name} & ${active.profile.name}`}
-        sub="Rue compares both taste graphs and finds the overlap, the bridges, and the dares."
+        sub="Ru compares both taste graphs and finds the overlap, the bridges, and the dares."
       />
       {!data && !busy && (
         <div className="card-luxe space-y-4 p-6">

@@ -12,13 +12,13 @@ export const RUE_IMG = rueHero.url;
 
 export function RueAvatar({ size = 44 }: { size?: number }) {
   return (
-    <img src={RUE_IMG} alt="Rue the fox" width={size} height={size}
+    <img src={RUE_IMG} alt="Ru the fox" width={size} height={size}
       className="shrink-0 rounded-full border-2 border-gold object-cover"
       style={{ width: size, height: size, objectPosition: "64% 22%", objectFit: "cover", transform: "scale(1)" }} />
   );
 }
 
-const LINES = ["Rue is consulting the taste graph…", "Sniffing out the good tables…", "Voilà, almost there…", "Cross-referencing your secret obsessions…", "Leave the details to Rue."];
+const LINES = ["Ru is consulting the taste graph…", "Sniffing out the good tables…", "Voilà, almost there…", "Cross-referencing your secret obsessions…", "Leave the details to Ru."];
 export function RueThinking({ label }: { label?: string }) {
   const [i, setI] = useState(0);
   useEffect(() => { const t = setInterval(() => setI((x) => (x + 1) % LINES.length), 2600); return () => clearInterval(t); }, []);
@@ -142,6 +142,6 @@ export function ToolTrail({ tools }: { tools: string[] }) {
   if (!tools.length) return null;
   const counts = tools.reduce<Record<string, number>>((m, t) => ({ ...m, [t]: (m[t] ?? 0) + 1 }), {});
   return (
-    <p className="text-xs text-muted-foreground">Rue called Qloo: {Object.entries(counts).map(([t, n]) => `${t}${n > 1 ? ` ×${n}` : ""}`).join(" · ")}</p>
+    <p className="text-xs text-muted-foreground">Ru called Qloo: {Object.entries(counts).map(([t, n]) => `${t}${n > 1 ? ` ×${n}` : ""}`).join(" · ")}</p>
   );
 }

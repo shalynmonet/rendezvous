@@ -29,7 +29,7 @@ export const Route = createFileRoute("/plan")({
           "Three taste-matched stops and a blended soundtrack, each with a reason from Qloo.",
       },
       { property: "og:title", content: "Plan a Date — Rendezvous" },
-      { property: "og:description", content: "Rue plans the evening from both your tastes." },
+      { property: "og:description", content: "Ru plans the evening from both your tastes." },
     ],
   }),
   component: () => (

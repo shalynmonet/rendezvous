@@ -94,9 +94,9 @@ export const chatTurn = createServerFn({ method: "POST" })
 Mood: ${data.mood}. Games: this_or_that (two options drawn from both people's tastes or Qloo picks), defend_your_pick, guess_my_answer, deep_cuts.
 Each turn: react to A's last message in one witty line; if a game is running, have B answer too, then award points (0-2 each, added to current scores) with a light reason; then start the next game with start_game. Use Qloo tools to build options grounded in their tastes.
 Messages: 1-3 total, sender "rue" or "b". Keep each under 40 words. Current scores: A ${data.scores.a}, B ${data.scores.b}. Return updated cumulative points.`,
-      prompt: `${describe(a)}\n${describe(b)}\n\nChat so far:\n${data.history.map((m) => `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Rue"}: ${m.content}`).join("\n") || "(just started — greet them and launch the first game)"}`,
+      prompt: `${describe(a)}\n${describe(b)}\n\nChat so far:\n${data.history.map((m) => `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Ru"}: ${m.content}`).join("\n") || "(just started — greet them and launch the first game)"}`,
       finishSchema: GameSchema,
-      finishDescription: "Submit Rue's (and simulated B's) messages, the next game card, and cumulative points.",
+      finishDescription: "Submit Ru's (and simulated B's) messages, the next game card, and cumulative points.",
       extraTools: {
         start_game: tool({
           description: "Pick the next game type.",
