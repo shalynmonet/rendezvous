@@ -19,6 +19,17 @@ export type State = {
   pendingInvite?: string | undefined;
   lastPlan?: unknown;
   lastChat?: { mood: string; scores: { a: number; b: number }; highlight: string };
+  memories?: Memory[];
+};
+export type Memory = {
+  id: string;
+  connectionId: string;
+  activity: string;
+  milestone: string;
+  rating: number;
+  notes: string;
+  commentary: string;
+  at: string;
 };
 
 const KEY = "rendezvous.v1";
