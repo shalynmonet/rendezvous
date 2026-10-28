@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Save, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import type { GuestRoom } from "@/lib/chat-schemas";
 export function ChatSave({ snapshot, room, disabled = false }: { snapshot?: AccountChat | undefined; room?: GuestRoom | undefined; disabled?: boolean }) {
   const { user, ready } = useAccount();
   const save = useServerFn(saveAccountChat);
+  const queryClient = useQueryClient();
   const [busy, setBusy] = useState(false);
   const [savedVersion, setSavedVersion] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -21,7 +23,7 @@ export function ChatSave({ snapshot, room, disabled = false }: { snapshot?: Acco
     <Button variant="outline" className="h-auto w-full whitespace-normal" disabled={disabled || busy || !snapshot?.messages.length} onClick={async () => {
       if (!snapshot) return;
       setBusy(true); setError("");
-      try { await save({ data: room ? { room: room.id, token: room.token } : { snapshot } }); setSavedVersion(version); }
+      try { await save({ data: room ? { room: room.id, token: room.token } : { snapshot } }); setSavedVersion(version); await queryClient.invalidateQueries({ queryKey: ["account-chats", user.id] }); }
       catch (e) { setError((e as Error).message); }
       finally { setBusy(false); }
     }}>
