@@ -68,6 +68,7 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
   const shared = useSharedRuelette(room);
   const [rot, setRot] = useState(0);
   const [spinning, setSpinning] = useState(false);
+  const [requesting, setRequesting] = useState(false);
   const [localMode, setLocalMode] = useState<Mode | null>(null);
   const [localActivity, setLocalActivity] = useState<Activity | null>(null);
   const [localBusy, setLocalBusy] = useState(false);
@@ -110,14 +111,17 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
   };
 
   const go = (i: number, animate: boolean) => {
+    if (requesting) return;
     const target = animate ? rot - (rot % 360) + 360 * 5 + (360 - (i * 60 + 30)) : rot;
-    const m = SLICES[i]!.mode;
+    const m = SLICES[i]?.mode;
+    if (!m) return;
     if (room) {
       setErr("");
+      setRequesting(true);
       // The player who spins sends both profiles in room order (a = creator).
       const [a, b] = st?.side === "b" ? [partner, me] : [me, partner];
-      spinRoom({ data: { room: room.id, token: room.token, mode: m, rot: target, a, b } })
-        .then((r) => shared.set(r)).catch((e) => setErr((e as Error).message));
+      spinRoom({ data: { room: room.id, token: room.token, mode: m, rot: target, a, b, expected_spin: st?.spin_id ?? null } })
+        .then((r) => shared.set(r)).catch((e) => setErr((e as Error).message)).finally(() => setRequesting(false));
       return;
     }
     if (!animate) { void loadLocal(m); return; }
@@ -125,6 +129,16 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
     setTimeout(() => { setSpinning(false); void loadLocal(m); }, 4200);
   };
   const doSpin = () => { if (!spinning && !busy) go(Math.floor(Math.random() * SLICES.length), true); };
+  const respondToSpin = async (action: "approve_spin" | "cancel_spin") => {
+    const proposal = st?.next_spin;
+    if (!room || !st || !proposal || requesting) return;
+    setRequesting(true); setErr("");
+    const [a, b] = st.side === "b" ? [partner, me] : [me, partner];
+    try {
+      shared.set(await spinRoom({ data: { room: room.id, token: room.token, mode: proposal.mode, rot: proposal.rot, a, b, expected_spin: st.spin_id, action, proposal_id: proposal.id } }));
+    } catch (e) { setErr((e as Error).message); }
+    finally { setRequesting(false); }
+  };
 
   const label = SLICES.find((s) => s.mode === mode)?.label ?? "";
   const mine = memories.filter((m) => m.connectionId === connectionId);
@@ -162,18 +176,28 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
               <div className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-gold bg-background houndstooth-dot" />
             </motion.div>
           </div>
-          <Button size="lg" className="shadow-candle" onClick={doSpin} disabled={spinning || busy || waiting}>
-            {spinning ? "Spinning…" : mode ? "Spin again" : "Spin the Ru-lette"}
+          <Button size="lg" className="shadow-candle" onClick={doSpin} disabled={spinning || busy || waiting || requesting || !!st?.next_spin || (!!room && !st)}>
+            {spinning ? "Spinning…" : room && mode ? "Request next spin" : mode ? "Spin again" : "Spin the Ru-lette"}
           </Button>
           <div className="flex flex-wrap justify-center gap-2">
             {SLICES.map((s, i) => (
-              <button key={s.mode} disabled={spinning || busy || waiting} onClick={() => go(i, false)} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:border-gold hover:text-foreground disabled:opacity-50">
+              <Button variant="outline" size="sm" key={s.mode} disabled={spinning || busy || waiting || requesting || !!st?.next_spin || (!!room && !st)} onClick={() => go(i, false)} className="text-xs">
                 {s.emoji} {s.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
       </div>
+
+      {st?.next_spin && (
+        <section className="flex flex-wrap items-center justify-between gap-4 border-y py-4" aria-live="polite">
+          <p>{st.next_spin.by === st.side ? `Waiting for ${partner.name} to approve the next spin.` : `${partner.name} wants to spin again.`}</p>
+          <div className="flex flex-wrap gap-2">
+            {st.next_spin.by !== st.side && <Button disabled={requesting} onClick={() => void respondToSpin("approve_spin")}><Check className="mr-2 h-4 w-4" />Ready — spin together</Button>}
+            <Button variant="outline" disabled={requesting} onClick={() => void respondToSpin("cancel_spin")}>{st.next_spin.by === st.side ? "Cancel request" : "Not yet — keep this activity"}</Button>
+          </div>
+        </section>
+      )}
 
       <AnimatePresence mode="wait">
         {(mode || shownErr) && (
