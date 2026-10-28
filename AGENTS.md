@@ -12,7 +12,7 @@
 ## Rendezvous architecture
 - Qloo calls live only in `src/lib/qloo.server.ts` (hackathon base URL); keeps the key server-side.
 - Ru is an AI SDK tool-calling agent in `src/lib/agent.server.ts` that ends with a structured `finish` tool; every result carries a `reason` citing taste data.
-- Guest taste profiles and connections remain browser-local with no login wall; optional account profiles and saved chat snapshots use owner-only storage, while live pairing rooms use capability-authorized storage.
+- Guests remain browser-local without a login wall; signed-in state automatically saves to a revision-checked owner-only workspace and uses account-scoped browser caches. Importing existing guest data requires an explicit choice to avoid cross-account leakage.
 - Guest chat access goes through capability-checking database RPCs; hashed invitation and participant keys are distinct, direct anonymous table access is forbidden, and server completions require a database-issued claim to avoid duplicate Ru turns.
 - Live chat is a shared multi-human game, not a standard single-user AI transcript: human messages sync via authorized polling, and the hosted structured finish turn uses an NDJSON heartbeat stream so both humans can keep chatting independently of Ru.
 - Live host scheduling follows a client-safe eligibility policy and database claims; shared room mute invalidates in-flight completions so paused hosting cannot publish late turns.
@@ -21,5 +21,7 @@
 - Shared Ru-lette state lives on the private guest room and goes only through the capability-checked guest_ruelette RPC; photos sit in a private bucket served by short-lived signed URLs after that check, so only the two participants can see them.
 - Subsequent shared spins use a room-locked proposal approved by the other participant and an expected spin ID; this preserves current activity state and rejects stale or duplicate replacements.
 - Simulated chats are browser-local sessions keyed by connection; persist messages, game, mood and scores before navigation, and derive demo recaps from the selected session rather than the global live-chat summary.
-- Account chat saving is explicit and stores credential-free snapshots in owner-scoped saved_chats; live snapshots are read through room capability checks server-side, and saved history is read-only rather than restoring room access.
+- Account chat snapshots autosave to owner-scoped saved_chats and remain credential-free/read-only; live snapshots are read through room capability checks server-side. Verified live room capabilities are backed up separately in a server-only table, restored only for their authenticated owner after a fresh capability check.
+- Persist generated plans, reveals, solo Ru-lette activities, quiz/checklist progress, private photo data, and Ru-view memories in the central workspace; UI-only loading and animation state stays transient.
+- People lists account-saved non-demo partners directly from owner-scoped snapshots, without importing them into the guest store or restoring room capabilities; new live snapshots retain the saving participant's side for correct partner identification.
 - Ru-lette initializes a local demo pair only when no usable pair exists, preserving an existing personal taste profile and any selected live room.

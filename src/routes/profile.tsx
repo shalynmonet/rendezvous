@@ -51,7 +51,7 @@ function ProfilePage() {
       setTastes(s.me.tastes);
       setLifestyle(s.me.lifestyle ?? {});
     }
-  }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, s.me]);
 
   const save = async () => {
     if (!name.trim() || tastes.length < 3) {

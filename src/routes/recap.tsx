@@ -32,7 +32,7 @@ export const Route = createFileRoute("/recap")({
 type Ctx = Parameters<Parameters<typeof NeedPair>[0]["children"]>[0];
 
 function RecapView({ me, active, s }: Ctx) {
-  const plan = s.lastPlan as Plan | undefined;
+  const plan = (s.plans?.[active.id] ?? s.lastPlan) as Plan | undefined;
   const saved = selectedChat(s, active.id);
   const chat = active.room ? s.lastChat : saved;
   const text = [

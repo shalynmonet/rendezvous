@@ -58,9 +58,6 @@ function Account() {
         } else if (saved && !s.me) {
           update((st) => ({ ...st, me: saved }));
           setNotice("Your saved tastes are back.");
-        } else if (s.me) {
-          await save({ data: s.me });
-          setNotice("Your tastes are saved to your account.");
         }
       } catch (e) {
         setError((e as Error).message);

@@ -14,7 +14,7 @@ import {
   WhyChip,
 } from "@/components/rue";
 import { tasteReveal, type Reveal } from "@/lib/rue.functions";
-import { setState } from "@/lib/store";
+import { setState, storeSnapshot } from "@/lib/store";
 
 export const Route = createFileRoute("/reveal")({
   head: () => ({
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/reveal")({
   }),
   component: () => (
     <Page>
-      <NeedPair>{(ctx) => <RevealView {...ctx} />}</NeedPair>
+      <NeedPair>{(ctx) => <RevealView key={ctx.active.id} {...ctx} />}</NeedPair>
     </Page>
   ),
 });
@@ -46,7 +46,7 @@ function RevealView({ me, active }: Ctx) {
     reveal: Reveal;
     toolsUsed: string[];
     evidence: { shared_taste_tags: string[] };
-  } | null>(null);
+  } | null>(() => (storeSnapshot().reveals?.[active.id] as { reveal: Reveal; toolsUsed: string[]; evidence: { shared_taste_tags: string[] } } | undefined) ?? null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -58,6 +58,7 @@ function RevealView({ me, active }: Ctx) {
       setData(r);
       setState((s) => ({
         ...s,
+        reveals: { ...s.reveals, [active.id]: r },
         me: s.me && { ...s.me, tastes: r.a.tastes },
         connections: s.connections.map((c) =>
           c.id === active.id ? { ...c, profile: { ...c.profile, tastes: r.b.tastes } } : c,

@@ -15,7 +15,7 @@ import {
   WhyChip,
 } from "@/components/rue";
 import { planDate, type Plan } from "@/lib/rue.functions";
-import { setState } from "@/lib/store";
+import { setState, storeSnapshot } from "@/lib/store";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/plan")({
   }),
   component: () => (
     <Page>
-      <NeedPair>{(ctx) => <PlanView {...ctx} />}</NeedPair>
+      <NeedPair>{(ctx) => <PlanView key={ctx.active.id} {...ctx} />}</NeedPair>
     </Page>
   ),
 });
@@ -47,7 +47,7 @@ function PlanView({ me, active }: Ctx) {
   const [city, setCity] = useState(me.city || "Chicago");
   const [vibe, setVibe] = useState(VIBES[0]);
   const [budget, setBudget] = useState("$$");
-  const [plan, setPlan] = useState<Plan | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(() => (storeSnapshot().plans?.[active.id] as Plan | undefined) ?? null);
   const [tools, setTools] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [swapping, setSwapping] = useState<number | null>(null);
@@ -61,7 +61,7 @@ function PlanView({ me, active }: Ctx) {
       const r = await run({ data: base });
       setPlan(r.plan);
       setTools(r.toolsUsed);
-      setState((s) => ({ ...s, lastPlan: r.plan }));
+      setState((s) => ({ ...s, lastPlan: r.plan, plans: { ...s.plans, [active.id]: r.plan } }));
     } catch (e) {
       setErr((e as Error).message);
     } finally {
@@ -83,7 +83,7 @@ function PlanView({ me, active }: Ctx) {
       if (next) {
         const p = { ...plan, stops: plan.stops.map((s, j) => (j === i ? next : s)) };
         setPlan(p);
-        setState((s) => ({ ...s, lastPlan: p }));
+        setState((s) => ({ ...s, lastPlan: p, plans: { ...s.plans, [active.id]: p } }));
       }
     } catch (e) {
       setErr((e as Error).message);
