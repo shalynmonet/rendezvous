@@ -9,7 +9,7 @@
 - [x] Concierge form + admin review (Shalyn)
 - [x] Demo mode
 - [x] MIT license + README
-- [x] Rulette wheel with 6 modes + Ru-view debrief
-- [x] Live shared Rulette table (spins, cards, photos, Ru-view) for invited pairs
+- [x] Ru-lette wheel with 6 modes + Ru-view debrief
+- [x] Live shared Ru-lette table (spins, cards, photos, Ru-view) for invited pairs
 - [ ] GitHub connection — blocked: user connects via Project settings → Git
 - [x] Grant Shalyn admin to aiwithshai@gmail.com
