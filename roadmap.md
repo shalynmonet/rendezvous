@@ -1,5 +1,7 @@
 # Rendezvous roadmap
 - [ ] Show account-saved real connections under People in a fresh browser, with saved-history access and safe re-invitation
+- [ ] Audit browser-only user data and automatically save and restore it for signed-in accounts
+- [ ] Verify fresh-browser restoration and account isolation for tastes, people, chats, plans, Ru-lette, photos, and memories
 - [x] Use the new wide artwork on the home page
 - [x] Mix natural questions and follow-ups with games in live and demo chat
 - [x] Verify conversation variety and preserved two-person turn gating
