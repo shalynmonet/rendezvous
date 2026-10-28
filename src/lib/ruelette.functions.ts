@@ -1,3 +1,4 @@
+import { describeLifestyle, type LifestyleT } from "./lifestyle";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -38,7 +39,7 @@ const BRIEF: Record<AiMode, string> = {
   portrait: "Write a caricature/portrait challenge: a prompt for each partner to sketch or generate a playful portrait of the OTHER person styled after that other person's own favorites, plus 3 short rules.",
 };
 
-const describe = (p: P) => `${p.name}: ${p.tastes.map((t) => `${t.label} (${t.category}${t.entity_id ? `, qloo:${t.entity_id}` : ""})`).join("; ")}`;
+const describe = (p: P) => `${p.name}: ${p.tastes.map((t) => `${t.label} (${t.category}${t.entity_id ? `, qloo:${t.entity_id}` : ""})`).join("; ")}${describeLifestyle((p as { lifestyle?: LifestyleT }).lifestyle)}`;
 
 export const spinRuelette = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ mode: z.enum(MODES), a: Person, b: Person }).parse(d))
