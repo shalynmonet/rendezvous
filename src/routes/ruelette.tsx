@@ -190,6 +190,8 @@ function TasteQuiz({ me, partner }: { me: Profile; partner: Profile }) {
   );
 }
 
+const clean = (x: string) => x.replace(/^\s*(\d+[.)]|[☐☑✓•-])\s*/u, "");
+
 function CopyBtn({ text }: { text: string }) {
   return <Button size="sm" variant="outline" onClick={() => { void navigator.clipboard.writeText(text); toast.success("Copied"); }}><Copy className="mr-2 h-4 w-4" />Copy prompt</Button>;
 }
@@ -228,12 +230,12 @@ function ActivityCard({ a, me, partner }: { a: Activity; me: Profile; partner: P
           </div>
           <div>
             <h3 className="text-xl font-semibold text-gold">Steps</h3>
-            <ol className="list-decimal space-y-1 pl-5 text-sm">{a.steps.map((x, i) => <li key={i}>{x}</li>)}</ol>
+            <ol className="list-decimal space-y-1 pl-5 text-sm">{a.steps.map((x, i) => <li key={i}>{clean(x)}</li>)}</ol>
             <h3 className="mt-4 text-xl font-semibold text-gold">Cook together</h3>
             {a.cook_together.map((x, i) => (
               <label key={i} className="flex cursor-pointer items-start gap-2 py-1 text-sm">
                 <input type="checkbox" className="mt-1 accent-primary" checked={checked.includes(i)} onChange={() => setChecked((c) => c.includes(i) ? c.filter((y) => y !== i) : [...c, i])} />
-                <span className={checked.includes(i) ? "text-muted-foreground line-through" : ""}>{x}</span>
+                <span className={checked.includes(i) ? "text-muted-foreground line-through" : ""}>{clean(x)}</span>
               </label>
             ))}
           </div>
