@@ -284,7 +284,7 @@ function ActivityCard({ a, me, partner, shared }: { a: Activity; me: Profile; pa
       {a.mode === "game_prompt" && (<>
         <Pre>{a.prompt}</Pre><CopyBtn text={a.prompt} />
         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">{a.how_to_play.map((h, i) => <li key={i}>{h}</li>)}</ul>
-        <a href="https://chatforce.ai" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-gold underline">Open an AI game builder <ExternalLink className="h-3 w-3" /></a>
+        <a href="https://chatforce.com" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-gold underline">Open an AI game builder <ExternalLink className="h-3 w-3" /></a>
       </>)}
       {a.mode === "song" && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
