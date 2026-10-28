@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LifestyleSchema } from "./lifestyle";
 
 export const TasteProfileSchema = z.object({
   name: z.string().trim().min(1).max(60),
@@ -23,6 +24,7 @@ export const TasteProfileSchema = z.object({
     )
     .min(3)
     .max(40),
+  lifestyle: LifestyleSchema,
 });
 export const GuestKeySchema = z.string().regex(/^[a-f0-9]{64}$/);
 export const LiveTurnSchema = z.object({
