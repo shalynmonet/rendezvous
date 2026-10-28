@@ -1,5 +1,7 @@
 # Rendezvous roadmap
 - [ ] Real-person invitations and shared live chat with Rue
+- [ ] Optional account saving after guest taste-profile creation
+- [ ] QR code, share link, and sharing buttons for taste profiles
 - [x] Qloo + Rue agent on the server
 - [x] Design system + home with Rue art
 - [x] Taste profile, connections/invite, Taste Reveal, Date Plan, Chat, Recap
