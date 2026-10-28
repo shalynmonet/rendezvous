@@ -1,4 +1,7 @@
 # Rendezvous roadmap
+- [ ] Make Ru-lette's demo entry consistent without requiring a real invitation
+- [ ] Preserve demo chat history by connection and restore it after recap/navigation/reload
+- [ ] Verify demo chat → recap → return and direct Ru-lette access
 - [x] Real-person invitations and shared live chat with Ru
 - [x] Optional account saving after guest taste-profile creation
 - [x] Verify account save/restore end-to-end
