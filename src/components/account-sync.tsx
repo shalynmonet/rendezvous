@@ -23,18 +23,20 @@ export function AccountSync({ children }: { children: ReactNode }) {
     let stopped = false; let unsubscribe: (() => void) | undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let writing = false; let dirty = false;
+    let paused = false;
     setLoading(true); setError(""); setChoice(null);
     const persist = async () => {
-      if (writing || stopped || !user) return;
+      if (writing || stopped || !user || paused) return;
       writing = true; dirty = false;
       try {
         const result = await save({ data: { state: storeSnapshot(), revision: revision.current } });
         if (stopped) return;
         if (result.conflict) {
+          paused = true;
           const latest = await read();
           setChoice({ local: storeSnapshot(), saved: JSON.parse(latest.stateJson) as State, revision: latest.revision });
           setError("Your account changed in another browser. Choose which version to keep.");
-          return;
+          flush.current = () => { paused = false; void persist(); }; return;
         }
         revision.current = result.revision;
         setError("");
@@ -46,6 +48,7 @@ export function AccountSync({ children }: { children: ReactNode }) {
       revision.current = rev;
       owner.current = user?.id ?? null;
       switchAccountStore(user?.id ?? null, state);
+      unsubscribe?.();
       unsubscribe = subscribeStore(() => { dirty = true; clearTimeout(timer); timer = setTimeout(() => void persist(), 500); });
       flush.current = () => { dirty = true; void persist(); };
       setLoading(false);
@@ -63,7 +66,7 @@ export function AccountSync({ children }: { children: ReactNode }) {
           setChoice({ local, saved: savedState, revision: saved.revision }); setLoading(false);
           flush.current = () => start(storeSnapshot(), revision.current);
         } else start(savedState, saved.revision);
-      } catch (e) { if (!stopped) { setError((e as Error).message); setLoading(false); } }
+      } catch (e) { if (!stopped) { setError((e as Error).message); setLoading(true); } }
     })();
     const onHidden = () => { if (document.hidden) void persist(); };
     document.addEventListener("visibilitychange", onHidden);

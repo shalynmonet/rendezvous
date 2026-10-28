@@ -102,7 +102,9 @@ function load(): State {
   }
 }
 export function setState(fn: (s: State) => State) {
-  mem = fn(mem);
+  const next = fn(mem);
+  if (JSON.stringify(next) === JSON.stringify(mem)) return;
+  mem = next;
   try { localStorage.setItem(storageKey, JSON.stringify(mem)); } catch { /* Account autosave still receives larger photo updates. */ }
   subs.forEach((f) => f(mem));
 }
@@ -111,7 +113,9 @@ export function storeSnapshot() { return mem; }
 export function subscribeStore(fn: (s: State) => void) { subs.add(fn); return () => { subs.delete(fn); }; }
 export function switchAccountStore(userId: string | null, state?: State) {
   storageKey = userId ? `${KEY}.account.${userId}` : KEY;
-  setState(() => state ?? load());
+  mem = state ?? load();
+  try { localStorage.setItem(storageKey, JSON.stringify(mem)); } catch { /* Account owns the durable copy. */ }
+  subs.forEach((fn) => fn(mem));
 }
 
 export function useStore() {
