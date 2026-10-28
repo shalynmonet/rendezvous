@@ -20,6 +20,8 @@ import { chatAccess } from "@/lib/guest-chat.functions";
 import type { GuestRoom, LiveState } from "@/lib/chat-schemas";
 import { setState } from "@/lib/store";
 import { ChatSave } from "./chat-save";
+import { Volume2, VolumeX } from "lucide-react";
+import { shouldHost } from "@/lib/live-host-policy";
 
 export function LiveChat({ room }: { room: GuestRoom }) {
   const access = useServerFn(chatAccess);
@@ -28,6 +30,8 @@ export function LiveChat({ room }: { room: GuestRoom }) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [hosting, setHosting] = useState(false);
+  const [toggling, setToggling] = useState(false);
+  const hostInFlight = useRef(false);
   const [pending, setPending] = useState<{ id: string; text: string } | null>(null);
   const [mood, setMood] = useState("getting_to_know_you");
   const textarea = useRef<HTMLTextAreaElement>(null);
@@ -99,7 +103,8 @@ export function LiveChat({ room }: { room: GuestRoom }) {
     }
   };
   const host = async () => {
-    if (hosting) return;
+    if (hostInFlight.current) return;
+    hostInFlight.current = true;
     setHosting(true);
     setError("");
     try {
@@ -136,8 +141,22 @@ export function LiveChat({ room }: { room: GuestRoom }) {
     } catch (e) {
       setError((e as Error).message);
     } finally {
+      hostInFlight.current = false;
       setHosting(false);
     }
+  };
+  useEffect(() => {
+    if (!hosting && !toggling && !error && shouldHost(state)) void host();
+  }, [state, hosting, toggling, error]);
+  const toggleRu = async () => {
+    if (!state || toggling) return;
+    setToggling(true);
+    try {
+      const r = await access({ data: { action: state.muted ? "unmute" : "mute", room: room.id, token: room.token } });
+      if (r.state) setLive(r.state);
+      setError("");
+    } catch (e) { setError((e as Error).message); }
+    finally { setToggling(false); }
   };
   if (!state)
     return (
@@ -153,13 +172,19 @@ export function LiveChat({ room }: { room: GuestRoom }) {
   const both = answers.some((m) => m.sender === "a") && answers.some((m) => m.sender === "b");
   return (
     <section className="space-y-5">
-      <header>
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <div>
         <h1 className="text-4xl">
           {state.a.name} &amp; {state.b?.name ?? "your person"}
         </h1>
         <p className="mt-2 text-sm text-gold">
-          {state.b ? "Live conversation · Ru hosts, you both answer" : "Waiting for your person"}
+          {state.b ? state.muted ? "Live conversation · Ru is muted" : "Live conversation · Ru is hosting" : "Waiting for your person"}
         </p>
+        </div>
+        <Button variant={state.muted ? "outline" : "secondary"} onClick={toggleRu} disabled={toggling} aria-pressed={state.muted} title={state.muted ? "Resume Ru’s hosting for both people" : "Pause Ru’s hosting for both people"}>
+          {state.muted ? <VolumeX className="mr-2 h-4 w-4" /> : <Volume2 className="mr-2 h-4 w-4" />}
+          {state.muted ? "Unmute Ru" : "Mute Ru"}
+        </Button>
       </header>
       <div className="grid min-w-0 gap-6 md:grid-cols-[minmax(0,1fr)_220px]">
         <div className="flex h-[min(760px,80dvh)] min-h-[400px] min-w-0 flex-col border-y">
@@ -209,7 +234,7 @@ export function LiveChat({ room }: { room: GuestRoom }) {
                   </MessageContent>
                 </Message>
               )}
-              {(hosting || state.busy) && (
+              {!state.muted && (hosting || state.busy) && (
                 <div className="flex items-center gap-2">
                   <RueAvatar size={28} />
                   <Shimmer>Ru is finding your next game…</Shimmer>
@@ -294,10 +319,10 @@ export function LiveChat({ room }: { room: GuestRoom }) {
           )}
           <Button
             className="h-auto w-full whitespace-normal"
-            disabled={!state.b || hosting || state.busy || !!state.error || (!both && !!state.game)}
+            disabled={state.muted || !state.b || hosting || state.busy || (!both && !!state.game && !state.error)}
             onClick={host}
           >
-            {state.game ? "Ru, next game" : "Start a game with Ru"}
+            {state.error || error ? "Retry Ru" : state.game ? "Ru, next game" : "Start a game with Ru"}
           </Button>
           {state.game && !both && (
             <p className="text-sm text-muted-foreground">Waiting for both answers.</p>

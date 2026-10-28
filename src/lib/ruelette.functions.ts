@@ -94,9 +94,10 @@ export type RoomRuelette = {
   error: string | null;
   photos: { a: string | null; b: string | null };
   debrief: { commentary: string; milestone: string; rating: number; notes: string; by: "a" | "b"; at: string } | null;
+  next_spin: { id: string; by: "a" | "b"; mode: "game" | AiMode; rot: number } | null;
 };
 
-type RawRl = { spin_id?: string; mode?: RoomRuelette["mode"]; rot?: number; by?: "a" | "b"; status?: RoomRuelette["status"]; activity?: Activity | null; error?: string | null; uploads?: { a?: string; b?: string }; debrief?: RoomRuelette["debrief"] };
+type RawRl = { spin_id?: string; mode?: RoomRuelette["mode"]; rot?: number; by?: "a" | "b"; status?: RoomRuelette["status"]; activity?: Activity | null; error?: string | null; uploads?: { a?: string; b?: string }; debrief?: RoomRuelette["debrief"]; next_spin?: RoomRuelette["next_spin"] };
 
 async function rpc(room: string, token: string, action: string, payload: Record<string, unknown> = {}) {
   const { guestClient } = await import("./guest-chat.server");
@@ -119,7 +120,7 @@ async function shape(r: Awaited<ReturnType<typeof rpc>>): Promise<RoomRuelette> 
   }
   return {
     side: r.side, joined: r.joined ?? true, spin_id: rl.spin_id ?? null, mode: rl.mode ?? null, rot: Number(rl.rot ?? 0),
-    by: rl.by ?? null, status: rl.status ?? null, activity: rl.activity ?? null, error: rl.error ?? null, photos, debrief: rl.debrief ?? null,
+    by: rl.by ?? null, status: rl.status ?? null, activity: rl.activity ?? null, error: rl.error ?? null, photos, debrief: rl.debrief ?? null, next_spin: rl.next_spin ?? null,
   };
 }
 
@@ -128,13 +129,14 @@ export const roomRuelette = createServerFn({ method: "POST" })
   .handler(async ({ data }) => shape(await rpc(data.room, data.token, "read")));
 
 export const roomSpin = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => z.object({ ...RoomIn, mode: z.enum(["game", ...MODES]), rot: z.number().finite(), a: Person, b: Person }).parse(d))
+  .inputValidator((d: unknown) => z.object({ ...RoomIn, mode: z.enum(["game", ...MODES]), rot: z.number().finite(), a: Person, b: Person, expected_spin: z.string().uuid().nullable(), action: z.enum(["spin", "approve_spin", "cancel_spin"]).default("spin"), proposal_id: z.string().uuid().optional() }).parse(d))
   .handler(async ({ data }) => {
-    const r = await rpc(data.room, data.token, "spin", { mode: data.mode, rot: data.rot });
-    if (data.mode === "game") return shape(r);
-    const spin_id = r.ruelette.spin_id as string;
+    const r = await rpc(data.room, data.token, data.action, { mode: data.mode, rot: data.rot, expected_spin: data.expected_spin, proposal_id: data.proposal_id });
+    const spin_id = r.ruelette.spin_id;
+    const mode = r.ruelette.mode;
+    if (!spin_id || spin_id === data.expected_spin || !mode || mode === "game") return shape(r);
     try {
-      const activity = await generate(data.mode, data.a, data.b);
+      const activity = await generate(mode, data.a, data.b);
       return shape(await rpc(data.room, data.token, "activity", { spin_id, activity }));
     } catch (e) {
       return shape(await rpc(data.room, data.token, "activity", { spin_id, error: (e as Error).message.slice(0, 300) }));

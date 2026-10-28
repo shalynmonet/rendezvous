@@ -25,6 +25,7 @@ export type State = {
 };
 export type ChatMessage = { sender: "rue" | "a" | "b"; content: string };
 export type SavedChat = {
+  muted?: boolean;
   id: string;
   mood: string;
   messages: ChatMessage[];

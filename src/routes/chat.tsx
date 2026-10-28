@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ErrorNote, NeedPair, Page, PageTitle, RueAvatar } from "@/components/rue";
@@ -60,6 +60,8 @@ function ChatView({ me, active, s }: Ctx) {
   const [scores, setScores] = useState(initial?.scores ?? { a: 0, b: 0 });
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [muted, setMuted] = useState(initial?.muted ?? false);
+  const mutedRef = useRef(initial?.muted ?? false);
   const [err, setErr] = useState("");
   const end = useRef<HTMLDivElement>(null);
   const ta = useRef<HTMLTextAreaElement>(null);
@@ -71,9 +73,10 @@ function ChatView({ me, active, s }: Ctx) {
   }, [busy, mood]);
 
   const persist = (id: string, m: string, messages: Msg[], nextGame = game, points = scores) => {
-    setState((state) => saveChat(state, active.id, { id, mood: m, messages, game: nextGame, scores: points, updatedAt: new Date().toISOString() }));
+    setState((state) => saveChat(state, active.id, { id, mood: m, messages, game: nextGame, scores: points, muted: mutedRef.current, updatedAt: new Date().toISOString() }));
   };
   const restore = (chat: SavedChat) => {
+    mutedRef.current = chat.muted ?? false; setMuted(mutedRef.current);
     setChatId(chat.id); setMood(chat.mood); setMsgs(chat.messages); setGame(chat.game); setScores(chat.scores); setErr(""); setInput("");
     setState((state) => ({ ...state, selectedChats: { ...state.selectedChats, [active.id]: chat.id } }));
   };
@@ -94,6 +97,7 @@ function ChatView({ me, active, s }: Ctx) {
     setErr("");
     try {
       const r = await run({ data: { a: me, b: active.profile, mood: m, history, scores: points } });
+      if (mutedRef.current) return;
       const next = [...history, ...r.turn.messages];
       setMsgs(next);
       setGame(r.turn.game);
@@ -119,7 +123,7 @@ function ChatView({ me, active, s }: Ctx) {
     setMsgs(h);
     persist(chatId, mood, h);
     setInput("");
-    turn(h);
+    if (!mutedRef.current) void turn(h);
   };
 
   if (!mood)
@@ -242,6 +246,13 @@ function ChatView({ me, active, s }: Ctx) {
         )}
       </div>
       <aside className="space-y-4">
+        <Button variant={muted ? "outline" : "secondary"} className="w-full" aria-pressed={muted} onClick={() => {
+          mutedRef.current = !mutedRef.current; setMuted(mutedRef.current);
+          if (chatId && mood) persist(chatId, mood, msgs);
+          if (!mutedRef.current) void turn(msgs);
+        }}>
+          {muted ? <VolumeX className="mr-2 h-4 w-4" /> : <Volume2 className="mr-2 h-4 w-4" />}{muted ? "Unmute Ru" : "Mute Ru"}
+        </Button>
         <ChatSave disabled={busy} snapshot={chatId && mood ? { sourceId: `local:${chatId}`, kind: active.demo ? "demo" : "local", a: me, b: active.profile, mood, messages: msgs, game, scores } : undefined} />
         <div className="card-luxe p-5">
           <p className="text-xs uppercase tracking-widest text-gold">Scoreboard</p>
@@ -264,6 +275,7 @@ function ChatView({ me, active, s }: Ctx) {
           onClick={() => {
             setState((state) => ({ ...state, selectedChats: { ...state.selectedChats, [active.id]: null } }));
             setChatId(null);
+            mutedRef.current = false; setMuted(false);
             setMood(null);
             setMsgs([]);
             setGame(null);

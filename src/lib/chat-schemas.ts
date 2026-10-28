@@ -48,6 +48,7 @@ export const LiveStateSchema = z.object({
   mood: z.string().nullable(),
   tools: z.array(z.string()),
   busy: z.boolean(),
+  muted: z.boolean().default(false),
   error: z.string().nullable(),
 });
 export type LiveState = z.infer<typeof LiveStateSchema>;
