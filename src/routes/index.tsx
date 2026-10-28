@@ -89,6 +89,11 @@ function Home() {
             <Button size="lg" variant="outline" asChild>
               <Link to="/profile">Build my taste profile</Link>
             </Button>
+            <Button size="lg" variant="ghost" asChild>
+              <Link to="/auth" className="text-gold">
+                Already have a profile? Sign in
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
