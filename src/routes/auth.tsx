@@ -1,0 +1,26 @@
+import {createFileRoute,Link} from '@tanstack/react-router';
+import {useState} from 'react';
+import {useServerFn} from '@tanstack/react-start';
+import {useQueryClient} from '@tanstack/react-query';
+import {supabase} from '@/integrations/supabase/client';
+import {useAccount} from '@/components/account-provider';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Page,PageTitle,ErrorNote} from '@/components/rue';
+import {useStore} from '@/lib/store';
+import {readSavedProfile,saveAccountProfile} from '@/lib/profile.functions';
+import {needsProfileChoice} from '@/lib/chat-schemas';
+
+export const Route=createFileRoute('/auth')({head:()=>({meta:[{title:'Save your tastes — Rendezvous'},{name:'description',content:'Keep your Rendezvous taste profile with an optional account.'},{property:'og:title',content:'Save your tastes — Rendezvous'},{property:'og:description',content:'Save and restore your taste profile across devices.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary_large_image'}]}),component:Account});
+function Account(){
+ const {user}=useAccount();const {s,update}=useStore();const query=useQueryClient();const save=useServerFn(saveAccountProfile);const read=useServerFn(readSavedProfile);
+ const [mode,setMode]=useState<'up'|'in'|'forgot'>('up');const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [notice,setNotice]=useState('');const [choice,setChoice]=useState<NonNullable<typeof s.me>|null>(null);
+ const submit=async()=>{setBusy(true);setError('');try{if(mode==='forgot'){const r=await supabase.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/reset-password`});if(r.error)throw r.error;setNotice('Check your email for a password reset link.');}else{const r=mode==='up'?await supabase.auth.signUp({email,password,options:{emailRedirectTo:`${window.location.origin}/auth`}}):await supabase.auth.signInWithPassword({email,password});if(r.error)throw r.error;if(!r.data.session)setNotice('Check your email to confirm your account. Your tastes remain saved in this browser.');else setNotice('Signed in. Save or restore your tastes below.');}}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
+ const sync=async(direction:'save'|'restore')=>{setBusy(true);setError('');try{const saved=await read();if(needsProfileChoice(s.me,saved)){setChoice(saved);return;}if(direction==='restore'&&saved){update(st=>({...st,me:saved}));setNotice('Your saved tastes are back.');}else if(s.me){await save({data:s.me});setNotice('Your tastes are saved to your account.');}else setNotice('Create your taste profile first.');}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
+ return <Page><PageTitle eyebrow="Your account" title="Keep your tastes" sub="An account is optional. Your guest profile stays in this browser."/>
+ <div className="max-w-lg space-y-4">
+ {user?<><p className="break-words">Signed in as {user.email}</p>{choice?<><p>Your account and this browser have different tastes. Which should we keep?</p><div className="flex flex-wrap gap-2"><Button disabled={busy} onClick={async()=>{setBusy(true);try{if(s.me)await save({data:s.me});setChoice(null);setNotice('Browser tastes saved to your account.');}catch(e){setError((e as Error).message);}finally{setBusy(false);}}}>Keep browser tastes</Button><Button variant="outline" onClick={()=>{update(st=>({...st,me:choice}));setChoice(null);setNotice('Account tastes restored.');}}>Use account tastes</Button></div></>:<div className="flex flex-wrap gap-2"><Button disabled={busy||!s.me} onClick={()=>sync('save')}>Save my tastes to account</Button><Button variant="outline" disabled={busy} onClick={()=>sync('restore')}>Restore saved tastes</Button></div>}<Button variant="ghost" onClick={async()=>{await query.cancelQueries();query.clear();await supabase.auth.signOut();setNotice('Signed out. Guest tastes remain in this browser.');}}>Sign out</Button></>:
+ <form className="space-y-3" onSubmit={e=>{e.preventDefault();void submit();}}><Input aria-label="Email" type="email" autoComplete="email" value={email} required maxLength={200} onChange={e=>setEmail(e.target.value)} placeholder="Email"/>{mode!=='forgot'&&<Input aria-label="Password" type="password" autoComplete={mode==='up'?'new-password':'current-password'} minLength={8} value={password} required onChange={e=>setPassword(e.target.value)} placeholder="Password"/>}<Button disabled={busy} type="submit">{busy?'Please wait…':mode==='up'?'Create account':mode==='in'?'Sign in':'Send reset link'}</Button><div className="flex flex-wrap gap-2"><Button type="button" variant="ghost" onClick={()=>{setMode(mode==='in'?'up':'in');setNotice('');}}>{mode==='in'?'Create account':'Already have an account?'}</Button><Button type="button" variant="ghost" onClick={()=>setMode('forgot')}>Forgot password?</Button></div></form>}
+ {notice&&<p role="status" className="text-sm text-gold">{notice}</p>}{error&&<ErrorNote msg={error}/>}<Button variant="outline" asChild><Link to="/profile">Back to my tastes</Link></Button>
+ </div></Page>;
+}

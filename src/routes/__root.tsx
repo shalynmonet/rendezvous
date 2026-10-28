@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { AccountProvider, useAccount } from '@/components/account-provider';
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -94,6 +95,14 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <AccountProvider><AppShell /></AccountProvider>
+    </QueryClientProvider>
+  );
+}
+
+function AppShell() {
+  const {user}=useAccount();
+  return (
       <div className="flex min-h-screen flex-col">
         <nav className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center gap-4 overflow-x-auto px-5 py-3">
@@ -102,6 +111,7 @@ function RootComponent() {
               {NAV.map((n) => (
                 <Link key={n.to} to={n.to} className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground" activeProps={{ className: "bg-muted text-foreground" }}>{n.label}</Link>
               ))}
+              <Link to="/auth" className="whitespace-nowrap px-3 py-1.5 text-sm text-gold">{user?'Account':'Save my tastes'}</Link>
             </div>
           </div>
           <div className="houndstooth h-1.5 opacity-60" />
@@ -112,6 +122,6 @@ function RootComponent() {
         </footer>
       </div>
       <Toaster />
-    </QueryClientProvider>
+    </>
   );
 }

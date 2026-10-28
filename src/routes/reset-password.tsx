@@ -1,0 +1,8 @@
+import {createFileRoute} from '@tanstack/react-router';
+import {useEffect,useState} from 'react';
+import {supabase} from '@/integrations/supabase/client';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Page,PageTitle,ErrorNote} from '@/components/rue';
+export const Route=createFileRoute('/reset-password')({head:()=>({meta:[{title:'Reset password — Rendezvous'},{name:'description',content:'Choose a new password for your Rendezvous account.'},{property:'og:title',content:'Reset password — Rendezvous'},{property:'og:description',content:'Securely recover your Rendezvous account.'},{property:'og:type',content:'website'},{name:'twitter:card',content:'summary'}]}),component:Reset});
+function Reset(){const [recovery,setRecovery]=useState(false);const [password,setPassword]=useState('');const [error,setError]=useState('');const [done,setDone]=useState(false);const [busy,setBusy]=useState(false);useEffect(()=>{setRecovery(new URLSearchParams(window.location.hash.slice(1)).get('type')==='recovery');},[]);return <Page><PageTitle eyebrow="Your account" title="New password"/>{done?<p>Password updated.</p>:recovery?<form className="max-w-md space-y-3" onSubmit={async e=>{e.preventDefault();setBusy(true);const r=await supabase.auth.updateUser({password});setBusy(false);if(r.error)setError(r.error.message);else setDone(true);}}><Input aria-label="New password" type="password" autoComplete="new-password" minLength={8} required value={password} onChange={e=>setPassword(e.target.value)}/><Button disabled={busy}>Update password</Button>{error&&<ErrorNote msg={error}/>}</form>:<ErrorNote msg="Open the password reset link from your email to continue."/>}</Page>;}
