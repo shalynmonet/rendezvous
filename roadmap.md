@@ -10,5 +10,6 @@
 - [x] Demo mode
 - [x] MIT license + README
 - [x] Rue-lette wheel with 6 modes + Rue-view debrief
+- [x] Live shared Rue-lette table (spins, cards, photos, Rue-view) for invited pairs
 - [ ] GitHub connection — blocked: user connects via Project settings → Git
 - [x] Grant Shalyn admin to aiwithshai@gmail.com

@@ -87,6 +87,7 @@ export type Database = {
           profile_a: Json
           profile_b: Json | null
           rue_error: string | null
+          ruelette: Json
           scores: Json
           tools: Json
         }
@@ -105,6 +106,7 @@ export type Database = {
           profile_a: Json
           profile_b?: Json | null
           rue_error?: string | null
+          ruelette?: Json
           scores?: Json
           tools?: Json
         }
@@ -123,6 +125,7 @@ export type Database = {
           profile_a?: Json
           profile_b?: Json | null
           rue_error?: string | null
+          ruelette?: Json
           scores?: Json
           tools?: Json
         }
@@ -189,6 +192,15 @@ export type Database = {
           p_room?: string
           p_text?: string
           p_token?: string
+        }
+        Returns: Json
+      }
+      guest_ruelette: {
+        Args: {
+          p_action: string
+          p_payload?: Json
+          p_room: string
+          p_token: string
         }
         Returns: Json
       }
