@@ -27,7 +27,7 @@ export const Route = createFileRoute("/ru-lette")({
   component: () => (
     <Page>
       <PageTitle eyebrow="Ru-lette" title="Spin the wheel, darling" sub="Six ways to play tonight. Ru picks; your tastes decide the details." />
-      <NeedPair autoDemo>{(ctx) => <Ruelette key={ctx.active.id} me={ctx.me} partner={ctx.active.profile} connectionId={ctx.active.id} memories={ctx.s.memories ?? []} room={ctx.active.room} demo={ctx.active.demo} />}</NeedPair>
+      <NeedPair autoDemo>{(ctx) => <Ruelette key={ctx.active.id} me={ctx.me} partner={ctx.active.profile} connectionId={ctx.active.id} memories={ctx.s.memories ?? []} room={ctx.active.room} demo={ctx.active.demo ?? false} />}</NeedPair>
     </Page>
   ),
 });
