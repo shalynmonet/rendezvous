@@ -1,29 +1,25 @@
-# Welcome to your Lovable project
+# Rendezvous — Rue knows.
 
-This project was built with [Lovable](https://lovable.dev).
+Rue, a houndstooth-scarfed fox, is a taste-aware relationship host. She uses **Qloo's taste graph** to reveal what two people share, plan date nights, host playful games, and draft premium concierge plans.
 
-## Build with Lovable
+## How Qloo powers it
+- **Taste Profiles**: every favorite is resolved to a Qloo entity via `/search` (autocomplete).
+- **Taste Reveal**: `compare_tastes` runs Qloo `/v2/insights` for each person across artists, films and shows, intersects the results and shared taste tags, then Rue explains common ground, bridges and wildcards.
+- **Date Plan**: `find_places` queries Qloo insights for places filtered by city + category tag (restaurant, museum, bar) using *both* people's entities. `build_soundtrack` blends Qloo artist affinities.
+- **Chat games**: options are built from both profiles plus Qloo affinities.
+- **Concierge**: Qloo affinities produce a Taste Portrait and draft plan for Shalyn to review.
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Every pick carries a `reason` citing the taste signal, and each screen shows which Qloo tools Rue called.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+## Agentic design
+Rue runs as an LLM agent (Lovable AI Gateway, AI SDK) that chooses among tools (`resolve_taste`, `get_affinities`, `compare_tastes`, `find_places`, `build_soundtrack`, `start_game`) and finishes with a structured `finish` call.
 
-## Development
+## Run locally
+1. `bun install`
+2. Set server env vars: `QLOO_API_KEY` (hackathon key, base `https://hackathon.api.qloo.com`), `LOVABLE_API_KEY`, plus the backend `SUPABASE_*` vars.
+3. `bun run dev`
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Demo
+Click **Try a demo** on the home page — no login. You play Noor; Rue simulates Theo. The Concierge Desk (`/admin`) needs an admin account.
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+MIT licensed.

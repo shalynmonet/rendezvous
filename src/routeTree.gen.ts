@@ -10,13 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as InviteRouteImport } from './routes/invite'
+import { Route as PlanRouteImport } from './routes/plan'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as RecapRouteImport } from './routes/recap'
+import { Route as RevealRouteImport } from './routes/reveal'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConnectionsRoute = ConnectionsRouteImport.update({
@@ -29,44 +38,100 @@ const InviteRoute = InviteRouteImport.update({
   path: '/invite',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlanRoute = PlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecapRoute = RecapRouteImport.update({
+  id: '/recap',
+  path: '/recap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RevealRoute = RevealRouteImport.update({
+  id: '/reveal',
+  path: '/reveal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/connections': typeof ConnectionsRoute
   '/invite': typeof InviteRoute
+  '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
+  '/recap': typeof RecapRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/connections': typeof ConnectionsRoute
   '/invite': typeof InviteRoute
+  '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
+  '/recap': typeof RecapRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/connections': typeof ConnectionsRoute
   '/invite': typeof InviteRoute
+  '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
+  '/recap': typeof RecapRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/connections' | '/invite' | '/profile'
+  fullPaths:
+    | '/'
+    | '/chat'
+    | '/connections'
+    | '/invite'
+    | '/plan'
+    | '/profile'
+    | '/recap'
+    | '/reveal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/connections' | '/invite' | '/profile'
-  id: '__root__' | '/' | '/connections' | '/invite' | '/profile'
+  to:
+    | '/'
+    | '/chat'
+    | '/connections'
+    | '/invite'
+    | '/plan'
+    | '/profile'
+    | '/recap'
+    | '/reveal'
+  id:
+    | '__root__'
+    | '/'
+    | '/chat'
+    | '/connections'
+    | '/invite'
+    | '/plan'
+    | '/profile'
+    | '/recap'
+    | '/reveal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
   ConnectionsRoute: typeof ConnectionsRoute
   InviteRoute: typeof InviteRoute
+  PlanRoute: typeof PlanRoute
   ProfileRoute: typeof ProfileRoute
+  RecapRoute: typeof RecapRoute
+  RevealRoute: typeof RevealRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -76,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/connections': {
@@ -92,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InviteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/plan': {
+      id: '/plan'
+      path: '/plan'
+      fullPath: '/plan'
+      preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -99,14 +178,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recap': {
+      id: '/recap'
+      path: '/recap'
+      fullPath: '/recap'
+      preLoaderRoute: typeof RecapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reveal': {
+      id: '/reveal'
+      path: '/reveal'
+      fullPath: '/reveal'
+      preLoaderRoute: typeof RevealRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
   ConnectionsRoute: ConnectionsRoute,
   InviteRoute: InviteRoute,
+  PlanRoute: PlanRoute,
   ProfileRoute: ProfileRoute,
+  RecapRoute: RecapRoute,
+  RevealRoute: RevealRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
