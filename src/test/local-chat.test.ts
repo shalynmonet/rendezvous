@@ -1,10 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { DEMO_A, DEMO_B, saveChat, selectedChat, type SavedChat, type State } from "@/lib/store";
+import { act, renderHook } from "@testing-library/react";
+import { DEMO_A, DEMO_B, saveChat, selectedChat, setState, startDemo, useStore, type SavedChat, type State } from "@/lib/store";
 
 const state: State = { me: DEMO_A, connections: [{ id: "demo-theo", label: "partner", profile: DEMO_B, demo: true }], activeId: "demo-theo" };
 const chat: SavedChat = { id: "chat-1", mood: "date_night_in", messages: [{ sender: "a", content: "I pick Spirited Away" }, { sender: "rue", content: "A lovely choice." }], game: { type: "this_or_that", prompt: "Pick a film", options: ["Spirited Away", "Chungking Express"] }, scores: { a: 2, b: 1 }, updatedAt: "2026-10-28T13:50:00Z" };
 
 describe("Local chat history", () => {
+  it("lets a person play solo without replacing their own tastes", () => {
+    const personal = { ...DEMO_A, name: "Judge" };
+    const { result, unmount } = renderHook(() => useStore());
+    act(() => setState(() => ({ me: personal, connections: [], activeId: null })));
+    act(() => startDemo());
+    expect(result.current.s.me).toEqual(personal);
+    expect(result.current.active?.demo).toBe(true);
+    expect(result.current.active?.room).toBeUndefined();
+    unmount();
+  });
   it("restores the entire selected conversation after browser storage serialization", () => {
     const restored = JSON.parse(JSON.stringify(saveChat(state, "demo-theo", chat)));
     expect(selectedChat(restored, "demo-theo")).toEqual(chat);
