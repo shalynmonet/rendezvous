@@ -55,7 +55,7 @@ function RecapView({ me, active, s }: Ctx) {
         </div>
       ) : (
         <div className="mx-auto max-w-md">
-          <div className="houndstooth rounded-3xl p-1.5 shadow-candle">
+          <div className="rounded-3xl border border-gold/35 shadow-candle">
             <div className="overflow-hidden rounded-[1.25rem] bg-card">
               <img src={RUE_IMG} alt="" className="h-44 w-full object-cover object-[70%_30%]" />
               <div className="space-y-4 p-6">
