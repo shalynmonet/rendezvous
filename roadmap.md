@@ -1,15 +1,15 @@
 # Rendezvous roadmap
-- [x] Real-person invitations and shared live chat with Rue
+- [x] Real-person invitations and shared live chat with Ru
 - [x] Optional account saving after guest taste-profile creation
 - [x] Verify account save/restore end-to-end
 - [x] QR code, share link, and sharing buttons for taste profiles
-- [x] Qloo + Rue agent on the server
-- [x] Design system + home with Rue art
+- [x] Qloo + Ru agent on the server
+- [x] Design system + home with Ru art
 - [x] Taste profile, connections/invite, Taste Reveal, Date Plan, Chat, Recap
 - [x] Concierge form + admin review (Shalyn)
 - [x] Demo mode
 - [x] MIT license + README
-- [x] Rue-lette wheel with 6 modes + Rue-view debrief
-- [x] Live shared Rue-lette table (spins, cards, photos, Rue-view) for invited pairs
+- [x] Rulette wheel with 6 modes + Ru-view debrief
+- [x] Live shared Rulette table (spins, cards, photos, Ru-view) for invited pairs
 - [ ] GitHub connection — blocked: user connects via Project settings → Git
 - [x] Grant Shalyn admin to aiwithshai@gmail.com
