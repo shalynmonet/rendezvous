@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Save, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "./account-provider";
@@ -17,6 +17,23 @@ export function ChatSave({ snapshot, room, disabled = false }: { snapshot?: Acco
   const [savedVersion, setSavedVersion] = useState<string | null>(null);
   const [error, setError] = useState("");
   const version = JSON.stringify(snapshot);
+  const saving = useRef(false);
+  const identity = useRef(user?.id);
+  identity.current = user?.id;
+  useEffect(() => {
+    if (!user || disabled || !snapshot?.messages.length || savedVersion === version) return;
+    const userId = user.id;
+    const timer = setTimeout(async () => {
+      if (saving.current) return;
+      saving.current = true; setBusy(true); setError("");
+      try {
+        await save({ data: room ? { room: room.id, token: room.token } : { snapshot } });
+        if (identity.current === userId) { setSavedVersion(version); void queryClient.invalidateQueries({ queryKey: ["account-chats", userId] }); }
+      } catch (e) { if (identity.current === userId) setError((e as Error).message); }
+      finally { saving.current = false; setBusy(false); }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [user?.id, disabled, version, savedVersion, save, queryClient, busy]);
   if (!ready) return null;
   if (!user) return <Button variant="outline" className="h-auto w-full whitespace-normal" asChild><Link to="/auth">Create an account to save</Link></Button>;
   return <div className="space-y-2">

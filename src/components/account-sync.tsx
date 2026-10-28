@@ -32,7 +32,7 @@ export function AccountSync({ children }: { children: ReactNode }) {
         if (stopped) return;
         if (result.conflict) {
           const latest = await read();
-          setChoice({ local: storeSnapshot(), saved: latest.state as State, revision: latest.revision });
+          setChoice({ local: storeSnapshot(), saved: JSON.parse(latest.stateJson) as State, revision: latest.revision });
           setError("Your account changed in another browser. Choose which version to keep.");
           return;
         }
@@ -58,10 +58,11 @@ export function AccountSync({ children }: { children: ReactNode }) {
         const saved = await read();
         if (stopped) return;
         const hasLocal = !!local.me || local.connections.length > 0 || !!local.memories?.length;
-        if (hasLocal && JSON.stringify(local) !== JSON.stringify(saved.state)) {
-          setChoice({ local, saved: saved.state as State, revision: saved.revision }); setLoading(false);
+        const savedState = JSON.parse(saved.stateJson) as State;
+        if (hasLocal && JSON.stringify(local) !== JSON.stringify(savedState)) {
+          setChoice({ local, saved: savedState, revision: saved.revision }); setLoading(false);
           flush.current = () => start(storeSnapshot(), revision.current);
-        } else start(saved.state as State, saved.revision);
+        } else start(savedState, saved.revision);
       } catch (e) { if (!stopped) { setError((e as Error).message); setLoading(false); } }
     })();
     const onHidden = () => { if (document.hidden) void persist(); };

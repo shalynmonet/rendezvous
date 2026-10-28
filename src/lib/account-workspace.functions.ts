@@ -24,7 +24,7 @@ export const readAccountWorkspace = createServerFn({ method: "POST" }).middlewar
       if (raw["pendingRoomId"] === link.room_id) state.pendingRoom = { id: link.room_id, token: link.participant_key };
     }
   }
-  return { state, revision: data?.revision ?? 0, exists: !!data };
+  return { stateJson: JSON.stringify(state), revision: data?.revision ?? 0, exists: !!data };
 });
 
 export const saveAccountWorkspace = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
