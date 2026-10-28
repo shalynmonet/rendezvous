@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_room_links: {
+        Row: {
+          participant_key: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          participant_key: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          participant_key?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      account_workspaces: {
+        Row: {
+          data: Json
+          revision: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          data?: Json
+          revision?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          data?: Json
+          revision?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       concierge_requests: {
         Row: {
           budget: string
@@ -259,6 +298,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      save_account_workspace: {
+        Args: { p_data: Json; p_revision: number }
+        Returns: Json
       }
     }
     Enums: {

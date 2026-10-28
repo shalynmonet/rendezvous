@@ -43,6 +43,13 @@
       "when": 1793220549504,
       "tag": "0005_live_host_controls_and_spin_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793224818125,
+      "tag": "0006_private_account_workspaces",
+      "breakpoints": true
     }
   ]
 }
