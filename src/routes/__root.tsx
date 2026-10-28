@@ -11,7 +11,6 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AccountProvider, useAccount } from "@/components/account-provider";
-import houndstoothVelvet from "@/assets/houndstooth-velvet.png.asset.json";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -138,7 +137,7 @@ function AppShell() {
   return (
     <>
       <div className="flex min-h-screen flex-col">
-        <nav className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
+        <nav className="banner-velvet sticky top-0 z-30 border-b">
           <div className="mx-auto flex max-w-6xl items-center gap-4 overflow-x-auto px-5 py-3">
             <Link to="/" className="font-display text-2xl font-semibold italic text-gold">
               Rendezvous
@@ -164,7 +163,7 @@ function AppShell() {
         <div className="flex-1">
           <Outlet />
         </div>
-        <footer className="border-t py-6 text-center text-xs text-muted-foreground">
+        <footer className="banner-velvet border-t py-6 text-center text-xs text-foreground">
           Rue knows. · Taste data by Qloo ·{" "}
           <Link to="/admin" className="underline">
             Concierge desk

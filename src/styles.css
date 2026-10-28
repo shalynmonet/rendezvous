@@ -109,6 +109,13 @@
 .profile-qr { background: var(--qr-paper); padding: 12px; width: 216px; max-width: 100%; }
 .profile-qr svg { display: block; width: 100%; height: auto; }
 
+.banner-velvet {
+  background-color: var(--background);
+  background-image: linear-gradient(var(--background-overlay), var(--background-overlay)), url("/__l5e/assets-v1/968fb5a0-ae9b-41b7-84e8-f9e9ab12dfaa/houndstooth-velvet.png");
+  background-size: auto, 320px 320px;
+  background-repeat: repeat;
+}
+
 @utility houndstooth {
   background-color: var(--secondary);
   background-image:
