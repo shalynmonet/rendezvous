@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { MessageCircleHeart, MapPinned, Crown } from "lucide-react";
+import { MessageCircleHeart, MapPinned, Crown, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RUE_IMG } from "@/components/rue";
 import { startDemo } from "@/lib/store";
@@ -91,6 +91,18 @@ function Home() {
             </Button>
           </div>
         </div>
+      </section>
+      <section className="mx-auto max-w-6xl px-5 pt-14">
+        <Link to="/ruelette" className="card-luxe group flex items-center gap-6 p-6 transition hover:-translate-y-1 hover:shadow-candle">
+          <div className="ruelette-wheel flex h-20 w-20 shrink-0 animate-[spin_8s_linear_infinite] items-center justify-center rounded-full border-2 border-gold group-hover:animate-[spin_1.5s_linear_infinite]">
+            <Heart className="h-7 w-7 fill-primary text-gold" />
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-gold">New · Play tonight</p>
+            <h2 className="mt-1 text-3xl font-semibold">Rue-lette</h2>
+            <p className="mt-1 text-muted-foreground">Spin Rue's wheel for a game, song, date menu, photo booth or portrait challenge.</p>
+          </div>
+        </Link>
       </section>
       <section className="mx-auto grid max-w-6xl gap-5 px-5 py-14 md:grid-cols-3">
         {DOORS.map((d) => (
