@@ -12,6 +12,8 @@ import { LiveChat } from "@/components/live-chat";
 export const Route = createFileRoute("/chat")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Chat with Rue — Rendezvous" },
       { name: "description", content: "Rue hosts taste-based games for two." },
       { property: "og:title", content: "Chat with Rue — Rendezvous" },

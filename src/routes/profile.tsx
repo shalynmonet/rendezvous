@@ -16,6 +16,8 @@ import { newGuestKey, needsProfileChoice } from "@/lib/chat-schemas";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Your Taste Profile — Rendezvous" },
       { name: "description", content: "Tell Rue what you love; Qloo maps it." },
       { property: "og:title", content: "Your Taste Profile — Rendezvous" },

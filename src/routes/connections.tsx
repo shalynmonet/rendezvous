@@ -13,6 +13,8 @@ import { ProfileShare } from "@/components/profile-share";
 export const Route = createFileRoute("/connections")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Your People — Rendezvous" },
       { name: "description", content: "Invite someone and let Rue compare your tastes." },
       { property: "og:title", content: "Your People — Rendezvous" },

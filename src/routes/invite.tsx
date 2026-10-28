@@ -13,6 +13,8 @@ export const Route = createFileRoute("/invite")({
   validateSearch: z.object({ d: z.string().optional(), i: z.string().optional() }),
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "You're invited — Rendezvous" },
       { name: "description", content: "Someone wants Rue to compare your tastes." },
       { property: "og:title", content: "You're invited to a Rendezvous" },
