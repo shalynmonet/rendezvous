@@ -13,7 +13,7 @@ import { rueView, spinRuelette, roomRuelette, roomSpin, roomUpload, roomDebrief,
 import type { GuestRoom } from "@/lib/chat-schemas";
 import { setState, type Profile, type Memory } from "@/lib/store";
 
-export const Route = createFileRoute("/rulette")({
+export const Route = createFileRoute("/ru-lette")({
   head: () => ({
     meta: [
       { title: "Rulette — spin for a date-night activity | Rendezvous" },
