@@ -52,7 +52,6 @@ export function AccountSync({ children }: { children: ReactNode }) {
       unsubscribe = subscribeStore(() => { dirty = true; clearTimeout(timer); timer = setTimeout(() => void persist(), 500); });
       flush.current = () => { dirty = true; void persist(); };
       setLoading(false);
-      dirty = true; void persist();
     };
     void (async () => {
       if (!user) { switchAccountStore(null); owner.current = null; setLoading(false); return; }
@@ -64,7 +63,7 @@ export function AccountSync({ children }: { children: ReactNode }) {
         const savedState = JSON.parse(saved.stateJson) as State;
         if (hasLocal && JSON.stringify(local) !== JSON.stringify(savedState)) {
           setChoice({ local, saved: savedState, revision: saved.revision }); setLoading(false);
-          flush.current = () => start(storeSnapshot(), revision.current);
+          flush.current = () => { start(storeSnapshot(), revision.current); dirty = true; void persist(); };
         } else start(savedState, saved.revision);
       } catch (e) { if (!stopped) { setError((e as Error).message); setLoading(true); } }
     })();
