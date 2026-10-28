@@ -59,14 +59,19 @@ function Home() {
   const nav = useNavigate();
   return (
     <>
-      <section className="relative min-h-[78vh] overflow-hidden">
+      <section className="relative overflow-hidden">
         <img
           src={homeArtwork.url}
           alt="Ru the fox at a candlelit jazz lounge table, heart glasses and houndstooth scarf, with a band on stage and a moonlit Paris window"
-          className="absolute inset-0 h-full w-full object-cover object-[78%_55%]"
+          className="absolute inset-0 hidden h-full w-full object-cover object-[78%_55%] md:block"
         />
-        <div className="hero-fade absolute inset-0" />
-        <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-5 py-16">
+        <img
+          src={homeArtwork.url}
+          alt="Ru the fox at a candlelit jazz lounge table, heart glasses and houndstooth scarf, with a band on stage and a moonlit Paris window"
+          className="block h-[42vh] w-full object-cover object-[80%_45%] md:hidden"
+        />
+        <div className="hero-fade absolute inset-0 hidden md:block" />
+        <div className="relative mx-auto flex max-w-6xl flex-col justify-center px-5 py-12 md:min-h-[78vh] md:py-16">
           <p className="text-xs uppercase tracking-[0.35em] text-gold">Bonsoir. I'm Ru.</p>
           <h1 className="mt-4 max-w-xl text-6xl font-semibold leading-[0.95] md:text-8xl">
             Leave the details to Ru.
