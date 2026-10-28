@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
@@ -135,7 +135,7 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
   return (
     <div className="space-y-10">
       <p className="rounded-full border border-gold/40 bg-muted px-4 py-2 text-center text-sm text-muted-foreground">
-        {room ? (waiting ? `Waiting for ${partner.name} to accept your invitation — then you'll share this table live.` : <>🔴 Live table with {partner.name} — you both see every spin, card and photo.</>) : <>Playing on this device. Invite {partner.name} from <a href="/connections" className="text-gold underline">People</a> to share the table live from anywhere.</>}
+        {room ? (waiting ? `Waiting for ${partner.name} to accept your invitation — then you'll share this table live.` : <>🔴 Live table with {partner.name} — you both see every spin, card and photo.</>) : <>Playing on this device. Invite {partner.name} from <Link to="/connections" className="text-gold underline">People</Link> to share the table live from anywhere.</>}
       </p>
       <div className="grid items-center gap-8 md:grid-cols-[1fr_1.1fr]">
         <div className="relative overflow-hidden rounded-2xl border border-gold/35">
