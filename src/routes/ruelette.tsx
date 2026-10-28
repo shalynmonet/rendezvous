@@ -62,7 +62,7 @@ function useSharedRuelette(room: GuestRoom | undefined) {
   return { state, set, err };
 }
 
-function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; partner: Profile; connectionId: string; memories: Memory[]; room?: GuestRoom }) {
+function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; partner: Profile; connectionId: string; memories: Memory[]; room?: GuestRoom | undefined }) {
   const spin = useServerFn(spinRuelette);
   const spinRoom = useServerFn(roomSpin);
   const shared = useSharedRuelette(room);
@@ -85,6 +85,7 @@ function Ruelette({ me, partner, connectionId, memories, room }: { me: Profile; 
       const t = setTimeout(() => setSpinning(false), 4200);
       return () => clearTimeout(t);
     }
+    return undefined;
   }, [room, st]);
 
   // Log a shared Rue-view into this browser's memory book.
