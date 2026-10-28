@@ -1,4 +1,5 @@
 # Rendezvous roadmap
+- [ ] Show account-saved real connections under People in a fresh browser, with saved-history access and safe re-invitation
 - [x] Use the new wide artwork on the home page
 - [x] Mix natural questions and follow-ups with games in live and demo chat
 - [x] Verify conversation variety and preserved two-person turn gating
