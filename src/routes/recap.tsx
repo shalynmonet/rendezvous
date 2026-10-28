@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { NeedPair, Page, PageTitle, RUE_IMG } from "@/components/rue";
 import type { Plan } from "@/lib/rue.functions";
+import { selectedChat } from "@/lib/store";
 
 export const Route = createFileRoute("/recap")({
   head: () => ({
@@ -32,7 +33,8 @@ type Ctx = Parameters<Parameters<typeof NeedPair>[0]["children"]>[0];
 
 function RecapView({ me, active, s }: Ctx) {
   const plan = s.lastPlan as Plan | undefined;
-  const chat = s.lastChat;
+  const saved = selectedChat(s, active.id);
+  const chat = active.room ? s.lastChat : saved;
   const text = [
     `Rendezvous: ${me.name} & ${active.profile.name}`,
     plan && `${plan.title}: ${plan.stops.map((x) => x.name).join(" → ")}`,
@@ -74,9 +76,9 @@ function RecapView({ me, active, s }: Ctx) {
                   </div>
                 )}
                 {chat && (
-                  <p className="text-sm">
+                  <div className="space-y-2"><p className="text-sm">
                     Game night: <b>{chat.scores.a}</b> – <b>{chat.scores.b}</b>
-                  </p>
+                  </p><p className="text-sm text-muted-foreground">{saved?.messages.at(-1)?.content ?? (active.room ? s.lastChat?.highlight : "")}</p></div>
                 )}
                 <p className="font-display text-lg italic text-gold">Ru knows.</p>
               </div>
@@ -91,6 +93,7 @@ function RecapView({ me, active, s }: Ctx) {
           >
             Copy to share
           </Button>
+          <Button variant="outline" className="mt-3 w-full" asChild><Link to="/chat">Return to chat</Link></Button>
         </div>
       )}
     </>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ErrorNote, NeedPair, Page, PageTitle, RueAvatar } from "@/components/rue";
 import { chatTurn, type ChatTurn } from "@/lib/rue.functions";
-import { setState } from "@/lib/store";
+import { setState, saveChat, selectedChat, type ChatMessage, type SavedChat } from "@/lib/store";
 import { LiveChat } from "@/components/live-chat";
 
 export const Route = createFileRoute("/chat")({
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/chat")({
 });
 
 type Ctx = Parameters<Parameters<typeof NeedPair>[0]["children"]>[0];
-type Msg = { sender: "rue" | "a" | "b"; content: string };
+type Msg = ChatMessage;
 const MOODS = [
   { id: "date_night_in", label: "Date night in" },
   { id: "getting_to_know_you", label: "Getting to know you" },
@@ -48,12 +48,14 @@ const MOODS = [
   { id: "dinner_table", label: "Dinner table" },
 ];
 
-function ChatView({ me, active }: Ctx) {
+function ChatView({ me, active, s }: Ctx) {
   const run = useServerFn(chatTurn);
-  const [mood, setMood] = useState<string | null>(null);
-  const [msgs, setMsgs] = useState<Msg[]>([]);
-  const [game, setGame] = useState<ChatTurn["game"]>(null);
-  const [scores, setScores] = useState({ a: 0, b: 0 });
+  const initial = selectedChat(s, active.id);
+  const [chatId, setChatId] = useState<string | null>(initial?.id ?? null);
+  const [mood, setMood] = useState<string | null>(initial?.mood ?? null);
+  const [msgs, setMsgs] = useState<Msg[]>(initial?.messages ?? []);
+  const [game, setGame] = useState<SavedChat["game"]>(initial?.game ?? null);
+  const [scores, setScores] = useState(initial?.scores ?? { a: 0, b: 0 });
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -66,16 +68,35 @@ function ChatView({ me, active }: Ctx) {
     if (!busy) ta.current?.focus();
   }, [busy, mood]);
 
-  const turn = async (history: Msg[], m = mood) => {
-    if (!m) return;
+  const persist = (id: string, m: string, messages: Msg[], nextGame = game, points = scores) => {
+    setState((state) => saveChat(state, active.id, { id, mood: m, messages, game: nextGame, scores: points, updatedAt: new Date().toISOString() }));
+  };
+  const restore = (chat: SavedChat) => {
+    setChatId(chat.id); setMood(chat.mood); setMsgs(chat.messages); setGame(chat.game); setScores(chat.scores); setErr(""); setInput("");
+    setState((state) => ({ ...state, selectedChats: { ...state.selectedChats, [active.id]: chat.id } }));
+  };
+  const history = (s.chats?.[active.id] ?? []).filter((chat) => chat.messages.length > 0);
+  const historyList = history.length > 0 && (
+    <section className="space-y-2">
+      <h2 className="font-display text-2xl">Chat history</h2>
+      {[...history].reverse().map((chat) => (
+        <Button key={chat.id} variant={chat.id === chatId ? "secondary" : "outline"} disabled={busy} className="h-auto w-full justify-start whitespace-normal text-left" onClick={() => restore(chat)}>
+          {MOODS.find((m) => m.id === chat.mood)?.label ?? chat.mood} · {new Date(chat.updatedAt).toLocaleDateString()}
+        </Button>
+      ))}
+    </section>
+  );
+  const turn = async (history: Msg[], m = mood, id = chatId, points = scores) => {
+    if (!m || !id) return;
     setBusy(true);
     setErr("");
     try {
-      const r = await run({ data: { a: me, b: active.profile, mood: m, history, scores } });
+      const r = await run({ data: { a: me, b: active.profile, mood: m, history, scores: points } });
       const next = [...history, ...r.turn.messages];
       setMsgs(next);
       setGame(r.turn.game);
       setScores(r.turn.points);
+      persist(id, m, next, r.turn.game, r.turn.points);
       setState((s) => ({
         ...s,
         lastChat: {
@@ -91,9 +112,10 @@ function ChatView({ me, active }: Ctx) {
     }
   };
   const send = (text: string) => {
-    if (!text.trim() || busy) return;
+    if (!text.trim() || busy || !mood || !chatId) return;
     const h = [...msgs, { sender: "a" as const, content: text.trim() }];
     setMsgs(h);
+    persist(chatId, mood, h);
     setInput("");
     turn(h);
   };
@@ -112,18 +134,22 @@ function ChatView({ me, active }: Ctx) {
         />
         <div className="grid gap-3 md:grid-cols-3">
           {MOODS.map((m) => (
-            <button
+            <Button variant="outline"
               key={m.id}
               onClick={() => {
                 setMood(m.id);
-                turn([], m.id);
+                const id = crypto.randomUUID();
+                setChatId(id);
+                persist(id, m.id, [], null, { a: 0, b: 0 });
+                void turn([], m.id, id, { a: 0, b: 0 });
               }}
-              className="card-luxe p-6 text-left font-display text-2xl transition hover:border-primary"
+              className="h-auto justify-start p-6 text-left font-display text-2xl"
             >
               {m.label}
-            </button>
+            </Button>
           ))}
         </div>
+        <div className="mt-6">{historyList}</div>
       </>
     );
 
@@ -230,15 +256,19 @@ function ChatView({ me, active }: Ctx) {
         <Button
           variant="ghost"
           className="w-full"
+          disabled={busy}
           onClick={() => {
+            setState((state) => ({ ...state, selectedChats: { ...state.selectedChats, [active.id]: null } }));
+            setChatId(null);
             setMood(null);
             setMsgs([]);
             setGame(null);
             setScores({ a: 0, b: 0 });
           }}
         >
-          Change mood
+          New chat
         </Button>
+        {historyList}
       </aside>
     </div>
   );

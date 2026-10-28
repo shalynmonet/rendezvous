@@ -19,8 +19,34 @@ export type State = {
   pendingInvite?: string | undefined;
   lastPlan?: unknown;
   lastChat?: { mood: string; scores: { a: number; b: number }; highlight: string };
+  chats?: Record<string, SavedChat[]>;
+  selectedChats?: Record<string, string | null>;
   memories?: Memory[];
 };
+export type ChatMessage = { sender: "rue" | "a" | "b"; content: string };
+export type SavedChat = {
+  id: string;
+  mood: string;
+  messages: ChatMessage[];
+  game: { type: string; prompt: string; options: string[] } | null;
+  scores: { a: number; b: number };
+  updatedAt: string;
+};
+
+export function selectedChat(s: State, connectionId: string): SavedChat | undefined {
+  const chats = s.chats?.[connectionId] ?? [];
+  const selected = s.selectedChats?.[connectionId];
+  return selected === null ? undefined : chats.find((chat) => chat.id === selected) ?? chats.at(-1);
+}
+
+export function saveChat(s: State, connectionId: string, chat: SavedChat): State {
+  const chats = s.chats?.[connectionId] ?? [];
+  return {
+    ...s,
+    chats: { ...s.chats, [connectionId]: [...chats.filter((c) => c.id !== chat.id), chat] },
+    selectedChats: { ...s.selectedChats, [connectionId]: chat.id },
+  };
+}
 export type Memory = {
   id: string;
   connectionId: string;
@@ -95,7 +121,7 @@ export function useStore() {
 export function startDemo() {
   setState((s) => ({
     ...s,
-    me: DEMO_A,
+    me: s.me ?? DEMO_A,
     connections: [
       { id: "demo-theo", label: "partner", profile: DEMO_B, demo: true },
       ...s.connections.filter((c) => c.id !== "demo-theo"),
