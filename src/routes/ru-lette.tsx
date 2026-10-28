@@ -191,7 +191,7 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
 
       {st?.next_spin && (
         <section className="flex flex-wrap items-center justify-between gap-4 border-y py-4" aria-live="polite">
-          <p>{st.next_spin.by === st.side ? `Waiting for ${partner.name} to approve the next spin.` : `${partner.name} wants to spin again.`}</p>
+          <p>{st.next_spin.by === st.side ? `Waiting for ${partner.name} to approve respin` : `${partner.name} wants to respin — waiting for your approval`}</p>
           <div className="flex flex-wrap gap-2">
             {st.next_spin.by !== st.side && <Button disabled={requesting} onClick={() => void respondToSpin("approve_spin")}><Check className="mr-2 h-4 w-4" />Ready — spin together</Button>}
             <Button variant="outline" disabled={requesting} onClick={() => void respondToSpin("cancel_spin")}>{st.next_spin.by === st.side ? "Cancel request" : "Not yet — keep this activity"}</Button>
