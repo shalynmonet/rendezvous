@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Copy, Heart, Check, Upload, Music, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import rueletta from "@/assets/ru-updated.jpg.asset.json";
+import rendezvousMain from "@/assets/rendezvous-main-2.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -152,8 +152,8 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
       </p>
       <div className="grid items-center gap-8 md:grid-cols-[1fr_1.1fr]">
         <div className="relative overflow-hidden rounded-2xl border border-gold/35">
-          <img src={rueletta.url} alt="Ru the fox in heart sunglasses and a houndstooth scarf at a café table" className="aspect-[1920/1689] w-full object-cover" />
-          <div className="hero-fade absolute inset-0" />
+          <img src={rendezvousMain.url} alt="Ru the fox in heart sunglasses and a houndstooth scarf at her jazz café table" className="aspect-[1920/1072] w-full object-cover" />
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-background/85 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
             <RueSays>{spinning ? "Round and round… faites vos jeux." : mode ? `${label}${spunBy ? ` (${spunBy} spun)` : ""}. Ru has spoken.` : `${me.name}, ${partner.name} — shall we play?`}</RueSays>
           </div>
