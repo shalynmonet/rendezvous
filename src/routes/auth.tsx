@@ -38,7 +38,7 @@ function Account() {
   const query = useQueryClient();
   const save = useServerFn(saveAccountProfile);
   const read = useServerFn(readSavedProfile);
-  const [mode, setMode] = useState<"up" | "in" | "forgot">("up");
+  const [mode, setMode] = useState<"up" | "in" | "forgot">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
