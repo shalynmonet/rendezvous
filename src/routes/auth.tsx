@@ -1,5 +1,5 @@
 import {createFileRoute,Link} from '@tanstack/react-router';
-import {useState} from 'react';
+import {useState,useEffect,useRef} from 'react';
 import {useServerFn} from '@tanstack/react-start';
 import {useQueryClient} from '@tanstack/react-query';
 import {supabase} from '@/integrations/supabase/client';
@@ -17,6 +17,8 @@ export const Route=createFileRoute('/auth')({head:()=>({meta:[{title:'Save your 
 function Account(){
  const {user}=useAccount();const {s,update}=useStore();const query=useQueryClient();const save=useServerFn(saveAccountProfile);const read=useServerFn(readSavedProfile);
  const [mode,setMode]=useState<'up'|'in'|'forgot'>('up');const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [notice,setNotice]=useState('');const [choice,setChoice]=useState<NonNullable<typeof s.me>|null>(null);
+ const synced=useRef<string|null>(null);
+ useEffect(()=>{if(!user||synced.current===user.id)return;synced.current=user.id;void (async()=>{setBusy(true);try{const saved=await read();if(needsProfileChoice(s.me,saved)){setChoice(saved);}else if(saved&&!s.me){update(st=>({...st,me:saved}));setNotice('Your saved tastes are back.');}else if(s.me){await save({data:s.me});setNotice('Your tastes are saved to your account.');}}catch(e){setError((e as Error).message);}finally{setBusy(false);}})();},[user,s.me,read,save,update]);
  const submit=async()=>{setBusy(true);setError('');try{if(mode==='forgot'){const r=await supabase.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/reset-password`});if(r.error)throw r.error;setNotice('Check your email for a password reset link.');}else{const r=mode==='up'?await supabase.auth.signUp({email,password,options:{emailRedirectTo:`${window.location.origin}/auth`}}):await supabase.auth.signInWithPassword({email,password});if(r.error)throw r.error;if(!r.data.session)setNotice('Check your email to confirm your account. Your tastes remain saved in this browser.');else setNotice('Signed in. Save or restore your tastes below.');}}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
  const sync=async(direction:'save'|'restore')=>{setBusy(true);setError('');try{const saved=await read();if(needsProfileChoice(s.me,saved)){setChoice(saved);return;}if(direction==='restore'&&saved){update(st=>({...st,me:saved}));setNotice('Your saved tastes are back.');}else if(s.me){await save({data:s.me});setNotice('Your tastes are saved to your account.');}else setNotice('Create your taste profile first.');}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
  return <Page><PageTitle eyebrow="Your account" title="Keep your tastes" sub="An account is optional. Your guest profile stays in this browser."/>

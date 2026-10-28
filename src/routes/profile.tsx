@@ -8,9 +8,10 @@ import { useStore } from "@/lib/store";
 import type { TasteT } from "@/lib/rue.functions";
 import { useServerFn } from '@tanstack/react-start';
 import { useAccount } from '@/components/account-provider';
-import { saveAccountProfile } from '@/lib/profile.functions';
+import { saveAccountProfile,readSavedProfile } from '@/lib/profile.functions';
 import { ProfileShare } from '@/components/profile-share';
-import { encodeInvite } from '@/lib/store';
+import { chatAccess } from '@/lib/guest-chat.functions';
+import { newGuestKey,needsProfileChoice } from '@/lib/chat-schemas';
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Your Taste Profile — Rendezvous" }, { name: "description", content: "Tell Rue what you love; Qloo maps it." }, { property: "og:title", content: "Your Taste Profile — Rendezvous" }, { property: "og:description", content: "Build the taste profile Rue uses everywhere." }] }),
@@ -21,6 +22,9 @@ function ProfilePage() {
   const { s, ready, update } = useStore();
   const {user}=useAccount();
   const accountSave=useServerFn(saveAccountProfile);
+  const accountRead=useServerFn(readSavedProfile);
+  const access=useServerFn(chatAccess);
+  const [sharing,setSharing]=useState(false);
   const nav=useNavigate();
   const [saved,setSaved]=useState(false);
   const [origin,setOrigin]=useState('');
@@ -35,7 +39,7 @@ function ProfilePage() {
     update((st) => ({ ...st, me: { name: name.trim(), city: city.trim() || "Chicago", tastes } }));
     toast.success("Saved. Rue knows.");
     setSaved(true);
-    if(user){try{await accountSave({data:{name:name.trim(),city:city.trim()||'Chicago',tastes}});toast.success('Saved to your account.');}catch(e){toast.error((e as Error).message);}}
+    if(user){try{const local={name:name.trim(),city:city.trim()||'Chicago',tastes};const existing=await accountRead();if(needsProfileChoice(local,existing)){toast.info('Your account has different tastes. Choose which to keep on your account page.');nav({to:'/auth'});return;}await accountSave({data:local});toast.success('Saved to your account.');}catch(e){toast.error((e as Error).message);}}
     if(s.pendingInvite)nav({to:'/invite',search:{i:s.pendingInvite}});
   };
 
@@ -52,7 +56,7 @@ function ProfilePage() {
         <Button onClick={save}>Save my tastes</Button>
       </div>
       {saved&&<section className="mt-8 space-y-4 border-t pt-6"><p role="status">Your taste profile is saved {user?'to your account':'in this browser'}.</p>{!user&&<div className="flex flex-wrap gap-3"><Button asChild><Link to="/auth">Create account to keep my tastes</Link></Button><Button variant="ghost" onClick={()=>setSaved(false)}>Not now</Button></div>}<Button variant="outline" asChild><Link to="/connections">Invite someone to chat</Link></Button></section>}
-      {s.me&&origin&&<section className="mt-8 space-y-4 border-t pt-6"><h2 className="text-3xl">Share your taste profile</h2><ProfileShare name={s.me.name} link={`${origin}/invite?d=${encodeInvite(s.me)}`}/></section>}
+      {s.me&&origin&&<section className="mt-8 space-y-4 border-t pt-6"><h2 className="text-3xl">Share your taste profile</h2>{s.pendingRoom?.invite?<ProfileShare name={s.me.name} link={`${origin}/invite?i=${s.pendingRoom.invite}`}/>:<><p className="text-sm text-muted-foreground">Share your first name, city, and favorites with the person you invite.</p><Button disabled={sharing} onClick={async()=>{if(!s.me)return;setSharing(true);try{const token=newGuestKey(),invite=newGuestKey();const r=await access({data:{action:'create',token,invite,profile:s.me}});if(r.id){const id=r.id;update(st=>({...st,pendingRoom:{id,token,invite}}));}}catch(e){toast.error((e as Error).message);}finally{setSharing(false);}}}>{sharing?'Creating…':'Create share link and QR'}</Button></> }</section>}
     </Page>
   );
 }
