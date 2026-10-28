@@ -125,3 +125,14 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
 }
+
+.ruelette-wheel {
+  background: conic-gradient(
+    var(--secondary) 0 60deg, var(--muted) 60deg 120deg,
+    var(--secondary) 120deg 180deg, var(--muted) 180deg 240deg,
+    var(--secondary) 240deg 300deg, var(--muted) 300deg 360deg
+  );
+}
+.houndstooth-dot {
+  background-image: url("/__l5e/assets-v1/PLACEHOLDER");
+}
