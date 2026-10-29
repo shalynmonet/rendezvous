@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resolveTaste, type TasteT } from "@/lib/rue.functions";
 import { CATEGORIES, useStore, startDemo } from "@/lib/store";
+import { useAccountPeople } from "@/hooks/use-account-people";
 
 export const RUE_IMG = rueHero.url;
 

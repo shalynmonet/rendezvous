@@ -24,21 +24,58 @@ export const Route = createFileRoute("/chat")({
       },
     ],
   }),
-  component: () => (
+  component: ChatPage,
+});
+
+function ChatPage() {
+  const [picked, setPicked] = useState(false);
+  return (
     <Page>
       <Button variant="ghost" className="mb-4" asChild><Link to="/saved-chats">Saved chats</Link></Button>
       <NeedPair>
         {(ctx) =>
-          ctx.active.room ? (
-            <LiveChat key={ctx.active.room.id} room={ctx.active.room} />
+          !picked ? (
+            <PartnerPicker {...ctx} onPick={(id) => { setState((st) => ({ ...st, activeId: id })); setPicked(true); }} />
+          ) : ctx.active.room ? (
+            <>
+              <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
+              <LiveChat key={ctx.active.room.id} room={ctx.active.room} />
+            </>
           ) : (
-            <ChatView key={ctx.active.id} {...ctx} />
+            <>
+              <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
+              <ChatView key={ctx.active.id} {...ctx} />
+            </>
           )
         }
       </NeedPair>
     </Page>
-  ),
-});
+  );
+}
+
+/** Chat starts by asking who you're talking to; each person has one ongoing thread. */
+function PartnerPicker({ s, onPick }: Ctx & { onPick: (id: string) => void }) {
+  return (
+    <>
+      <PageTitle eyebrow="Chat with Ru" title="Who are we chatting with tonight?" sub="Each person has one ongoing thread. Ru picks up right where you left off." />
+      <div className="grid gap-3 md:grid-cols-2">
+        {s.connections.map((c) => {
+          const thread = selectedChat(s, c.id);
+          const mood = thread ? MOODS.find((m) => m.id === thread.mood)?.label ?? thread.mood : null;
+          return (
+            <Button key={c.id} variant="outline" className="h-auto flex-col items-start whitespace-normal p-5 text-left" onClick={() => onPick(c.id)}>
+              <span className="font-display text-2xl">{c.profile.name} {c.demo && <span className="text-xs text-gold">demo</span>}{c.room && <span className="text-xs text-gold"> live</span>}</span>
+              <span className="text-xs text-muted-foreground">
+                {thread && thread.messages.length > 0 ? `${c.profile.name} · ${mood} · ${new Date(thread.updatedAt).toLocaleDateString()}` : c.room ? "Live chat room" : "No thread yet — pick a mood next"}
+              </span>
+            </Button>
+          );
+        })}
+      </div>
+      <Button variant="ghost" className="mt-4" asChild><Link to="/connections">+ Invite someone new</Link></Button>
+    </>
+  );
+}
 
 type Ctx = Parameters<Parameters<typeof NeedPair>[0]["children"]>[0];
 type Msg = ChatMessage;
