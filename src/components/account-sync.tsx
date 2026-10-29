@@ -5,7 +5,7 @@ import { useAccount } from "./account-provider";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { readAccountWorkspace, saveAccountWorkspace } from "@/lib/account-workspace.functions";
-import { storeSnapshot, subscribeStore, switchAccountStore, type State } from "@/lib/store";
+import { clearGuestStore, storeSnapshot, subscribeStore, switchAccountStore, type State } from "@/lib/store";
 import { mergeWorkspace } from "@/lib/merge-workspace";
 
 export function AccountSync({ children }: { children: ReactNode }) {
@@ -61,12 +61,13 @@ export function AccountSync({ children }: { children: ReactNode }) {
       try {
         const saved = await read();
         if (stopped) return;
-        const hasLocal = !!local.me || local.connections.length > 0 || !!local.memories?.length;
+        const hasLocal = !!local.me || local.connections.length > 0 || !!local.memories?.length
+          || Object.values(local.chats ?? {}).some((list) => list.some((c) => c.messages.length));
         const savedState = JSON.parse(saved.stateJson) as State;
         if (hasLocal && JSON.stringify(local) !== JSON.stringify(savedState)) {
           setChoice({ local, saved: savedState, revision: saved.revision }); setLoading(false);
           flush.current = () => { start(storeSnapshot(), revision.current); dirty = true; void persist(); };
-        } else start(savedState, saved.revision);
+        } else { clearGuestStore(); start(savedState, saved.revision); }
       } catch (e) { if (!stopped) { setError((e as Error).message); setLoading(true); flush.current = () => setRetry((n) => n + 1); } }
     })();
     const onHidden = () => { if (document.hidden && dirty) void persist(); };
@@ -76,6 +77,7 @@ export function AccountSync({ children }: { children: ReactNode }) {
   const choose = (state: State) => {
     if (!choice || !user) return;
     revision.current = choice.revision;
+    clearGuestStore();
     switchAccountStore(user.id, state);
     setChoice(null); setError(""); flush.current?.();
   };
