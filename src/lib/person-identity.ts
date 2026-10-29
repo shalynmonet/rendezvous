@@ -63,7 +63,7 @@ export function addedLabel(iso?: string): string {
 }
 
 /** The detail that tells two same-named people apart: city and the day they joined. */
-export function personQualifier(p: Profile, opts: { label?: string; addedAt?: string } = {}): string {
+export function personQualifier(p: Profile, opts: { label?: string | undefined; addedAt?: string | undefined } = {}): string {
   const parts = [p.city.trim(), addedLabel(opts.addedAt)].filter(Boolean);
   if (parts.length) return parts.join(" · ");
   if (opts.label?.trim()) return opts.label.trim();
