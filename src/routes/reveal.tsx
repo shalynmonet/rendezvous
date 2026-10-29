@@ -13,6 +13,7 @@ import {
   ToolTrail,
   WhyChip,
 } from "@/components/rue";
+import { clashingNames, nameKey, personQualifier } from "@/lib/person-identity";
 import { tasteReveal, type Reveal } from "@/lib/rue.functions";
 import { setState, storeSnapshot } from "@/lib/store";
 
