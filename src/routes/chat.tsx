@@ -55,12 +55,24 @@ function ChatPage() {
 
 /** Chat starts by asking who you're talking to; each person has one ongoing thread. */
 function PartnerPicker({ s, onPick }: Ctx & { onPick: (id: string) => void }) {
+  // One card per person: merge duplicate connections (invites, saved snapshots) by name
+  // and open whichever holds the most recent thread.
+  const groups = new Map<string, { c: (typeof s.connections)[number]; thread: SavedChat | undefined }>();
+  for (const c of s.connections) {
+    const key = `${c.demo ? "demo:" : ""}${c.profile.name.trim().toLowerCase()}`;
+    const thread = selectedChat(s, c.id);
+    const cur = groups.get(key);
+    const has = (t?: SavedChat) => !!t && t.messages.length > 0;
+    const better = !cur
+      || (has(thread) && (!has(cur.thread) || thread!.updatedAt > cur.thread!.updatedAt))
+      || (!has(thread) && !has(cur.thread) && !!c.room && !cur.c.room);
+    if (better) groups.set(key, { c, thread });
+  }
   return (
     <>
       <PageTitle eyebrow="Chat with Ru" title="Who are we chatting with tonight?" sub="Each person has one ongoing thread. Ru picks up right where you left off." />
       <div className="grid gap-3 md:grid-cols-2">
-        {s.connections.map((c) => {
-          const thread = selectedChat(s, c.id);
+        {[...groups.values()].map(({ c, thread }) => {
           const mood = thread ? MOODS.find((m) => m.id === thread.mood)?.label ?? thread.mood : null;
           return (
             <Button key={c.id} variant="outline" className="h-auto flex-col items-start whitespace-normal p-5 text-left" onClick={() => onPick(c.id)}>
@@ -296,9 +308,13 @@ function ChatView({ me, active, s }: Ctx) {
         <Button variant="outline" className="w-full" asChild>
           <Link to="/recap">Recap card</Link>
         </Button>
-        <Button variant="ghost" className="w-full" disabled={busy} onClick={() => { setLastMood(mood); setMood(null); }}>
-          Fresh start with Ru
-        </Button>
+        <div className="card-luxe p-4 text-sm">
+          <p className="text-xs uppercase tracking-widest text-gold">Mood</p>
+          <p className="font-display text-xl">{MOODS.find((x) => x.id === mood)?.label ?? mood}</p>
+          <Button variant="outline" className="mt-2 w-full" disabled={busy} onClick={() => { setLastMood(mood); setMood(null); }}>
+            Switch mood
+          </Button>
+        </div>
       </aside>
     </div>
   );
