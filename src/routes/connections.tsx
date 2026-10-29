@@ -75,8 +75,8 @@ function Connections() {
       clearTimeout(timer);
     };
   }, [s.pendingRoom, access, update]);
-  const create = async () => {
-    if (!s.me) return;
+  const create = async (): Promise<string | undefined> => {
+    if (!s.me) return undefined;
     setBusy(true);
     try {
       const token = newGuestKey(),
@@ -86,8 +86,10 @@ function Connections() {
         update((st) => ({ ...st, pendingRoom: { id: r.id as string, token, invite } }));
         return `${window.location.origin}/invite?i=${invite}`;
       }
+      return undefined;
     } catch (e) {
       toast.error((e as Error).message);
+      return undefined;
     } finally {
       setBusy(false);
     }
