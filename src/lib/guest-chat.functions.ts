@@ -3,7 +3,7 @@ import { z } from "zod";
 import { GuestKeySchema, TasteProfileSchema, LiveStateSchema } from "./chat-schemas";
 
 const AccessSchema = z.object({
-  action: z.enum(["create", "preview", "join", "read", "send", "mute", "unmute"]),
+  action: z.enum(["create", "preview", "join", "read", "send", "mute", "unmute", "profile"]),
   room: z.string().uuid().optional(),
   token: GuestKeySchema,
   invite: GuestKeySchema.optional(),
@@ -25,7 +25,7 @@ export const chatAccess = createServerFn({ method: "POST" })
       ...(data.messageId ? { p_message_id: data.messageId } : {}),
     });
     if (error) throw new Error(error.message);
-    if (["read", "send", "mute", "unmute"].includes(data.action))
+    if (["read", "send", "mute", "unmute", "profile"].includes(data.action))
       return { state: LiveStateSchema.parse(result), id: null, profile: null, joined: false };
     const parsed = z
       .object({

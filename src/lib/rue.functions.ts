@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { LifestyleSchema, describeLifestyle } from "./lifestyle";
+import { LifestyleSchema, describeLifestyle, conversationProfile } from "./lifestyle";
 import { conversationDirection, preserveConversationScores } from "./conversation-style";
 
 const Category = z.enum(["artist", "film", "tv", "restaurant", "cuisine", "place", "book", "brand"]);
@@ -10,7 +10,7 @@ export type TasteT = z.infer<typeof Taste>;
 export type PersonT = z.infer<typeof Person>;
 
 const describe = (p: PersonT) =>
-  `${p.name}: ${p.tastes.map((t) => `${t.label} (${t.category}${t.entity_id ? `, qloo:${t.entity_id}` : ""})`).join("; ")}${describeLifestyle(p.lifestyle)}`;
+  `${p.name}: ${p.tastes.map((t) => `${t.label} (${t.category}${t.entity_id ? `, qloo:${t.entity_id}` : ""})`).join("; ")}`;
 
 async function resolveOne(p: PersonT): Promise<PersonT> {
   const { resolveItems } = await import("./qloo.server");
@@ -68,7 +68,7 @@ export const planDate = createServerFn({ method: "POST" })
       system: swap
         ? `Replace ONE stop of type "${swap.type}" in ${data.city}. Call find_places with both people's entity ids. Do not pick any of: ${swap.avoid.join(", ")}. Return stops containing only that one new stop, and an empty soundtrack.`
         : `Plan a date night in ${data.city}: exactly three stops (dinner, activity, nightcap) using find_places with both people's entity ids, then a 12-song soundtrack via build_soundtrack (only well-known real songs by returned artists). Every stop and song needs a reason citing their tastes and the Qloo signal. Use only venues returned by find_places; copy their name, address and id.`,
-      prompt: `${describe(a)}\n${describe(b)}\nVibe: ${data.vibe || "surprise me"}. Budget: ${data.budget || "flexible"}.`,
+      prompt: `${describe(a)}\n${describe(b)}\n${describeLifestyle(a.lifestyle)}${describeLifestyle(b.lifestyle)}\nVibe: ${data.vibe || "surprise me"}. Budget: ${data.budget || "flexible"}.`,
       finishSchema: PlanSchema,
       finishDescription: "Submit the date plan.",
     });
@@ -96,7 +96,7 @@ export const chatTurn = createServerFn({ method: "POST" })
 Mood: ${data.mood}. Current conversation card: ${JSON.stringify(data.game)}.
 Each turn: react specifically to A's answer, let simulated B answer naturally, then lead with the next question. Only award 0-2 points each for answers to a scored game, never for stories or ordinary conversation. ${conversationDirection(data.game)} Use start_game only when the next style is game. Use tastes for grounding; call Qloo for discoveries and game evidence, not unnecessarily for ordinary follow-ups.
 Messages: 1-3 total, sender "rue" or "b". Keep each under 40 words. Current scores: A ${data.scores.a}, B ${data.scores.b}. Return updated cumulative points.`,
-      prompt: `${describe(a)}\n${describe(b)}\n\nChat so far:\n${data.history.map((m) => `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Ru"}: ${m.content}`).join("\n") || "(just started — greet them and ask a warm question)"}`,
+      prompt: `${describe(conversationProfile(a))}\n${describe(conversationProfile(b))}\n\nChat so far:\n${data.history.map((m) => `${m.sender === "a" ? a.name : m.sender === "b" ? b.name : "Ru"}: ${m.content}`).join("\n") || "(just started — greet them and ask a warm question)"}`,
       finishSchema: GameSchema,
       finishDescription: "Submit Ru's (and simulated B's) messages, the next game card, and cumulative points.",
       extraTools: {

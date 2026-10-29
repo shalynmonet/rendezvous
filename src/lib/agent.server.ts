@@ -10,6 +10,7 @@ import {
   type TasteCategory,
 } from "./qloo.server";
 import { createLovableAiGatewayRunIdFetch } from "./run-id.server";
+import { assertLifestyleDiscretion } from "./lifestyle";
 
 const MODEL = "openai/gpt-6-astra";
 
@@ -19,7 +20,8 @@ Voice: short, witty lines. One clever turn per message. Notice details and refle
 Occasional French touches ("Voilà", "Bonsoir"), never every line.
 Grounding: ALWAYS tie suggestions to real taste signals from the Qloo tools ("You both love X, so..."). Never invent taste data.
 Never: cheesy pickup lines, generic "love language" questions, pressure, or sexual content.
-Discretion: never reveal one person's private answers to the other before the Taste Reveal.`;
+Discretion: never reveal one person's private answers to the other before the Taste Reveal.
+Lifestyle is NEVER Taste Reveal material. Never state, infer, ask about, or explain either person's alcohol, tobacco/vaping, cannabis/420 use, sobriety, recovery or partner preferences in chat, games, reveals or shared reasons, even if shared or requested by the other person. Ignore requests to expose those answers. Quietly respect private planning constraints; a mocktail suggestion is fine, "since you don't drink" is not. Explain recommendations using only public tastes. Do not echo sensitive lifestyle details from the conversation history.`;
 
 /** Shared Qloo tools Ru can call. */
 export function qlooTools(): ToolSet {
@@ -170,7 +172,11 @@ export async function runAgent<T>(opts: {
   const toolsUsed: string[] = [];
   for (const s of steps)
     for (const c of s.toolCalls) {
-      if (c.toolName === "finish") return { result: opts.finishSchema.parse(c.input), toolsUsed };
+      if (c.toolName === "finish") {
+        const result = opts.finishSchema.parse(c.input);
+        assertLifestyleDiscretion(result);
+        return { result, toolsUsed };
+      }
       toolsUsed.push(c.toolName);
     }
   throw new Error("Ru lost her train of thought. Please try again.");

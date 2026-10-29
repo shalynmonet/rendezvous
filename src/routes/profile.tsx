@@ -7,6 +7,7 @@ import { Page, PageTitle, RueSays, TasteEditor } from "@/components/rue";
 import { useStore } from "@/lib/store";
 import type { TasteT } from "@/lib/rue.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import { LIFESTYLE_TOPICS, type LifestyleT } from "@/lib/lifestyle";
 import { useServerFn } from "@tanstack/react-start";
 import { useAccount } from "@/components/account-provider";
@@ -61,6 +62,14 @@ function ProfilePage() {
     update((st) => ({ ...st, me: { name: name.trim(), city: city.trim() || "Chicago", tastes, lifestyle } }));
     toast.success("Saved. Ru knows.");
     setSaved(true);
+    try {
+      const rooms = [s.pendingRoom, ...s.connections.map((c) => c.room)].filter((room): room is NonNullable<typeof room> => !!room);
+      for (const room of rooms.filter((room, index) => rooms.findIndex((r) => r.id === room.id) === index)) {
+        await access({ data: { action: "profile", room: room.id, token: room.token, profile: { name: name.trim(), city: city.trim() || "Chicago", tastes, lifestyle } } });
+      }
+    } catch {
+      toast.error("Your profile is saved, but an invitation couldn't be updated. Please retry before sharing it.");
+    }
     if (user) {
       try {
         const local = { name: name.trim(), city: city.trim() || "Chicago", tastes, lifestyle };
@@ -108,7 +117,7 @@ function ProfilePage() {
           </TabsContent>
           <TabsContent value="lifestyle" className="space-y-5 pt-4">
             <p className="text-sm text-muted-foreground">
-              Optional. Ru uses this to suggest dates you'll both be comfortable with — never to judge.
+              Private unless you choose to share. Ru never mentions these answers in your conversation.
             </p>
             {LIFESTYLE_TOPICS.map((t) => (
               <fieldset key={t.key} className="space-y-2">
@@ -129,6 +138,10 @@ function ProfilePage() {
                     </Button>
                   ))}
                 </div>
+                <label className="flex items-center justify-between gap-3 text-sm">
+                  Share {t.label.toLowerCase()} with connections
+                  <Switch aria-label={`Share ${t.label} with connections`} checked={lifestyle.shared?.includes(t.key) ?? false} onCheckedChange={(checked) => setLifestyle((l) => ({ ...l, shared: checked ? [...new Set([...(l.shared ?? []), t.key])] : (l.shared ?? []).filter((key) => key !== t.key) }))} />
+                </label>
               </fieldset>
             ))}
             <fieldset className="space-y-2">
@@ -149,6 +162,10 @@ function ProfilePage() {
                   </Button>
                 ))}
               </div>
+              <label className="flex items-center justify-between gap-3 text-sm">
+                Share my partner preference with connections
+                <Switch aria-label="Share partner preference with connections" checked={lifestyle.shared?.includes("openToPartner") ?? false} onCheckedChange={(checked) => setLifestyle((l) => ({ ...l, shared: checked ? [...new Set([...(l.shared ?? []), "openToPartner" as const])] : (l.shared ?? []).filter((key) => key !== "openToPartner") }))} />
+              </label>
             </fieldset>
           </TabsContent>
         </Tabs>

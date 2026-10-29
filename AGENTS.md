@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Rendezvous architecture
+- Lifestyle disclosure is field-by-field opt-in at database RPC read/claim/preview boundaries; chat prompts exclude lifestyle entirely, planning receives only anonymous constraints, and generated output has a discretion guard. Owner profile edits update capability-authorized room profiles so consent can be revoked.
 - Qloo calls live only in `src/lib/qloo.server.ts` (hackathon base URL); keeps the key server-side.
 - Ru is an AI SDK tool-calling agent in `src/lib/agent.server.ts` that ends with a structured `finish` tool; every result carries a `reason` citing taste data.
 - Guests remain browser-local without a login wall; signed-in state automatically saves to a revision-checked owner-only workspace and uses account-scoped browser caches. Importing existing guest data requires an explicit choice to avoid cross-account leakage.

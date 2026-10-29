@@ -8,6 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { chatAccess } from "@/lib/guest-chat.functions";
 import { newGuestKey } from "@/lib/chat-schemas";
 import { ErrorNote } from "@/components/rue";
+import { LIFESTYLE_TOPICS } from "@/lib/lifestyle";
 
 export const Route = createFileRoute("/invite")({
   validateSearch: z.object({ d: z.string().optional(), i: z.string().optional() }),
@@ -105,6 +106,10 @@ function Invite() {
       <PageTitle eyebrow="An invitation" title={`${p.name} wants a Rendezvous`} />
       <div className="card-luxe space-y-4 p-6">
         <RueSays>Bonsoir. {p.name} has excellent taste. Let's see if you do too.</RueSays>
+        {p.lifestyle && <dl className="space-y-2 text-sm">
+          {LIFESTYLE_TOPICS.filter((topic) => p.lifestyle?.[topic.key]).map((topic) => <div key={topic.key} className="flex gap-2"><dt className="font-medium">{topic.label}:</dt><dd>{p.lifestyle?.[topic.key]}</dd></div>)}
+          {p.lifestyle.openToPartner !== undefined && <div><dt className="font-medium">Partner partaking</dt><dd>{p.lifestyle.openToPartner ? "Comfortable" : "Prefer they don't"}</dd></div>}
+        </dl>}
         <Button disabled={busy} onClick={accept}>
           {busy ? "Joining…" : !s.me && i ? "Create my tastes and join" : "Accept invitation"}
         </Button>

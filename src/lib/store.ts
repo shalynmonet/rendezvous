@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import type { PersonT, TasteT } from "./rue.functions";
 import { TasteProfileSchema, type GuestRoom } from "./chat-schemas";
+import { sharedTasteProfile } from "./lifestyle";
 
 export type Profile = PersonT & { city: string };
 export type Connection = {
@@ -146,10 +147,10 @@ export function startDemo() {
   }));
 }
 
-export const encodeInvite = (p: Profile) => btoa(unescape(encodeURIComponent(JSON.stringify(p))));
+export const encodeInvite = (p: Profile) => btoa(unescape(encodeURIComponent(JSON.stringify(sharedTasteProfile(p)))));
 export const decodeInvite = (d: string): Profile | null => {
   try {
-    return TasteProfileSchema.parse(JSON.parse(decodeURIComponent(escape(atob(d)))));
+    return sharedTasteProfile(TasteProfileSchema.parse(JSON.parse(decodeURIComponent(escape(atob(d))))));
   } catch {
     return null;
   }

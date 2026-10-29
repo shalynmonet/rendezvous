@@ -1,4 +1,6 @@
 # Rendezvous roadmap
+- [x] Make lifestyle private by default at invitation and room read boundaries, with explicit sharing consent
+- [x] Keep lifestyle answers out of Ru's shared conversation and verify privacy rules
 - [x] Show account-saved real connections under People in a fresh browser, with saved-history access and safe re-invitation
 - [x] Audit browser-only user data and automatically save and restore it for signed-in accounts
 - [x] Verify fresh-browser restoration and account isolation for tastes, people, chats, Ru-lette and photos; test plan/reveal/memory round trips

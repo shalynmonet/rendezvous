@@ -57,6 +57,13 @@
       "when": 1793224986707,
       "tag": "0007_private_pending_invitation_backup",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793234864646,
+      "tag": "0008_lifestyle_sharing_consent",
+      "breakpoints": true
     }
   ]
 }
