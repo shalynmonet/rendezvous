@@ -109,7 +109,7 @@ function RevealView({ me, active, s }: Ctx) {
         <div className="mb-6 flex flex-wrap gap-2" aria-label="Choose whose reveal to view">
           {s.connections.map((c) => (
             <Button key={c.id} size="sm" variant={c.id === active.id ? "default" : "outline"} onClick={() => setState((st) => ({ ...st, activeId: c.id }))}>
-              {c.profile.name}{clashes.has(nameKey(c.profile.name)) ? ` · ${personQualifier(c.profile, c.label)}` : ""}{c.demo ? " (demo)" : ""}{s.reveals?.[c.id] ? " ✓" : ""}
+              {c.profile.name}{clashes.has(nameKey(c.profile.name)) ? ` · ${personQualifier(c.profile, { label: c.label, addedAt: c.addedAt })}` : ""}{c.demo ? " (demo)" : ""}{s.reveals?.[c.id] ? " ✓" : ""}
             </Button>
           ))}
         </div>

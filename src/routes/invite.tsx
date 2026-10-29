@@ -81,7 +81,7 @@ function Invite() {
           pendingInvite: undefined,
           connections: [
             ...st.connections.filter((c) => c.id !== id),
-            { id, label: "live", profile: p, room: { id, token } },
+            { id, label: "live", profile: p, room: { id, token }, addedAt: new Date().toISOString() },
           ],
           activeId: id,
         }));
@@ -96,7 +96,7 @@ function Invite() {
     const id = `inv-${p.name}-${Date.now()}`;
     update((st) => ({
       ...st,
-      connections: [...st.connections, { id, label: "date", profile: p }],
+      connections: [...st.connections, { id, label: "date", profile: p, addedAt: new Date().toISOString() }],
       activeId: id,
     }));
     nav({ to: s.me ? "/reveal" : "/profile" });

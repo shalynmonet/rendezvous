@@ -33,7 +33,7 @@ export function useAccountPeople() {
           ),
       );
       if (!missing.length) return st;
-      return { ...st, connections: [...st.connections, ...missing.map((p) => ({ id: p.id, label: "saved", profile: p.profile }))], activeId: st.activeId ?? missing[0]!.id };
+      return { ...st, connections: [...st.connections, ...missing.map((p) => ({ id: p.id, label: "saved", profile: p.profile, addedAt: p.addedAt }))], activeId: st.activeId ?? missing[0]!.id };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, key]);

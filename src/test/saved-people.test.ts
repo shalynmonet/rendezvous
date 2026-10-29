@@ -31,4 +31,8 @@ describe("People from account-saved chats", () => {
     expect(people).toHaveLength(1);
     expect(people[0]?.chatId).toBe("saved-2");
   });
+  it("reports the day the person first appeared in the account", () => {
+    const people = savedPeople([chat, { ...chat, id: "saved-0", updatedAt: "2026-10-20T10:00:00Z" }], DEMO_A, []);
+    expect(people[0]?.addedAt).toBe("2026-10-20T10:00:00Z");
+  });
 });

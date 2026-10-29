@@ -11,6 +11,8 @@ export type Connection = {
   profile: Profile;
   demo?: boolean;
   room?: GuestRoom;
+  /** When this person joined your list, used to tell same-named people apart. */
+  addedAt?: string;
 };
 export type State = {
   me: Profile | null;
@@ -148,7 +150,7 @@ export function startDemo() {
     ...s,
     me: s.me ?? DEMO_A,
     connections: [
-      { id: "demo-theo", label: "partner", profile: DEMO_B, demo: true },
+      { id: "demo-theo", label: "partner", profile: DEMO_B, demo: true, addedAt: new Date().toISOString() },
       ...s.connections.filter((c) => c.id !== "demo-theo"),
     ],
     activeId: "demo-theo",
