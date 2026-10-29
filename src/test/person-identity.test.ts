@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clashingNames, groupPeople, personQualifier, samePerson } from "@/lib/person-identity";
+import { addedLabel, clashingNames, groupPeople, personQualifier, samePerson } from "@/lib/person-identity";
 import type { Profile } from "@/lib/store";
 
 const larryChicago: Profile = {
@@ -52,5 +52,11 @@ describe("Same-named people", () => {
         conn(larryChicagoAgain),
       ]),
     ).toHaveLength(2);
+  });
+  it("adds the day each person joined, even when the city already matches", () => {
+    expect(personQualifier(larryChicago, { addedAt: "2026-10-12T15:00:00Z" })).toBe("Chicago · added Oct 12");
+    expect(personQualifier(larryAustin, { addedAt: "2026-09-03T15:00:00Z" })).toBe("Austin · added Sep 3");
+    expect(addedLabel("not-a-date")).toBe("");
+    expect(addedLabel(undefined)).toBe("");
   });
 });
