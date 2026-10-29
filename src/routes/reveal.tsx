@@ -40,7 +40,7 @@ export const Route = createFileRoute("/reveal")({
 
 type Ctx = Parameters<Parameters<typeof NeedPair>[0]["children"]>[0];
 
-function RevealView({ me, active }: Ctx) {
+function RevealView({ me, active, s }: Ctx) {
   const run = useServerFn(tasteReveal);
   const [data, setData] = useState<{
     reveal: Reveal;
@@ -103,6 +103,15 @@ function RevealView({ me, active }: Ctx) {
         title={`${me.name} & ${active.profile.name}`}
         sub="Ru compares both taste graphs and finds the overlap, the bridges, and the dares."
       />
+      {s.connections.length > 1 && (
+        <div className="mb-6 flex flex-wrap gap-2" aria-label="Choose whose reveal to view">
+          {s.connections.map((c) => (
+            <Button key={c.id} size="sm" variant={c.id === active.id ? "default" : "outline"} onClick={() => setState((st) => ({ ...st, activeId: c.id }))}>
+              {c.profile.name}{c.demo ? " (demo)" : ""}{s.reveals?.[c.id] ? " ✓" : ""}
+            </Button>
+          ))}
+        </div>
+      )}
       {!data && !busy && (
         <div className="card-luxe space-y-4 p-6">
           <RueSays>I've kept your secrets so far. Shall I reveal what you two share?</RueSays>
@@ -146,7 +155,11 @@ function RevealView({ me, active }: Ctx) {
             <Button variant="outline" asChild>
               <Link to="/chat">Play a game</Link>
             </Button>
+            <Button variant="ghost" disabled={busy} onClick={go}>
+              {busy ? "Ru is re-reading your tastes…" : "Generate a fresh reveal"}
+            </Button>
           </div>
+          <p className="text-xs text-muted-foreground">Saved to your reveal. Ru only makes a new one when you ask — handy after updating your tastes.</p>
         </div>
       )}
     </>
