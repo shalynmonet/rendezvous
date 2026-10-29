@@ -10,16 +10,16 @@ const larryChicago: Profile = {
     { category: "film", label: "Spirited Away" },
     { category: "tv", label: "The Bear" },
   ],
-  lifestyle: undefined,
 };
 const larryChicagoAgain: Profile = { ...larryChicago, tastes: [...larryChicago.tastes, { category: "book", label: "Dune" }] };
 const larryAustin: Profile = { ...larryChicago, city: "Austin" };
 const larryNoCity: Profile = { ...larryChicago, city: "", tastes: [{ category: "artist", label: "Arctic Monkeys" }] };
+const conn = (profile: Profile, extra: Record<string, unknown> = {}) => ({ id: profile.city || "x", label: "saved", profile, ...extra });
 
 describe("Same-named people", () => {
   it("keeps two Larrys apart when their cities differ", () => {
     expect(samePerson(larryChicago, larryAustin)).toBe(false);
-    expect(groupPeople([larryChicago, larryAustin])).toHaveLength(2);
+    expect(groupPeople([conn(larryChicago), conn(larryAustin)])).toHaveLength(2);
   });
   it("keeps two Larrys apart when their tastes barely overlap", () => {
     const other: Profile = {
@@ -31,15 +31,15 @@ describe("Same-named people", () => {
       ],
     };
     expect(samePerson(larryChicago, other)).toBe(false);
-    expect(groupPeople([larryChicago, other])).toHaveLength(2);
+    expect(groupPeople([conn(larryChicago), conn(other)])).toHaveLength(2);
   });
   it("merges a re-invited Larry whose profile still matches", () => {
     expect(samePerson(larryChicago, larryChicagoAgain)).toBe(true);
-    expect(groupPeople([larryChicago, larryChicagoAgain])).toHaveLength(1);
+    expect(groupPeople([conn(larryChicago), conn(larryChicagoAgain)])).toHaveLength(1);
   });
   it("flags shared names so cards can be qualified", () => {
-    expect(clashingNames([larryChicago, larryAustin])).toEqual(new Set(["larry"]));
-    expect(clashingNames([larryChicago, larryChicagoAgain])).toEqual(new Set());
+    expect(clashingNames([conn(larryChicago), conn(larryAustin)])).toEqual(new Set(["larry"]));
+    expect(clashingNames([conn(larryChicago), conn(larryChicagoAgain)])).toEqual(new Set());
   });
   it("qualifies a shared name with the city, falling back to tastes", () => {
     expect(personQualifier(larryAustin)).toBe("Austin");
@@ -48,8 +48,8 @@ describe("Same-named people", () => {
   it("keeps the demo partner separate from a real person with the same name", () => {
     expect(
       groupPeople([
-        { profile: larryChicago, demo: true },
-        { profile: larryChicagoAgain },
+        conn(larryChicago, { demo: true }),
+        conn(larryChicagoAgain),
       ]),
     ).toHaveLength(2);
   });
