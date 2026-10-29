@@ -6,7 +6,7 @@ import { listAccountChats } from "@/lib/saved-chat.functions";
 import { readSavedProfile } from "@/lib/profile.functions";
 import { savedPeople } from "@/lib/saved-people";
 import { setState, useStore } from "@/lib/store";
-import { samePerson } from "@/lib/person-identity";
+import { sameConnectionPerson } from "@/lib/person-identity";
 
 /** Adds account-saved partners (e.g. from past live chats) as selectable connections on any device. */
 export function useAccountPeople() {
@@ -29,11 +29,11 @@ export function useAccountPeople() {
             (c) =>
               c.id === p.id ||
               `live:${c.room?.id}` === p.id ||
-              (!c.demo && samePerson(c.profile, p.profile)),
+              (!c.demo && sameConnectionPerson(c, p)),
           ),
       );
       if (!missing.length) return st;
-      return { ...st, connections: [...st.connections, ...missing.map((p) => ({ id: p.id, label: "saved", profile: p.profile, addedAt: p.addedAt }))], activeId: st.activeId ?? missing[0]!.id };
+      return { ...st, connections: [...st.connections, ...missing.map((p) => ({ id: p.id, label: "saved", profile: p.profile, addedAt: p.addedAt }))], activeId: st.activeId ?? missing[0]?.id ?? null };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready, key]);

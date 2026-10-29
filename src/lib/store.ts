@@ -13,6 +13,8 @@ export type Connection = {
   room?: GuestRoom;
   /** When this person joined your list, used to tell same-named people apart. */
   addedAt?: string;
+  /** Canonical contact keys explicitly identified as other people by the owner. */
+  differentFrom?: string[];
 };
 export type State = {
   me: Profile | null;
