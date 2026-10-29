@@ -10,7 +10,7 @@ const larryChicago: Profile = {
     { category: "film", label: "Spirited Away" },
     { category: "tv", label: "The Bear" },
   ],
-  lifestyle: {},
+  lifestyle: undefined,
 };
 const larryChicagoAgain: Profile = { ...larryChicago, tastes: [...larryChicago.tastes, { category: "book", label: "Dune" }] };
 const larryAustin: Profile = { ...larryChicago, city: "Austin" };
