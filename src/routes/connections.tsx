@@ -16,6 +16,7 @@ import { readSavedProfile } from "@/lib/profile.functions";
 import { savedPeople } from "@/lib/saved-people";
 import { clashingNames, nameKey, personQualifier } from "@/lib/person-identity";
 import { ErrorNote } from "@/components/rue";
+import { PersonSeparation } from "@/components/person-separation";
 
 export const Route = createFileRoute("/connections")({
   head: () => ({
@@ -41,6 +42,7 @@ function Connections() {
   const accountProfile = useQuery({ queryKey: ["account-profile", user?.id], queryFn: () => readProfile(), enabled: !!user });
   const people = savedPeople(user ? accountChats.data ?? [] : [], user ? accountProfile.data ?? s.me : s.me, s.connections);
   const clashes = clashingNames([...s.connections, ...people]);
+  const candidates = [...s.connections, ...people.map((p) => ({ id: p.id, profile: p.profile, addedAt: p.addedAt, label: "saved" }))];
   const [busy, setBusy] = useState(false);
   const [origin, setOrigin] = useState("");
   useEffect(() => setOrigin(window.location.origin), []);
@@ -178,7 +180,7 @@ function Connections() {
               key={c.id}
               className={`card-luxe p-5 ${active?.id === c.id ? "border-primary" : ""}`}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-display text-2xl">
                     {c.profile.name}
@@ -200,7 +202,7 @@ function Connections() {
                   </Button>
                 )}
               </div>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <Button size="sm" asChild>
                   <Link to="/reveal" onClick={() => update((st) => ({ ...st, activeId: c.id }))}>
                     Taste Reveal
@@ -211,7 +213,9 @@ function Connections() {
                     Chat
                   </Link>
                 </Button>
-                {!c.room && !c.demo && <Button size="sm" variant="outline" disabled={busy} onClick={() => void inviteAgain(c.profile.name)}>Invite again</Button>}
+                {c.room && <Button size="sm" variant="outline" asChild><Link to="/ru-lette" onClick={() => update((st) => ({ ...st, activeId: c.id }))}>Ru-lette</Link></Button>}
+                {!c.room && !c.demo && <Button size="sm" variant="outline" disabled={busy} onClick={() => void inviteAgain(c.profile.name)}>Reconnect live</Button>}
+                <PersonSeparation person={c} candidates={candidates} />
                 <Button
                   size="sm"
                   variant="ghost"
@@ -231,13 +235,14 @@ function Connections() {
             <div key={person.id} className="card-luxe space-y-3 p-5">
               <h2 className="font-display text-2xl">{person.profile.name}{clashes.has(nameKey(person.profile.name)) && <span className="text-sm text-gold"> · {personQualifier(person.profile, { addedAt: person.addedAt })}</span>}</h2>
               <p className="text-xs text-muted-foreground">Saved connection · {person.profile.tastes.length} tastes</p>
-              <p className="text-sm text-muted-foreground">Your saved conversation is here. Share a new invitation to chat live again from this browser.</p>
+              <p className="text-sm text-muted-foreground">Your saved conversation is here. Live access is unavailable; share a link to reconnect.</p>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" asChild><Link to="/saved-chats" search={{ chat: person.chatId }}>Saved chats</Link></Button>
                 <Button size="sm" variant="outline" disabled={busy} onClick={() => {
                   if (!s.me) { toast.info("Restore your saved tastes or create a profile before inviting someone."); return; }
                   void inviteAgain(person.profile.name);
-                }}>Invite again</Button>
+                }}>Reconnect live</Button>
+                <PersonSeparation person={{ id: person.id, label: "saved", profile: person.profile, addedAt: person.addedAt }} candidates={candidates} />
               </div>
             </div>
           ))}

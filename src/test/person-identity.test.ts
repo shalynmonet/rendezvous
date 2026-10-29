@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addedLabel, clashingNames, groupPeople, personQualifier, samePerson } from "@/lib/person-identity";
+import { addedLabel, clashingNames, groupPeople, personQualifier, samePerson, sameConnectionPerson, setDifferentPeople } from "@/lib/person-identity";
 import type { Profile } from "@/lib/store";
 
 const larryChicago: Profile = {
@@ -36,6 +36,23 @@ describe("Same-named people", () => {
   it("merges a re-invited Larry whose profile still matches", () => {
     expect(samePerson(larryChicago, larryChicagoAgain)).toBe(true);
     expect(groupPeople([conn(larryChicago), conn(larryChicagoAgain)])).toHaveLength(1);
+  });
+  it("honors an explicit different-people choice for identical names, cities and tastes", () => {
+    const a = { id: "larry-a", label: "saved", profile: larryChicago };
+    const b = { id: "larry-b", label: "saved", profile: larryChicago };
+    const original = { me: null, activeId: a.id, connections: [a, b], chats: { [a.id]: [], [b.id]: [] } };
+    const separate = setDifferentPeople(original, a, b, true);
+    expect(groupPeople(separate.connections)).toHaveLength(2);
+    expect(separate.connections[0]?.differentFrom).toEqual([b.id]);
+    expect(separate.connections[1]?.differentFrom).toEqual([a.id]);
+    expect(separate.chats).toEqual(original.chats);
+    expect(groupPeople(setDifferentPeople(separate, a, b, false).connections)).toHaveLength(1);
+  });
+  it("keeps restored snapshot contacts separate using their canonical room keys", () => {
+    const a = { id: "room-a", room: { id: "room-a" }, profile: larryChicago, differentFrom: ["live:room-b"] };
+    const b = { id: "live:room-b", profile: larryChicago };
+    expect(sameConnectionPerson(a, b)).toBe(false);
+    expect(sameConnectionPerson(a, { id: "live:room-a", profile: larryChicago })).toBe(true);
   });
   it("flags shared names so cards can be qualified", () => {
     expect(clashingNames([conn(larryChicago), conn(larryAustin)])).toEqual(new Set(["larry"]));

@@ -28,6 +28,11 @@ describe("Account workspace", () => {
     expect(JSON.stringify(safe)).not.toContain(room.invite);
     expect(safe.connections[0]).not.toHaveProperty("room");
   });
+  it("retains different-person choices in account data without room credentials", () => {
+    const safe = withoutCapabilities(WorkspaceSchema.parse({ ...state, connections: [{ ...state.connections[0], differentFrom: ["live:other-larry"] }] }));
+    expect(safe.connections[0]?.differentFrom).toEqual(["live:other-larry"]);
+    expect(safe.connections[0]).not.toHaveProperty("room");
+  });
   it("isolates signed-in account caches and restores guest data on sign-out", () => {
     const { result, unmount } = renderHook(useStore);
     act(() => switchAccountStore(null, { me: DEMO_A, connections: [], activeId: null }));
