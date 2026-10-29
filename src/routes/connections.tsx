@@ -82,7 +82,10 @@ function Connections() {
       const token = newGuestKey(),
         invite = newGuestKey();
       const r = await access({ data: { action: "create", token, invite, profile: s.me } });
-      if (r.id) update((st) => ({ ...st, pendingRoom: { id: r.id as string, token, invite } }));
+      if (r.id) {
+        update((st) => ({ ...st, pendingRoom: { id: r.id as string, token, invite } }));
+        return `${window.location.origin}/invite?i=${invite}`;
+      }
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -100,7 +103,7 @@ function Connections() {
         sub="Ru only ever looks at the two people in a pairing — never anyone else."
       />
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="card-luxe space-y-4 p-6">
+        <div id="invite-card" className="card-luxe space-y-4 p-6">
           <h2 className="text-2xl font-semibold">Invite someone</h2>
           {s.me ? (
             <>
@@ -218,8 +221,13 @@ function Connections() {
                 <Button size="sm" asChild><Link to="/saved-chats" search={{ chat: person.chatId }}>Saved chats</Link></Button>
                 <Button size="sm" variant="outline" disabled={busy} onClick={() => {
                   if (!s.me) { toast.info("Restore your saved tastes or create a profile before inviting someone."); return; }
-                  if (s.pendingRoom) { toast.info("Your invitation is ready in Invite someone."); return; }
-                  void create();
+                  void (async () => {
+                    const url = s.pendingRoom?.invite ? `${origin}/invite?i=${s.pendingRoom.invite}` : await create();
+                    if (!url) return;
+                    try { await navigator.clipboard.writeText(url); toast.success(`Invite link copied — send it to ${person.profile.name}!`); }
+                    catch { toast.info("Invite ready — copy or share it from the box above."); }
+                    document.getElementById("invite-card")?.scrollIntoView({ behavior: "smooth" });
+                  })();
                 }}>Invite again</Button>
               </div>
             </div>
