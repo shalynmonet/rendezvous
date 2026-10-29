@@ -14,6 +14,7 @@ import { useAccount } from "@/components/account-provider";
 import { listAccountChats } from "@/lib/saved-chat.functions";
 import { readSavedProfile } from "@/lib/profile.functions";
 import { savedPeople } from "@/lib/saved-people";
+import { clashingNames, nameKey, personQualifier } from "@/lib/person-identity";
 import { ErrorNote } from "@/components/rue";
 
 export const Route = createFileRoute("/connections")({
