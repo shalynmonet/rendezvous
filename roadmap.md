@@ -36,3 +36,5 @@
 - [x] Record when each person joined and show it beside shared names on Chat, People and Reveal
 - [x] Add an account-saved “different people” control; verify identical profiles stay separate in Chat/Reveal and account choices survive reload
 - [x] Check existing verified-room reuse and show “Reconnect live” only for contacts without live access; add direct Ru-lette access for live contacts
+- [x] Show “Waiting for [person]…” with an invitation instead of Ru answering for a real connection; verify the panel turns live when they accept
+
