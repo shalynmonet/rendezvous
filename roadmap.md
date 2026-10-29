@@ -1,4 +1,5 @@
 # Rendezvous roadmap
+- [x] Add four randomly selected, no-AI instant games; verify selection, gameplay and persistence
 - [x] Make lifestyle private by default at invitation and room read boundaries, with explicit sharing consent
 - [x] Keep lifestyle answers out of Ru's shared conversation and verify privacy rules
 - [x] Show account-saved real connections under People in a fresh browser, with saved-history access and safe re-invitation

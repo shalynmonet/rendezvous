@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Copy, Heart, Check, Upload, Music, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +13,8 @@ import { rueView, spinRuelette, roomRuelette, roomSpin, roomUpload, roomDebrief,
 import type { GuestRoom } from "@/lib/chat-schemas";
 import { setState, type Profile, type Memory } from "@/lib/store";
 import { usePersistedActivity } from "@/hooks/use-persisted-activity";
+import { InstantGame } from "@/components/instant-game";
+import { GAME_NAMES, selectInstantGame } from "@/lib/instant-games";
 
 export const Route = createFileRoute("/ru-lette")({
   head: () => ({
@@ -163,7 +165,9 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
     finally { setRequesting(false); }
   };
 
-  const label = SLICES.find((s) => s.mode === mode)?.label ?? "";
+  const gameSeed = st?.spin_id ?? localSeed ?? "local";
+  const gameTitle = GAME_NAMES[selectInstantGame(gameSeed)];
+  const label = mode === "game" ? gameTitle : SLICES.find((s) => s.mode === mode)?.label ?? "";
   const mine = memories.filter((m) => m.connectionId === connectionId);
   const sharedCtx: Shared | undefined = room ? { room, state: st, setState: shared.set } : undefined;
   const spunBy = room && st?.by ? (st.by === st.side ? "You" : partner.name) : null;
@@ -227,7 +231,7 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
           <motion.section key={(st?.spin_id ?? mode ?? "") + (activity ? "1" : "0")} initial={{ opacity: 0, rotateX: -12, y: 20 }} animate={{ opacity: 1, rotateX: 0, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45 }} className="space-y-4">
             {shownErr && <ErrorNote msg={shownErr} />}
             {busy && <RueThinking />}
-            {mode === "game" && <TasteQuiz key={st?.spin_id ?? localSeed ?? "local"} me={me} partner={partner} seed={st?.spin_id ?? localSeed} connectionId={connectionId} />}
+            {mode === "game" && <InstantGame key={gameSeed} a={st?.side === "b" ? partner : me} b={st?.side === "b" ? me : partner} seed={gameSeed} connectionId={connectionId} />}
             {activity && <ActivityCard key={st?.spin_id ?? localSeed ?? "local"} a={activity} me={me} partner={partner} shared={sharedCtx} connectionId={connectionId} />}
             {st?.debrief && mode && (
               <div className="card-luxe space-y-2 p-5">
@@ -262,53 +266,6 @@ function Ruelette({ me, partner, connectionId, memories, room, demo }: { me: Pro
       )}
 
       <Debrief open={debrief} onOpenChange={setDebrief} a={me.name} b={partner.name} activity={activity?.title ?? label} connectionId={connectionId} shared={sharedCtx} />
-    </div>
-  );
-}
-
-function TasteQuiz({ me, partner, seed, connectionId }: { me: Profile; partner: Profile; seed: string | null; connectionId: string }) {
-  const deck = useMemo(() => {
-    const all = [...me.tastes.map((t) => ({ t, who: "a" as const })), ...partner.tastes.map((t) => ({ t, who: "b" as const }))];
-    // Shared tables use the spin id as a seed so both people get the same cards.
-    let x = seed ? parseInt(seed.replace(/-/g, "").slice(0, 8), 16) : Math.floor(Math.random() * 2 ** 31);
-    const rnd = () => ((x = (x * 1103515245 + 12345) % 2 ** 31) / 2 ** 31);
-    const sorted = [...all].sort((p, q) => (p.t.label < q.t.label ? -1 : 1));
-    for (let i = sorted.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const left = sorted[i]; const right = sorted[j]; if (left && right) { sorted[i] = right; sorted[j] = left; } }
-    return sorted.slice(0, 8);
-  }, [me, partner, seed]);
-  const [i, setI] = usePersistedActivity(connectionId, `quiz:${seed}:index`, 0);
-  const [score, setScore] = usePersistedActivity(connectionId, `quiz:${seed}:score`, 0);
-  const [last, setLast] = useState<boolean | null>(null);
-  const done = i >= deck.length;
-  const pick = (who: "a" | "b") => {
-    const card = deck[i]; if (!card) return;
-    const ok = card.who === who;
-    setLast(ok); if (ok) setScore((s) => s + 1);
-    setTimeout(() => { setI((x) => x + 1); setLast(null); }, 700);
-  };
-  return (
-    <div className="card-luxe p-6">
-      <p className="text-xs uppercase tracking-widest text-gold">Instant game · Whose taste is it?</p>
-      <p className="mt-1 text-sm text-muted-foreground">Play together on one screen. Agree on an answer before you tap — it's co-op.</p>
-      {done ? (
-        <div className="mt-6 text-center">
-          <p className="font-display text-5xl italic">{score} / {deck.length}</p>
-          <p className="mt-2 text-muted-foreground">{score >= deck.length - 1 ? "Telepathic. I'm almost jealous." : score >= deck.length / 2 ? "Respectable. You've been listening." : "Mon dieu. Tonight's homework: each other."}</p>
-          <Button variant="outline" className="mt-4" onClick={() => { setI(0); setScore(0); }}>Play again</Button>
-        </div>
-      ) : (
-        <AnimatePresence mode="wait">
-          <motion.div key={i} initial={{ rotateY: 90, opacity: 0 }} animate={{ rotateY: 0, opacity: 1 }} exit={{ rotateY: -90, opacity: 0 }} transition={{ duration: 0.3 }} className="mt-6 text-center">
-            <p className="text-xs uppercase text-gold">{deck[i]?.t.category} · {i + 1}/{deck.length}</p>
-            <p className="mt-2 font-display text-4xl italic">{deck[i]?.t.label}</p>
-            <div className="mt-6 flex justify-center gap-3">
-              <Button disabled={last !== null} onClick={() => pick("a")}>{me.name}</Button>
-              <Button disabled={last !== null} variant="outline" onClick={() => pick("b")}>{partner.name}</Button>
-            </div>
-            <p className="mt-3 h-5 text-sm">{last === true ? "Correct ♥" : last === false ? "Non, non…" : ""}</p>
-          </motion.div>
-        </AnimatePresence>
-      )}
     </div>
   );
 }
