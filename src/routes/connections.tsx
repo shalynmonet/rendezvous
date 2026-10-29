@@ -92,6 +92,14 @@ function Connections() {
       setBusy(false);
     }
   };
+  const inviteAgain = async (name: string) => {
+    if (!s.me) { toast.info("Restore your saved tastes or create a profile before inviting someone."); return; }
+    const url = s.pendingRoom?.invite ? `${origin}/invite?i=${s.pendingRoom.invite}` : await create();
+    if (!url) return;
+    try { await navigator.clipboard.writeText(url); toast.success(`Invite link copied — send it to ${name}!`); }
+    catch { toast.info("Invite ready — copy or share it from the box above."); }
+    document.getElementById("invite-card")?.scrollIntoView({ behavior: "smooth" });
+  };
   if (!ready) return null;
   const link = s.pendingRoom?.invite ? `${origin}/invite?i=${s.pendingRoom.invite}` : "";
 
@@ -197,6 +205,7 @@ function Connections() {
                     Chat
                   </Link>
                 </Button>
+                {!c.room && !c.demo && <Button size="sm" variant="outline" disabled={busy} onClick={() => void inviteAgain(c.profile.name)}>Invite again</Button>}
                 <Button
                   size="sm"
                   variant="ghost"
@@ -221,13 +230,7 @@ function Connections() {
                 <Button size="sm" asChild><Link to="/saved-chats" search={{ chat: person.chatId }}>Saved chats</Link></Button>
                 <Button size="sm" variant="outline" disabled={busy} onClick={() => {
                   if (!s.me) { toast.info("Restore your saved tastes or create a profile before inviting someone."); return; }
-                  void (async () => {
-                    const url = s.pendingRoom?.invite ? `${origin}/invite?i=${s.pendingRoom.invite}` : await create();
-                    if (!url) return;
-                    try { await navigator.clipboard.writeText(url); toast.success(`Invite link copied — send it to ${person.profile.name}!`); }
-                    catch { toast.info("Invite ready — copy or share it from the box above."); }
-                    document.getElementById("invite-card")?.scrollIntoView({ behavior: "smooth" });
-                  })();
+                  void inviteAgain(person.profile.name);
                 }}>Invite again</Button>
               </div>
             </div>
