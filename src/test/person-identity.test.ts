@@ -14,7 +14,7 @@ const larryChicago: Profile = {
 const larryChicagoAgain: Profile = { ...larryChicago, tastes: [...larryChicago.tastes, { category: "book", label: "Dune" }] };
 const larryAustin: Profile = { ...larryChicago, city: "Austin" };
 const larryNoCity: Profile = { ...larryChicago, city: "", tastes: [{ category: "artist", label: "Arctic Monkeys" }] };
-const conn = (profile: Profile, extra: Record<string, unknown> = {}) => ({ id: profile.city || "x", label: "saved", profile, ...extra });
+const conn = (profile: Profile, extra: Record<string, unknown> = {}) => ({ id: `${profile.city}:${profile.tastes.map((t) => t.label).join(",")}`, label: "saved", profile, ...extra });
 
 describe("Same-named people", () => {
   it("keeps two Larrys apart when their cities differ", () => {
