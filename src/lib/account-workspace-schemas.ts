@@ -7,7 +7,7 @@ const Message = z.object({ sender: z.enum(["a", "b", "rue"]), content: z.string(
 const JsonValue: z.ZodType<unknown> = z.lazy(() => z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(JsonValue), z.record(z.string(), JsonValue)]));
 export const WorkspaceSchema = z.object({
   me: TasteProfileSchema.nullable(),
-  connections: z.array(z.object({ id: z.string().max(160), label: z.string().max(100), profile: TasteProfileSchema.transform(conversationProfile), demo: z.boolean().optional(), room: Room.optional(), addedAt: z.string().optional() })).max(200),
+  connections: z.array(z.object({ id: z.string().max(160), label: z.string().max(100), profile: TasteProfileSchema.transform(conversationProfile), demo: z.boolean().optional(), room: Room.optional(), addedAt: z.string().optional(), differentFrom: z.array(z.string().max(160)).max(200).optional() })).max(200),
   activeId: z.string().nullable(),
   pendingRoom: Room.optional(), pendingInvite: GuestKeySchema.optional(),
   lastPlan: JsonValue.optional(), lastChat: z.object({ mood: z.string(), scores: z.object({ a: z.number(), b: z.number() }), highlight: z.string() }).optional(),

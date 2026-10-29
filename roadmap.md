@@ -34,4 +34,5 @@
 - [x] Keep same-named people apart on Chat, People and Reveal by matching profiles, not names alone
 - [x] Verify two Larrys stay separate and a re-invited Larry still merges to one card
 - [x] Record when each person joined and show it beside shared names on Chat, People and Reveal
-- [ ] Optional: a "these are two different people" control for same-named, same-city contacts whose tastes also match
+- [ ] Add an account-saved “different people” control that overrides matching profiles across all partner pickers
+- [ ] Verify existing live connections are reusable and clarify when reconnecting is necessary
