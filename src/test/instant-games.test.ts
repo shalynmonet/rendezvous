@@ -31,7 +31,7 @@ describe("instant and free game rules", () => {
     expect(buildInstantDeck("tune", "spin", DEMO_A, DEMO_B).every((c) => artists.some((artist) => c.prompt.endsWith(artist)))).toBe(true);
   });
   it("ignores lifestyle answers when selecting every game's cards", () => {
-    const privateProfile = { ...DEMO_A, lifestyle: { alcohol: { involvement: "SECRET" } } };
-    for (const kind of INSTANT_GAMES) expect(buildInstantDeck(kind, "spin", privateProfile as typeof DEMO_A, DEMO_B)).toEqual(buildInstantDeck(kind, "spin", DEMO_A, DEMO_B));
+    const privateProfile = { ...DEMO_A, lifestyle: { alcohol: "SECRET" } };
+    for (const kind of INSTANT_GAMES) expect(buildInstantDeck(kind, "spin", privateProfile, DEMO_B)).toEqual(buildInstantDeck(kind, "spin", DEMO_A, DEMO_B));
   });
 });
