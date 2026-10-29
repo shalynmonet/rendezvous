@@ -9,6 +9,7 @@ import { chatTurn, type ChatTurn } from "@/lib/rue.functions";
 import { setState, saveChat, selectedChat, type ChatMessage, type SavedChat } from "@/lib/store";
 import { LiveChat } from "@/components/live-chat";
 import { ChatSave } from "@/components/chat-save";
+import { groupPeople, personQualifier } from "@/lib/person-identity";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -55,28 +56,26 @@ function ChatPage() {
 
 /** Chat starts by asking who you're talking to; each person has one ongoing thread. */
 function PartnerPicker({ s, onPick }: Ctx & { onPick: (id: string) => void }) {
-  // One card per person: merge duplicate connections (invites, saved snapshots) by name
-  // and open whichever holds the most recent thread.
-  const groups = new Map<string, { c: (typeof s.connections)[number]; thread: SavedChat | undefined }>();
-  for (const c of s.connections) {
-    const key = `${c.demo ? "demo:" : ""}${c.profile.name.trim().toLowerCase()}`;
-    const thread = selectedChat(s, c.id);
-    const cur = groups.get(key);
-    const has = (t?: SavedChat) => !!t && t.messages.length > 0;
-    const better = !cur
-      || (has(thread) && (!has(cur.thread) || thread!.updatedAt > cur.thread!.updatedAt))
-      || (!has(thread) && !has(cur.thread) && !!c.room && !cur.c.room);
-    if (better) groups.set(key, { c, thread });
-  }
+  // One card per person: duplicate invites and saved snapshots merge, but two
+  // different people who happen to share a name stay on separate cards.
+  const has = (t?: SavedChat) => !!t && t.messages.length > 0;
+  const cards = groupPeople(s.connections).map((group) => {
+    const threads = group.members.map((c) => ({ c, thread: selectedChat(s, c.id) }));
+    const withThread = threads
+      .filter((t) => has(t.thread))
+      .sort((a, b) => b.thread!.updatedAt.localeCompare(a.thread!.updatedAt));
+    return { group, ...(withThread[0] ?? threads.find((t) => !!t.c.room) ?? threads[0]!) };
+  });
+  const clash = cards.some((card) => card.group.clash);
   return (
     <>
       <PageTitle eyebrow="Chat with Ru" title="Who are we chatting with tonight?" sub="Each person has one ongoing thread. Ru picks up right where you left off." />
       <div className="grid gap-3 md:grid-cols-2">
-        {[...groups.values()].map(({ c, thread }) => {
+        {cards.map(({ group, c, thread }) => {
           const mood = thread ? MOODS.find((m) => m.id === thread.mood)?.label ?? thread.mood : null;
           return (
             <Button key={c.id} variant="outline" className="h-auto flex-col items-start whitespace-normal p-5 text-left" onClick={() => onPick(c.id)}>
-              <span className="font-display text-2xl">{c.profile.name} {c.demo && <span className="text-xs text-gold">demo</span>}{c.room && <span className="text-xs text-gold"> live</span>}</span>
+              <span className="font-display text-2xl">{c.profile.name}{group.clash && <span className="text-sm text-gold"> · {personQualifier(c.profile, c.label)}</span>} {c.demo && <span className="text-xs text-gold">demo</span>}{c.room && <span className="text-xs text-gold"> live</span>}</span>
               <span className="text-xs text-muted-foreground">
                 {thread && thread.messages.length > 0 ? `${c.profile.name} · ${mood} · ${new Date(thread.updatedAt).toLocaleDateString()}` : c.room ? "Live chat room" : "No thread yet — pick a mood next"}
               </span>
@@ -84,6 +83,7 @@ function PartnerPicker({ s, onPick }: Ctx & { onPick: (id: string) => void }) {
           );
         })}
       </div>
+      {clash && <p className="mt-3 text-xs text-muted-foreground">Two of your people share a name — the detail beside it tells them apart.</p>}
       <Button variant="ghost" className="mt-4" asChild><Link to="/connections">+ Invite someone new</Link></Button>
     </>
   );

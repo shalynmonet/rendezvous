@@ -31,3 +31,5 @@
 - [x] Live shared Ru-lette table (spins, cards, photos, Ru-view) for invited pairs
 - [ ] GitHub connection — blocked: user connects via Project settings → Git
 - [x] Grant Shalyn admin to aiwithshai@gmail.com
+- [x] Keep same-named people apart on Chat, People and Reveal by matching profiles, not names alone
+- [x] Verify two Larrys stay separate and a re-invited Larry still merges to one card

@@ -13,6 +13,7 @@ import {
   ToolTrail,
   WhyChip,
 } from "@/components/rue";
+import { clashingNames, nameKey, personQualifier } from "@/lib/person-identity";
 import { tasteReveal, type Reveal } from "@/lib/rue.functions";
 import { setState, storeSnapshot } from "@/lib/store";
 
@@ -49,6 +50,7 @@ function RevealView({ me, active, s }: Ctx) {
   } | null>(() => (storeSnapshot().reveals?.[active.id] as { reveal: Reveal; toolsUsed: string[]; evidence: { shared_taste_tags: string[] } } | undefined) ?? null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const clashes = clashingNames(s.connections);
 
   const go = async () => {
     setBusy(true);
@@ -107,7 +109,7 @@ function RevealView({ me, active, s }: Ctx) {
         <div className="mb-6 flex flex-wrap gap-2" aria-label="Choose whose reveal to view">
           {s.connections.map((c) => (
             <Button key={c.id} size="sm" variant={c.id === active.id ? "default" : "outline"} onClick={() => setState((st) => ({ ...st, activeId: c.id }))}>
-              {c.profile.name}{c.demo ? " (demo)" : ""}{s.reveals?.[c.id] ? " ✓" : ""}
+              {c.profile.name}{clashes.has(nameKey(c.profile.name)) ? ` · ${personQualifier(c.profile, c.label)}` : ""}{c.demo ? " (demo)" : ""}{s.reveals?.[c.id] ? " ✓" : ""}
             </Button>
           ))}
         </div>

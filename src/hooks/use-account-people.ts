@@ -6,6 +6,7 @@ import { listAccountChats } from "@/lib/saved-chat.functions";
 import { readSavedProfile } from "@/lib/profile.functions";
 import { savedPeople } from "@/lib/saved-people";
 import { setState, useStore } from "@/lib/store";
+import { samePerson } from "@/lib/person-identity";
 
 /** Adds account-saved partners (e.g. from past live chats) as selectable connections on any device. */
 export function useAccountPeople() {
@@ -20,13 +21,17 @@ export function useAccountPeople() {
   useEffect(() => {
     if (!ready || !people.length) return;
     setState((st) => {
-      const norm = (n: string) => n.trim().toLowerCase();
-      const seen = new Set(st.connections.filter((c) => !c.demo).map((c) => norm(c.profile.name)));
-      const missing = people.filter((p) => {
-        if (st.connections.some((c) => c.id === p.id || `live:${c.room?.id}` === p.id) || seen.has(norm(p.profile.name))) return false;
-        seen.add(norm(p.profile.name));
-        return true;
-      });
+      // A saved person only joins an existing card when the profiles really match,
+      // so a second person with the same name still gets their own card.
+      const missing = people.filter(
+        (p) =>
+          !st.connections.some(
+            (c) =>
+              c.id === p.id ||
+              `live:${c.room?.id}` === p.id ||
+              (!c.demo && samePerson(c.profile, p.profile)),
+          ),
+      );
       if (!missing.length) return st;
       return { ...st, connections: [...st.connections, ...missing.map((p) => ({ id: p.id, label: "saved", profile: p.profile }))], activeId: st.activeId ?? missing[0]!.id };
     });

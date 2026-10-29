@@ -14,6 +14,7 @@ import { useAccount } from "@/components/account-provider";
 import { listAccountChats } from "@/lib/saved-chat.functions";
 import { readSavedProfile } from "@/lib/profile.functions";
 import { savedPeople } from "@/lib/saved-people";
+import { clashingNames, nameKey, personQualifier } from "@/lib/person-identity";
 import { ErrorNote } from "@/components/rue";
 
 export const Route = createFileRoute("/connections")({
@@ -39,6 +40,7 @@ function Connections() {
   const accountChats = useQuery({ queryKey: ["account-chats", user?.id], queryFn: () => readChats(), enabled: !!user });
   const accountProfile = useQuery({ queryKey: ["account-profile", user?.id], queryFn: () => readProfile(), enabled: !!user });
   const people = savedPeople(user ? accountChats.data ?? [] : [], user ? accountProfile.data ?? s.me : s.me, s.connections);
+  const clashes = clashingNames([...s.connections, ...people]);
   const [busy, setBusy] = useState(false);
   const [origin, setOrigin] = useState("");
   useEffect(() => setOrigin(window.location.origin), []);
@@ -178,7 +180,8 @@ function Connections() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-display text-2xl">
-                    {c.profile.name} {c.demo && <span className="text-xs text-gold">demo</span>}
+                    {c.profile.name}
+                    {clashes.has(nameKey(c.profile.name)) && <span className="text-sm text-gold"> · {personQualifier(c.profile, c.label)}</span>} {c.demo && <span className="text-xs text-gold">demo</span>}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {c.label} · {c.profile.tastes.length} tastes
@@ -225,7 +228,7 @@ function Connections() {
           ))}
           {people.map((person) => (
             <div key={person.id} className="card-luxe space-y-3 p-5">
-              <h2 className="font-display text-2xl">{person.profile.name}</h2>
+              <h2 className="font-display text-2xl">{person.profile.name}{clashes.has(nameKey(person.profile.name)) && <span className="text-sm text-gold"> · {personQualifier(person.profile)}</span>}</h2>
               <p className="text-xs text-muted-foreground">Saved connection · {person.profile.tastes.length} tastes</p>
               <p className="text-sm text-muted-foreground">Your saved conversation is here. Share a new invitation to chat live again from this browser.</p>
               <div className="flex flex-wrap gap-2">
