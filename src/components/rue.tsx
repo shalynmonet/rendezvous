@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resolveTaste, type TasteT } from "@/lib/rue.functions";
 import { CATEGORIES, useStore, startDemo } from "@/lib/store";
+import { useAccountPeople } from "@/hooks/use-account-people";
 
 export const RUE_IMG = rueHero.url;
 
@@ -60,10 +61,12 @@ export function Page({ children }: { children: ReactNode }) {
 /** Ensures a profile and a partner exist; otherwise offers demo or setup. */
 export function NeedPair({ children, autoDemo = false }: { autoDemo?: boolean; children: (ctx: ReturnType<typeof useStore> & { active: NonNullable<ReturnType<typeof useStore>["active"]>; me: NonNullable<ReturnType<typeof useStore>["s"]["me"]> }) => ReactNode }) {
   const st = useStore();
+  const people = useAccountPeople();
   useEffect(() => {
+    if (autoDemo && people.loading) return;
     if (autoDemo && st.ready && (!st.s.me || !st.active)) startDemo();
-  }, [autoDemo, st.ready, st.s.me, st.active]);
-  if (!st.ready) return null;
+  }, [autoDemo, st.ready, st.s.me, st.active, people.loading]);
+  if (!st.ready || (people.loading && !st.active)) return null;
   if (autoDemo && (!st.s.me || !st.active)) return null;
   if (!st.s.me || !st.active) {
     return (

@@ -24,21 +24,58 @@ export const Route = createFileRoute("/chat")({
       },
     ],
   }),
-  component: () => (
+  component: ChatPage,
+});
+
+function ChatPage() {
+  const [picked, setPicked] = useState(false);
+  return (
     <Page>
       <Button variant="ghost" className="mb-4" asChild><Link to="/saved-chats">Saved chats</Link></Button>
       <NeedPair>
         {(ctx) =>
-          ctx.active.room ? (
-            <LiveChat key={ctx.active.room.id} room={ctx.active.room} />
+          !picked ? (
+            <PartnerPicker {...ctx} onPick={(id) => { setState((st) => ({ ...st, activeId: id })); setPicked(true); }} />
+          ) : ctx.active.room ? (
+            <>
+              <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
+              <LiveChat key={ctx.active.room.id} room={ctx.active.room} />
+            </>
           ) : (
-            <ChatView key={ctx.active.id} {...ctx} />
+            <>
+              <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
+              <ChatView key={ctx.active.id} {...ctx} />
+            </>
           )
         }
       </NeedPair>
     </Page>
-  ),
-});
+  );
+}
+
+/** Chat starts by asking who you're talking to; each person has one ongoing thread. */
+function PartnerPicker({ s, onPick }: Ctx & { onPick: (id: string) => void }) {
+  return (
+    <>
+      <PageTitle eyebrow="Chat with Ru" title="Who are we chatting with tonight?" sub="Each person has one ongoing thread. Ru picks up right where you left off." />
+      <div className="grid gap-3 md:grid-cols-2">
+        {s.connections.map((c) => {
+          const thread = selectedChat(s, c.id);
+          const mood = thread ? MOODS.find((m) => m.id === thread.mood)?.label ?? thread.mood : null;
+          return (
+            <Button key={c.id} variant="outline" className="h-auto flex-col items-start whitespace-normal p-5 text-left" onClick={() => onPick(c.id)}>
+              <span className="font-display text-2xl">{c.profile.name} {c.demo && <span className="text-xs text-gold">demo</span>}{c.room && <span className="text-xs text-gold"> live</span>}</span>
+              <span className="text-xs text-muted-foreground">
+                {thread && thread.messages.length > 0 ? `${c.profile.name} · ${mood} · ${new Date(thread.updatedAt).toLocaleDateString()}` : c.room ? "Live chat room" : "No thread yet — pick a mood next"}
+              </span>
+            </Button>
+          );
+        })}
+      </div>
+      <Button variant="ghost" className="mt-4" asChild><Link to="/connections">+ Invite someone new</Link></Button>
+    </>
+  );
+}
 
 type Ctx = Parameters<Parameters<typeof NeedPair>[0]["children"]>[0];
 type Msg = ChatMessage;
@@ -72,31 +109,18 @@ function ChatView({ me, active, s }: Ctx) {
     if (!busy) ta.current?.focus();
   }, [busy, mood]);
 
+  const [resetAt, setResetAt] = useState(initial?.resetAt ?? 0);
+  const [lastMood, setLastMood] = useState<string | null>(null);
+  const resetRef = useRef(initial?.resetAt ?? 0);
   const persist = (id: string, m: string, messages: Msg[], nextGame = game, points = scores) => {
-    setState((state) => saveChat(state, active.id, { id, mood: m, messages, game: nextGame, scores: points, muted: mutedRef.current, updatedAt: new Date().toISOString() }));
+    setState((state) => saveChat(state, active.id, { id, mood: m, messages, game: nextGame, scores: points, muted: mutedRef.current, resetAt: resetRef.current, updatedAt: new Date().toISOString() }));
   };
-  const restore = (chat: SavedChat) => {
-    mutedRef.current = chat.muted ?? false; setMuted(mutedRef.current);
-    setChatId(chat.id); setMood(chat.mood); setMsgs(chat.messages); setGame(chat.game); setScores(chat.scores); setErr(""); setInput("");
-    setState((state) => ({ ...state, selectedChats: { ...state.selectedChats, [active.id]: chat.id } }));
-  };
-  const history = (s.chats?.[active.id] ?? []).filter((chat) => chat.messages.length > 0);
-  const historyList = history.length > 0 && (
-    <section className="space-y-2">
-      <h2 className="font-display text-2xl">Chat history</h2>
-      {[...history].reverse().map((chat) => (
-        <Button key={chat.id} variant={chat.id === chatId ? "secondary" : "outline"} disabled={busy} className="h-auto w-full justify-start whitespace-normal text-left" onClick={() => restore(chat)}>
-          {MOODS.find((m) => m.id === chat.mood)?.label ?? chat.mood} · {new Date(chat.updatedAt).toLocaleDateString()}
-        </Button>
-      ))}
-    </section>
-  );
   const turn = async (history: Msg[], m = mood, id = chatId, points = scores, currentGame = game) => {
     if (!m || !id) return;
     setBusy(true);
     setErr("");
     try {
-      const r = await run({ data: { a: me, b: active.profile, mood: m, history, scores: points, game: currentGame } });
+      const r = await run({ data: { a: me, b: active.profile, mood: m, history: history.slice(resetRef.current), scores: points, game: currentGame } });
       if (mutedRef.current) return;
       const next = [...history, ...r.turn.messages];
       setMsgs(next);
@@ -131,7 +155,7 @@ function ChatView({ me, active, s }: Ctx) {
       <>
         <PageTitle
           eyebrow="Chat with Ru"
-          title="Pick a mood"
+          title={msgs.length ? "Fresh start — pick a mood" : "Pick a mood"}
           sub={
             active.demo
               ? `Ru plays ${active.profile.name} from their real tastes, so you can try every game solo.`
@@ -143,11 +167,12 @@ function ChatView({ me, active, s }: Ctx) {
             <Button variant="outline"
               key={m.id}
               onClick={() => {
-                setMood(m.id);
-                const id = crypto.randomUUID();
-                setChatId(id);
-                persist(id, m.id, [], null, { a: 0, b: 0 });
-                void turn([], m.id, id, { a: 0, b: 0 }, null);
+                // Same thread per person: a fresh start keeps earlier messages visible.
+                const id = chatId ?? crypto.randomUUID();
+                resetRef.current = msgs.length; setResetAt(msgs.length);
+                setMood(m.id); setChatId(id); setGame(null); setScores({ a: 0, b: 0 });
+                persist(id, m.id, msgs, null, { a: 0, b: 0 });
+                void turn(msgs, m.id, id, { a: 0, b: 0 }, null);
               }}
               className="h-auto justify-start p-6 text-left font-display text-2xl"
             >
@@ -155,7 +180,7 @@ function ChatView({ me, active, s }: Ctx) {
             </Button>
           ))}
         </div>
-        <div className="mt-6">{historyList}</div>
+        {msgs.length > 0 && lastMood && <Button variant="ghost" className="mt-4" onClick={() => setMood(lastMood)}>Back to our thread</Button>}
         <div className="mt-6 max-w-sm"><ChatSave /></div>
       </>
     );
@@ -167,7 +192,9 @@ function ChatView({ me, active, s }: Ctx) {
       <div className="card-luxe flex h-[70vh] flex-col">
         <div className="flex-1 space-y-4 overflow-y-auto p-5">
           {msgs.map((m, i) => (
-            <div key={i} className={`flex gap-3 ${m.sender === "a" ? "flex-row-reverse" : ""}`}>
+            <div key={i} className="contents">
+            {i === resetAt && i > 0 && <p className="text-center text-xs uppercase tracking-widest text-gold">Fresh start · {MOODS.find((x) => x.id === mood)?.label ?? mood}</p>}
+            <div className={`flex gap-3 ${m.sender === "a" ? "flex-row-reverse" : ""}`}>
               {m.sender === "rue" ? (
                 <RueAvatar size={36} />
               ) : (
@@ -181,6 +208,7 @@ function ChatView({ me, active, s }: Ctx) {
                 <p className="text-[10px] uppercase tracking-widest opacity-70">{name(m.sender)}</p>
                 {m.content}
               </div>
+            </div>
             </div>
           ))}
           {busy && (
@@ -268,23 +296,9 @@ function ChatView({ me, active, s }: Ctx) {
         <Button variant="outline" className="w-full" asChild>
           <Link to="/recap">Recap card</Link>
         </Button>
-        <Button
-          variant="ghost"
-          className="w-full"
-          disabled={busy}
-          onClick={() => {
-            setState((state) => ({ ...state, selectedChats: { ...state.selectedChats, [active.id]: null } }));
-            setChatId(null);
-            mutedRef.current = false; setMuted(false);
-            setMood(null);
-            setMsgs([]);
-            setGame(null);
-            setScores({ a: 0, b: 0 });
-          }}
-        >
-          New chat
+        <Button variant="ghost" className="w-full" disabled={busy} onClick={() => { setLastMood(mood); setMood(null); }}>
+          Fresh start with Ru
         </Button>
-        {historyList}
       </aside>
     </div>
   );

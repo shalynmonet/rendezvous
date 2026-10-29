@@ -75,19 +75,32 @@ function Connections() {
       clearTimeout(timer);
     };
   }, [s.pendingRoom, access, update]);
-  const create = async () => {
-    if (!s.me) return;
+  const create = async (): Promise<string | undefined> => {
+    if (!s.me) return undefined;
     setBusy(true);
     try {
       const token = newGuestKey(),
         invite = newGuestKey();
       const r = await access({ data: { action: "create", token, invite, profile: s.me } });
-      if (r.id) update((st) => ({ ...st, pendingRoom: { id: r.id as string, token, invite } }));
+      if (r.id) {
+        update((st) => ({ ...st, pendingRoom: { id: r.id as string, token, invite } }));
+        return `${window.location.origin}/invite?i=${invite}`;
+      }
+      return undefined;
     } catch (e) {
       toast.error((e as Error).message);
+      return undefined;
     } finally {
       setBusy(false);
     }
+  };
+  const inviteAgain = async (name: string) => {
+    if (!s.me) { toast.info("Restore your saved tastes or create a profile before inviting someone."); return; }
+    const url = s.pendingRoom?.invite ? `${origin}/invite?i=${s.pendingRoom.invite}` : await create();
+    if (!url) return;
+    try { await navigator.clipboard.writeText(url); toast.success(`Invite link copied — send it to ${name}!`); }
+    catch { toast.info("Invite ready — copy or share it from the box above."); }
+    document.getElementById("invite-card")?.scrollIntoView({ behavior: "smooth" });
   };
   if (!ready) return null;
   const link = s.pendingRoom?.invite ? `${origin}/invite?i=${s.pendingRoom.invite}` : "";
@@ -100,7 +113,7 @@ function Connections() {
         sub="Ru only ever looks at the two people in a pairing — never anyone else."
       />
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="card-luxe space-y-4 p-6">
+        <div id="invite-card" className="card-luxe space-y-4 p-6">
           <h2 className="text-2xl font-semibold">Invite someone</h2>
           {s.me ? (
             <>
@@ -194,6 +207,7 @@ function Connections() {
                     Chat
                   </Link>
                 </Button>
+                {!c.room && !c.demo && <Button size="sm" variant="outline" disabled={busy} onClick={() => void inviteAgain(c.profile.name)}>Invite again</Button>}
                 <Button
                   size="sm"
                   variant="ghost"
@@ -218,8 +232,7 @@ function Connections() {
                 <Button size="sm" asChild><Link to="/saved-chats" search={{ chat: person.chatId }}>Saved chats</Link></Button>
                 <Button size="sm" variant="outline" disabled={busy} onClick={() => {
                   if (!s.me) { toast.info("Restore your saved tastes or create a profile before inviting someone."); return; }
-                  if (s.pendingRoom) { toast.info("Your invitation is ready in Invite someone."); return; }
-                  void create();
+                  void inviteAgain(person.profile.name);
                 }}>Invite again</Button>
               </div>
             </div>

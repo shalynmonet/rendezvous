@@ -26,3 +26,4 @@
 - Persist generated plans, reveals, solo Ru-lette activities, quiz/checklist progress, private photo data, and Ru-view memories in the central workspace; UI-only loading and animation state stays transient.
 - People lists account-saved non-demo partners directly from owner-scoped snapshots, without importing them into the guest store or restoring room capabilities; new live snapshots retain the saving participant's side for correct partner identification.
 - Ru-lette initializes a local demo pair only when no usable pair exists, preserving an existing personal taste profile and any selected live room.
+- Each connection has one ongoing local chat thread; Ru's fresh start records a reset index instead of creating a new thread, so history is never lost. Account-saved partners are merged into connections via useAccountPeople. Ru's agent runs on Gemini through the gateway's Chat Completions endpoint to cut credit cost.

@@ -11,7 +11,7 @@ export function savedPeople(chats: SavedThread[], me: Profile | null, local: Con
     const snapshot = chat.snapshot;
     if (snapshot.kind === "demo" || !snapshot.b) continue;
     const id = snapshot.sourceId;
-    if (people.has(id) || local.some((connection) => `live:${connection.room?.id}` === id)) continue;
+    if (people.has(id) || local.some((connection) => connection.id === id || `live:${connection.room?.id}` === id)) continue;
     const side = snapshot.ownerSide ?? (me && me.name === snapshot.b.name && me.name !== snapshot.a.name ? "b" : "a");
     const profile = side === "b" ? snapshot.a : snapshot.b;
     people.set(id, { id, chatId: chat.id, profile, updatedAt: chat.updatedAt });
