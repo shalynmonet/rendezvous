@@ -73,6 +73,7 @@ function ChatView({ me, active, s }: Ctx) {
   }, [busy, mood]);
 
   const [resetAt, setResetAt] = useState(initial?.resetAt ?? 0);
+  const [lastMood, setLastMood] = useState<string | null>(null);
   const resetRef = useRef(initial?.resetAt ?? 0);
   const persist = (id: string, m: string, messages: Msg[], nextGame = game, points = scores) => {
     setState((state) => saveChat(state, active.id, { id, mood: m, messages, game: nextGame, scores: points, muted: mutedRef.current, resetAt: resetRef.current, updatedAt: new Date().toISOString() }));
@@ -142,7 +143,7 @@ function ChatView({ me, active, s }: Ctx) {
             </Button>
           ))}
         </div>
-        {msgs.length > 0 && <Button variant="ghost" className="mt-4" onClick={() => setMood(initial?.mood ?? mood ?? "getting_to_know_you")}>Back to our thread</Button>}
+        {msgs.length > 0 && lastMood && <Button variant="ghost" className="mt-4" onClick={() => setMood(lastMood)}>Back to our thread</Button>}
         <div className="mt-6 max-w-sm"><ChatSave /></div>
       </>
     );
@@ -170,6 +171,7 @@ function ChatView({ me, active, s }: Ctx) {
                 <p className="text-[10px] uppercase tracking-widest opacity-70">{name(m.sender)}</p>
                 {m.content}
               </div>
+            </div>
             </div>
           ))}
           {busy && (
@@ -257,7 +259,7 @@ function ChatView({ me, active, s }: Ctx) {
         <Button variant="outline" className="w-full" asChild>
           <Link to="/recap">Recap card</Link>
         </Button>
-        <Button variant="ghost" className="w-full" disabled={busy} onClick={() => setMood(null)}>
+        <Button variant="ghost" className="w-full" disabled={busy} onClick={() => { setLastMood(mood); setMood(null); }}>
           Fresh start with Ru
         </Button>
       </aside>
