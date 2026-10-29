@@ -5,7 +5,7 @@ import { useAccount } from "./account-provider";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { readAccountWorkspace, saveAccountWorkspace } from "@/lib/account-workspace.functions";
-import { storeSnapshot, subscribeStore, switchAccountStore, type State } from "@/lib/store";
+import { clearGuestStore, storeSnapshot, subscribeStore, switchAccountStore, type State } from "@/lib/store";
 import { mergeWorkspace } from "@/lib/merge-workspace";
 
 export function AccountSync({ children }: { children: ReactNode }) {

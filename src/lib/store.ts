@@ -119,6 +119,12 @@ export function switchAccountStore(userId: string | null, state?: State) {
   subs.forEach((fn) => fn(mem));
 }
 
+// Once an account session starts, the account owns the data; leftover guest-slot
+// data would otherwise re-trigger the merge prompt on every later sign-in.
+export function clearGuestStore() {
+  try { localStorage.removeItem(KEY); } catch { /* Ignore storage errors. */ }
+}
+
 export function useStore() {
   const [s, set] = useState<State>(empty);
   const [ready, setReady] = useState(false);
