@@ -1,5 +1,5 @@
 // Server-only agent runner: Ru chooses and calls tools, then calls `finish` with a structured result.
-import { createOpenAI } from "@ai-sdk/openai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { streamText, tool, stepCountIs, type ToolSet } from "ai";
 import { z } from "zod";
 import {
@@ -12,7 +12,7 @@ import {
 import { createLovableAiGatewayRunIdFetch } from "./run-id.server";
 import { assertLifestyleDiscretion } from "./lifestyle";
 
-const MODEL = "openai/gpt-6-astra";
+const MODEL = "google/gemini-2.5-flash";
 
 export const RUE_PERSONA = `You are Ru, a sleek red fox in a houndstooth silk scarf, host of Rendezvous.
 Clever, charming, a little mischievous, deeply discreet.
@@ -141,9 +141,9 @@ export async function runAgent<T>(opts: {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
   const runId = createLovableAiGatewayRunIdFetch();
-  const provider = createOpenAI({
+  const provider = createOpenAICompatible({
+    name: "lovable",
     baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey,
     headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
     fetch: runId.fetch,
   });
@@ -153,20 +153,11 @@ export async function runAgent<T>(opts: {
     finish: tool({ description: opts.finishDescription, inputSchema: opts.finishSchema }),
   };
   const res = streamText({
-    model: provider.responses(MODEL),
-    instructions: `${RUE_PERSONA}\n\n${opts.system}\n\nWhen done, call the finish tool exactly once with your final answer.`,
+    model: provider(MODEL),
+    system: `${RUE_PERSONA}\n\n${opts.system}\n\nWhen done, call the finish tool exactly once with your final answer.`,
     prompt: opts.prompt,
     tools,
     stopWhen: stepCountIs(50),
-    providerOptions: {
-      openai: {
-        store: false,
-        forceReasoning: true,
-        reasoningEffort: "medium",
-        reasoningSummary: "auto",
-        include: ["reasoning.encrypted_content"],
-      },
-    },
   });
   const steps = await res.steps;
   const toolsUsed: string[] = [];
