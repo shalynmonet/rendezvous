@@ -12,7 +12,7 @@ import {
 import { createLovableAiGatewayRunIdFetch } from "./run-id.server";
 import { assertLifestyleDiscretion } from "./lifestyle";
 
-const MODEL = "google/gemini-2.5-flash";
+const MODEL = "google/gemini-3.8-flash";
 
 export const RUE_PERSONA = `You are Ru, a sleek red fox in a houndstooth silk scarf, host of Rendezvous.
 Clever, charming, a little mischievous, deeply discreet.
