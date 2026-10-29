@@ -3,6 +3,7 @@ import { GuestKeySchema, LiveTurnSchema, TasteProfileSchema } from "./chat-schem
 import { guestClient } from "./guest-chat.server";
 import { runAgent } from "./agent.server";
 import { conversationDirection, preserveConversationScores } from "./conversation-style";
+import { conversationProfile } from "./lifestyle";
 
 const Input = z.object({
   room: z.string().uuid(),
@@ -57,7 +58,7 @@ export async function hostLiveChat(request: Request) {
       try {
         const { result, toolsUsed } = await runAgent({
           system: `Host a live conversation between two REAL participants, ${a.name} (A) and ${b.name} (B). Never impersonate either participant or invent their answers. Return messages from Ru ONLY. Mood: ${c.mood}. Current scores A ${scores.a}, B ${scores.b}. Current conversation card: ${JSON.stringify(c.game)}. React warmly and specifically to their actual answers. Only award 0-2 points each when they answered a scored game, never for personal stories or ordinary conversation. ${conversationDirection(c.game)} Use the taste profiles for personal grounding; call Qloo for discovery recommendations or game evidence, not unnecessarily on ordinary follow-ups. One or two short Ru messages, each under 40 words.`,
-          prompt: `${JSON.stringify({ a, b })}\nActual conversation:\n${
+          prompt: `${JSON.stringify({ a: conversationProfile(a), b: conversationProfile(b) })}\nActual conversation:\n${
             messages
               .map(
                 (m) =>
