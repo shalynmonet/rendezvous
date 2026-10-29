@@ -36,12 +36,14 @@ export type SavedChat = {
   game: { type: string; prompt: string; options: string[] } | null;
   scores: { a: number; b: number };
   updatedAt: string;
+  /** Message index where Ru's current fresh start begins; earlier messages stay visible. */
+  resetAt?: number;
 };
 
 export function selectedChat(s: State, connectionId: string): SavedChat | undefined {
+  // One thread per person: always resume the most recently updated one.
   const chats = s.chats?.[connectionId] ?? [];
-  const selected = s.selectedChats?.[connectionId];
-  return selected === null ? undefined : chats.find((chat) => chat.id === selected) ?? chats.at(-1);
+  return [...chats].sort((a, b) => a.updatedAt.localeCompare(b.updatedAt)).at(-1);
 }
 
 export function saveChat(s: State, connectionId: string, chat: SavedChat): State {
