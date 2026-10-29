@@ -20,7 +20,13 @@ export function useAccountPeople() {
   useEffect(() => {
     if (!ready || !people.length) return;
     setState((st) => {
-      const missing = people.filter((p) => !st.connections.some((c) => c.id === p.id || `live:${c.room?.id}` === p.id));
+      const norm = (n: string) => n.trim().toLowerCase();
+      const seen = new Set(st.connections.filter((c) => !c.demo).map((c) => norm(c.profile.name)));
+      const missing = people.filter((p) => {
+        if (st.connections.some((c) => c.id === p.id || `live:${c.room?.id}` === p.id) || seen.has(norm(p.profile.name))) return false;
+        seen.add(norm(p.profile.name));
+        return true;
+      });
       if (!missing.length) return st;
       return { ...st, connections: [...st.connections, ...missing.map((p) => ({ id: p.id, label: "saved", profile: p.profile }))], activeId: st.activeId ?? missing[0]!.id };
     });
