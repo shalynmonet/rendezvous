@@ -83,10 +83,21 @@ const GameSchema = z.object({
 });
 export type ChatTurn = z.infer<typeof GameSchema>;
 
+export const ChatTurnInput = z
+  .object({
+    a: Person,
+    b: Person,
+    mood: z.string().max(40),
+    history: z.array(Msg).max(300),
+    scores: z.object({ a: z.number(), b: z.number() }),
+    game: GameSchema.shape.game.optional(),
+    partnerIsDemo: z.boolean(),
+  })
+  .refine((d) => d.partnerIsDemo, { message: "Ru never speaks for a real person." });
+
 export const chatTurn = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) =>
-    z.object({ a: Person, b: Person, mood: z.string().max(40), history: z.array(Msg).max(300), scores: z.object({ a: z.number(), b: z.number() }), game: GameSchema.shape.game.optional() }).parse(d),
-  )
+  .inputValidator((d: unknown) => ChatTurnInput.parse(d))
+
   .handler(async ({ data }) => {
     const { runAgent } = await import("./agent.server");
     const { tool } = await import("ai");

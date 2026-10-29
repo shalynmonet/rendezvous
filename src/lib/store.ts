@@ -16,6 +16,10 @@ export type Connection = {
   /** Canonical contact keys explicitly identified as other people by the owner. */
   differentFrom?: string[];
 };
+
+/** Ru may voice a demo partner's replies — never a real person's. */
+export const canVoicePartner = (c: Pick<Connection, "demo">) => c.demo === true;
+
 export type State = {
   me: Profile | null;
   connections: Connection[];

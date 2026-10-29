@@ -28,3 +28,5 @@
 - Ru-lette initializes a local demo pair only when no usable pair exists, preserving an existing personal taste profile and any selected live room.
 - Each connection has one ongoing local chat thread; Ru's fresh start records a reset index instead of creating a new thread, so history is never lost. Account-saved partners are merged into connections via useAccountPeople. Ru's agent runs on Gemini through the gateway's Chat Completions endpoint to cut credit cost.
 - People matching in `src/lib/person-identity.ts` honors owner-set symmetric `differentFrom` canonical contact keys before name/city/taste evidence, so explicitly distinct contacts stay separate across account promotion and partner pickers without moving history; lifestyle and `addedAt` are never identity evidence. Dates only qualify clashing names. Reuse verified room-backed connections for Chat and Ru-lette; a saved snapshot alone never grants live access.
+- Ru may only voice a demo partner (`canVoicePartner`); a real person without live room access gets a waiting panel with an invitation, and `ChatTurnInput` rejects any turn that would invent their replies — so no surface can impersonate a human.
+

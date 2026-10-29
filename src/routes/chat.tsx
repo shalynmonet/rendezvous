@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ErrorNote, NeedPair, Page, PageTitle, RueAvatar } from "@/components/rue";
 import { chatTurn, type ChatTurn } from "@/lib/rue.functions";
-import { setState, saveChat, selectedChat, type ChatMessage, type SavedChat } from "@/lib/store";
+import { canVoicePartner, setState, saveChat, selectedChat, type ChatMessage, type SavedChat } from "@/lib/store";
 import { LiveChat } from "@/components/live-chat";
 import { ChatSave } from "@/components/chat-save";
+import { WaitingForPartner } from "@/components/waiting-for-partner";
+
 import { groupPeople, personQualifier } from "@/lib/person-identity";
 
 export const Route = createFileRoute("/chat")({
@@ -42,11 +44,17 @@ function ChatPage() {
               <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
               <LiveChat key={ctx.active.room.id} room={ctx.active.room} />
             </>
-          ) : (
+          ) : canVoicePartner(ctx.active) ? (
             <>
               <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
               <ChatView key={ctx.active.id} {...ctx} />
             </>
+          ) : (
+            <>
+              <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
+              <WaitingForPartner partner={ctx.active.profile} me={ctx.me} />
+            </>
+
           )
         }
       </NeedPair>
@@ -73,12 +81,15 @@ function PartnerPicker({ s, onPick }: Ctx & { onPick: (id: string) => void }) {
       <div className="grid gap-3 md:grid-cols-2">
         {cards.map(({ group, c, thread }) => {
           const mood = thread ? MOODS.find((m) => m.id === thread.mood)?.label ?? thread.mood : null;
+          const waiting = !c.room && !canVoicePartner(c);
           return (
             <Button key={c.id} variant="outline" className="h-auto flex-col items-start whitespace-normal p-5 text-left" onClick={() => onPick(c.id)}>
               <span className="font-display text-2xl">{c.profile.name}{group.clash && <span className="text-sm text-gold"> · {personQualifier(c.profile, { label: c.label, addedAt: c.addedAt })}</span>} {c.demo && <span className="text-xs text-gold">demo</span>}{c.room && <span className="text-xs text-gold"> live</span>}</span>
               <span className="text-xs text-muted-foreground">
-                {thread && thread.messages.length > 0 ? `${c.profile.name} · ${mood} · ${new Date(thread.updatedAt).toLocaleDateString()}` : c.room ? "Live chat room" : "No thread yet — pick a mood next"}
+                {thread && thread.messages.length > 0 ? `${c.profile.name} · ${mood} · ${new Date(thread.updatedAt).toLocaleDateString()}` : c.room ? "Live chat room" : waiting ? `Waiting for ${c.profile.name} to join live` : "No thread yet — pick a mood next"}
               </span>
+              {waiting && thread && thread.messages.length > 0 && <span className="text-xs text-gold">Waiting for {c.profile.name} to join live</span>}
+
             </Button>
           );
         })}
@@ -132,7 +143,7 @@ function ChatView({ me, active, s }: Ctx) {
     setBusy(true);
     setErr("");
     try {
-      const r = await run({ data: { a: me, b: active.profile, mood: m, history: history.slice(resetRef.current), scores: points, game: currentGame } });
+      const r = await run({ data: { a: me, b: active.profile, mood: m, history: history.slice(resetRef.current), scores: points, game: currentGame, partnerIsDemo: canVoicePartner(active) } });
       if (mutedRef.current) return;
       const next = [...history, ...r.turn.messages];
       setMsgs(next);
@@ -168,11 +179,8 @@ function ChatView({ me, active, s }: Ctx) {
         <PageTitle
           eyebrow="Chat with Ru"
           title={msgs.length ? "Fresh start — pick a mood" : "Pick a mood"}
-          sub={
-            active.demo
-              ? `Ru plays ${active.profile.name} from their real tastes, so you can try every game solo.`
-              : `Ru answers for ${active.profile.name} from their taste profile until they join.`
-          }
+          sub={`Ru plays ${active.profile.name} from their real tastes, so you can try every game solo.`}
+
         />
         <div className="grid gap-3 md:grid-cols-3">
           {MOODS.map((m) => (
