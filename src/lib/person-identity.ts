@@ -53,10 +53,19 @@ export function clashingNames<T extends { profile: Profile; demo?: boolean }>(it
   return new Set(groupPeople(items).filter((g) => g.clash).map((g) => g.key));
 }
 
-/** The detail that tells two same-named people apart in a list. */
-export function personQualifier(p: Profile, fallback = ""): string {
-  const city = p.city.trim();
-  if (city) return city;
-  if (fallback.trim()) return fallback.trim();
+/** "added Oct 29" — the day a person joined your list, when that is known. */
+export function addedLabel(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const sameYear = d.getFullYear() === new Date().getFullYear();
+  return `added ${d.toLocaleDateString(undefined, sameYear ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" })}`;
+}
+
+/** The detail that tells two same-named people apart: city and the day they joined. */
+export function personQualifier(p: Profile, opts: { label?: string; addedAt?: string } = {}): string {
+  const parts = [p.city.trim(), addedLabel(opts.addedAt)].filter(Boolean);
+  if (parts.length) return parts.join(" · ");
+  if (opts.label?.trim()) return opts.label.trim();
   return `${p.tastes.length} tastes`;
 }
