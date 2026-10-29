@@ -75,7 +75,7 @@ function PartnerPicker({ s, onPick }: Ctx & { onPick: (id: string) => void }) {
           const mood = thread ? MOODS.find((m) => m.id === thread.mood)?.label ?? thread.mood : null;
           return (
             <Button key={c.id} variant="outline" className="h-auto flex-col items-start whitespace-normal p-5 text-left" onClick={() => onPick(c.id)}>
-              <span className="font-display text-2xl">{c.profile.name}{group.clash && <span className="text-sm text-gold"> · {personQualifier(c.profile, c.label)}</span>} {c.demo && <span className="text-xs text-gold">demo</span>}{c.room && <span className="text-xs text-gold"> live</span>}</span>
+              <span className="font-display text-2xl">{c.profile.name}{group.clash && <span className="text-sm text-gold"> · {personQualifier(c.profile, { label: c.label, addedAt: c.addedAt })}</span>} {c.demo && <span className="text-xs text-gold">demo</span>}{c.room && <span className="text-xs text-gold"> live</span>}</span>
               <span className="text-xs text-muted-foreground">
                 {thread && thread.messages.length > 0 ? `${c.profile.name} · ${mood} · ${new Date(thread.updatedAt).toLocaleDateString()}` : c.room ? "Live chat room" : "No thread yet — pick a mood next"}
               </span>
