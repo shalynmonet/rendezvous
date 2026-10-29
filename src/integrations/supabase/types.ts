@@ -277,6 +277,19 @@ export type Database = {
         }
         Returns: Json
       }
+      guest_chat_access_consent_base: {
+        Args: {
+          p_action: string
+          p_invite?: string
+          p_message_id?: string
+          p_mood?: string
+          p_profile?: Json
+          p_room?: string
+          p_text?: string
+          p_token?: string
+        }
+        Returns: Json
+      }
       guest_ruelette: {
         Args: {
           p_action: string
@@ -306,6 +319,7 @@ export type Database = {
         Args: { p_data: Json; p_revision: number }
         Returns: Json
       }
+      shared_taste_profile: { Args: { p_profile: Json }; Returns: Json }
     }
     Enums: {
       app_role: "admin"
