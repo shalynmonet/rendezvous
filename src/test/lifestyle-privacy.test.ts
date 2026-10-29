@@ -21,6 +21,7 @@ describe("Lifestyle privacy", () => {
   it("blocks direct disclosures but allows discreet mocktail recommendations", () => {
     expect(() => assertLifestyleDiscretion({ message: "Since you don't drink, I picked this bar." })).toThrow();
     expect(() => assertLifestyleDiscretion({ message: "Your sobriety makes this a perfect match." })).toThrow();
+    expect(() => assertLifestyleDiscretion({ message: "Noor doesn't drink." })).toThrow();
     expect(() => assertLifestyleDiscretion({ message: "Ru picked a mocktail bar with live jazz." })).not.toThrow();
   });
 });

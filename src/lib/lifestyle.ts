@@ -38,7 +38,7 @@ export function conversationProfile<T extends { lifestyle?: LifestyleT }>(profil
 // Reject accidental lifestyle attribution before generated text reaches either participant.
 export function assertLifestyleDiscretion(result: unknown): void {
   const text = JSON.stringify(result);
-  if (/(?:you|your|they|their|he|she|since|because|prefers?|doesn['’]?t|don['’]?t|never)[^.!?]{0,70}\b(?:sober|sobriety|recovery|rehab|smok(?:e|es|ing)|vaping|tobacco|cannabis|420|(?:don['’]?t|doesn['’]?t|never) drink)\b/i.test(text) || /(?:since|because)[^.!?]{0,60}(?:don['’]?t|doesn['’]?t|never) drink/i.test(text)) {
+  if (/\b(?:sober|sobriety|recovery|rehab)\b|(?:don['’]?t|doesn['’]?t|never|rarely|regularly|socially)\s+(?:drink|smoke|vape)\b/i.test(text) || /(?:you|your|they|their|he|she|since|because|prefers?)[^.!?]{0,70}\b(?:smok(?:e|es|ing)|vaping|tobacco|cannabis|420)\b/i.test(text)) {
     throw new Error("Ru couldn't keep that suggestion discreet. Please try again.");
   }
 }
