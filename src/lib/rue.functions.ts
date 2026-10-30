@@ -49,7 +49,7 @@ export const tasteReveal = createServerFn({ method: "POST" })
     return { reveal: result, evidence: comparison, toolsUsed: ["compare_tastes", ...toolsUsed], a, b };
   });
 
-const Stop = z.object({ type: z.string(), name: z.string(), address: z.string(), qloo_entity_id: z.string(), reason: z.string() });
+const Stop = z.object({ type: z.string(), name: z.string(), address: z.string(), qloo_entity_id: z.string(), reason: z.string(), when: z.string().nullable().optional(), event_url: z.string().nullable().optional() });
 const Song = z.object({ song: z.string(), artist: z.string(), reason: z.string() });
 const PlanSchema = z.object({ title: z.string(), rue_line: z.string(), stops: z.array(Stop), soundtrack: z.array(Song) });
 export type Plan = Omit<z.infer<typeof PlanSchema>, "soundtrack"> & { soundtrack: (z.infer<typeof Song> & { spotify_url: string })[] };
@@ -67,7 +67,7 @@ export const planDate = createServerFn({ method: "POST" })
     const { result, toolsUsed } = await runAgent({
       system: swap
         ? `Replace ONE stop of type "${swap.type}" in ${data.city}. Call find_places with both people's entity ids. Do not pick any of: ${swap.avoid.join(", ")}. Return stops containing only that one new stop, and an empty soundtrack.`
-        : `Plan a date night in ${data.city}: exactly three stops (dinner, activity, nightcap) using find_places with both people's entity ids, then a 12-song soundtrack via build_soundtrack (only well-known real songs by returned artists). Every stop and song needs a reason citing their tastes and the Qloo signal. Use only venues returned by find_places; copy their name, address and id.`,
+        : `Plan a date night in ${data.city}: exactly three stops (dinner, activity, nightcap). Use find_places with both people's entity ids for dinner and nightcap. For the activity, first call find_events once with the city and their shared music/film/theater interests; if it returns a real upcoming event that fits, use it as the activity (type "event", name = event title, address = venue, qloo_entity_id = "event", when = the date/time from the excerpt, event_url = its url). Never invent an event, date or url; if none fit, use find_places for the activity instead (when and event_url null). Then a 12-song soundtrack via build_soundtrack (only well-known real songs by returned artists). Every stop and song needs a reason citing their tastes. Use only venues returned by tools; copy name, address and id.`,
       prompt: `${describe(a)}\n${describe(b)}\n${describeLifestyle(a.lifestyle)}${describeLifestyle(b.lifestyle)}\nVibe: ${data.vibe || "surprise me"}. Budget: ${data.budget || "flexible"}.`,
       finishSchema: PlanSchema,
       finishDescription: "Submit the date plan.",

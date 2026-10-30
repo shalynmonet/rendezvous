@@ -115,6 +115,15 @@ export function qlooTools(): ToolSet {
         };
       },
     }),
+    find_events: tool({
+      description:
+        "Real upcoming live events (concerts, theater, comedy, exhibitions) in a city from a live web search. Each hit has a title, source url and excerpt with dates/venues. Only name events that appear here.",
+      inputSchema: z.object({ city: z.string(), interests: z.array(z.string()).max(6), when: z.string().optional() }),
+      execute: async ({ city, interests, when }) => {
+        const { findEvents } = await import("./events.server");
+        return { events: await findEvents(city, interests, when) };
+      },
+    }),
     compare_tastes: tool({
       description:
         "Compare two people's Qloo entities: shared recommendations, shared taste tags, bridges, and each person's solo lanes.",
