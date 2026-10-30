@@ -41,3 +41,13 @@ export const chatAccess = createServerFn({ method: "POST" })
       joined: parsed.joined ?? false,
     };
   });
+
+/** Marks you as present in a room and reports whether the other person is waiting there. */
+export const roomPresence = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => z.object({ room: z.string().uuid(), token: GuestKeySchema, here: z.boolean() }).parse(d))
+  .handler(async ({ data }) => {
+    const { guestClient } = await import("./guest-chat.server");
+    const { data: r, error } = await guestClient().rpc("guest_room_presence", { p_room: data.room, p_token: data.token, p_here: data.here });
+    if (error) throw new Error(error.message);
+    return { otherWaiting: z.object({ other_waiting: z.boolean() }).parse(r).other_waiting };
+  });

@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AccountProvider, useAccount } from "@/components/account-provider";
 import { AccountSync } from "@/components/account-sync";
+import { WaitingAlert } from "@/components/waiting-alert";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -161,6 +162,7 @@ function AppShell() {
             </div>
           </div>
         </nav>
+        <WaitingAlert />
         <div className="flex-1">
           <Outlet />
         </div>
