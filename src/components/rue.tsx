@@ -130,6 +130,17 @@ export function TasteEditor({ value, onChange }: { value: TasteT[]; onChange: (v
           </div>
         )}
       </div>
+      {cat === "hobby" && (
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">Tap the ones you actually do, or type your own — Ru plans dates around them.</p>
+          <div className="flex flex-wrap gap-2">
+            {HOBBY_SUGGESTIONS.filter((h) => !value.some((v) => v.label.toLowerCase() === h.toLowerCase())).map((h) => (
+              <button key={h} type="button" onClick={() => add({ category: "hobby", label: h })}
+                className="rounded-full border border-dashed border-border px-3 py-1 text-sm text-muted-foreground transition hover:border-gold hover:text-foreground">+ {h}</button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap gap-2">
         {value.map((t, i) => (
           <span key={i} className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-muted px-3 py-1 text-sm">
