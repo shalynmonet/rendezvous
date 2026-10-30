@@ -88,6 +88,8 @@ export const DEMO_A: Profile = {
     { category: "film", label: "Chungking Express" },
     { category: "cuisine", label: "Omakase" },
     { category: "tv", label: "Insecure" },
+    { category: "hobby", label: "Pottery" },
+    { category: "hobby", label: "Film photography" },
   ],
 };
 export const DEMO_B: Profile = {
@@ -100,6 +102,8 @@ export const DEMO_B: Profile = {
     { category: "film", label: "Princess Mononoke" },
     { category: "cuisine", label: "Tacos" },
     { category: "tv", label: "The Bear" },
+    { category: "hobby", label: "Bouldering" },
+    { category: "hobby", label: "Bread baking" },
   ],
 };
 
@@ -182,4 +186,13 @@ export const CATEGORIES: { id: TasteT["category"]; label: string }[] = [
   { id: "place", label: "Places" },
   { id: "book", label: "Books" },
   { id: "brand", label: "Brands" },
+  { id: "hobby", label: "Hobbies" },
+];
+
+/** One-tap starting points; people can type anything else they like. */
+export const HOBBY_SUGGESTIONS = [
+  "Gym", "Running", "Skating", "Climbing", "Yoga", "Swimming", "Cycling", "Hiking",
+  "Painting", "Drawing", "Sewing", "Knitting", "Pottery", "Woodworking", "Photography",
+  "Cooking", "Baking", "Gardening", "Playing guitar", "Singing", "Dancing", "Chess",
+  "Board games", "Video games", "Reading", "Film watching", "Volunteering", "Traveling",
 ];
