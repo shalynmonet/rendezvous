@@ -39,3 +39,4 @@
 - [x] Check existing verified-room reuse and show “Reconnect live” only for contacts without live access; add direct Ru-lette access for live contacts
 - [x] Show “Waiting for [person]…” with an invitation instead of Ru answering for a real connection; verify the panel turns live when they accept
 
+- [x] Gifts tab: Ru gift guide (4–5 ideas) for a connection or someone not on Rendezvous
