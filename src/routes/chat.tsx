@@ -44,17 +44,12 @@ function ChatPage() {
               <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
               <LiveChat key={ctx.active.room.id} room={ctx.active.room} />
             </>
-          ) : canVoicePartner(ctx.active) ? (
-            <>
-              <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
-              <ChatView key={ctx.active.id} {...ctx} />
-            </>
           ) : (
             <>
               <Button variant="ghost" className="mb-2" onClick={() => setPicked(false)}>← Choose someone else</Button>
-              <WaitingForPartner partner={ctx.active.profile} me={ctx.me} />
+              {!canVoicePartner(ctx.active) && <WaitingForPartner partner={ctx.active.profile} me={ctx.me} compact />}
+              <ChatView key={ctx.active.id} {...ctx} />
             </>
-
           )
         }
       </NeedPair>
@@ -113,8 +108,9 @@ const MOODS = [
 function ChatView({ me, active, s }: Ctx) {
   const run = useServerFn(chatTurn);
   const initial = selectedChat(s, active.id);
-  const [chatId, setChatId] = useState<string | null>(initial?.id ?? null);
-  const [mood, setMood] = useState<string | null>(initial?.mood ?? null);
+  const [chatId, setChatId] = useState<string | null>(initial?.id ?? (canVoicePartner(active) ? null : crypto.randomUUID()));
+  const waiting = !canVoicePartner(active);
+  const [mood, setMood] = useState<string | null>(initial?.mood ?? (waiting ? "waiting" : null));
   const [msgs, setMsgs] = useState<Msg[]>(initial?.messages ?? []);
   const [game, setGame] = useState<SavedChat["game"]>(initial?.game ?? null);
   const [scores, setScores] = useState(initial?.scores ?? { a: 0, b: 0 });
@@ -139,7 +135,7 @@ function ChatView({ me, active, s }: Ctx) {
     setState((state) => saveChat(state, active.id, { id, mood: m, messages, game: nextGame, scores: points, muted: mutedRef.current, resetAt: resetRef.current, updatedAt: new Date().toISOString() }));
   };
   const turn = async (history: Msg[], m = mood, id = chatId, points = scores, currentGame = game) => {
-    if (!m || !id) return;
+    if (!m || !id || waiting) return;
     setBusy(true);
     setErr("");
     try {
@@ -231,6 +227,15 @@ function ChatView({ me, active, s }: Ctx) {
             </div>
             </div>
           ))}
+          {waiting && (
+            <div className="flex gap-3" role="status">
+              <RueAvatar size={36} />
+              <div className="max-w-[75%] rounded-2xl bg-secondary px-4 py-2 font-display text-lg italic text-secondary-foreground">
+                <p className="text-[10px] uppercase tracking-widest opacity-70">Ru</p>
+                We&rsquo;re waiting on {active.profile.name} to join. Leave a note if you like — I&rsquo;ll start hosting the moment they&rsquo;re here.
+              </div>
+            </div>
+          )}
           {busy && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -294,13 +299,13 @@ function ChatView({ me, active, s }: Ctx) {
         )}
       </div>
       <aside className="space-y-4">
-        <Button variant={muted ? "outline" : "secondary"} className="w-full" aria-pressed={muted} onClick={() => {
+        {!waiting && <Button variant={muted ? "outline" : "secondary"} className="w-full" aria-pressed={muted} onClick={() => {
           mutedRef.current = !mutedRef.current; setMuted(mutedRef.current);
           if (chatId && mood) persist(chatId, mood, msgs);
           if (!mutedRef.current) void turn(msgs);
         }}>
           {muted ? <VolumeX className="mr-2 h-4 w-4" /> : <Volume2 className="mr-2 h-4 w-4" />}{muted ? "Unmute Ru" : "Mute Ru"}
-        </Button>
+        </Button>}
         <ChatSave disabled={busy} snapshot={chatId && mood ? { sourceId: `local:${chatId}`, kind: active.demo ? "demo" : "local", a: me, b: active.profile, mood, messages: msgs, game, scores } : undefined} />
         <div className="card-luxe p-5">
           <p className="text-xs uppercase tracking-widest text-gold">Scoreboard</p>
@@ -316,13 +321,13 @@ function ChatView({ me, active, s }: Ctx) {
         <Button variant="outline" className="w-full" asChild>
           <Link to="/recap">Recap card</Link>
         </Button>
-        <div className="card-luxe p-4 text-sm">
+        {!waiting && <div className="card-luxe p-4 text-sm">
           <p className="text-xs uppercase tracking-widest text-gold">Mood</p>
           <p className="font-display text-xl">{MOODS.find((x) => x.id === mood)?.label ?? mood}</p>
           <Button variant="outline" className="mt-2 w-full" disabled={busy} onClick={() => { setLastMood(mood); setMood(null); }}>
             Switch mood
           </Button>
-        </div>
+        </div>}
       </aside>
     </div>
   );

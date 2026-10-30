@@ -9,8 +9,17 @@ import type { Profile } from "@/lib/store";
  * A real person answers for themselves. Until they join the live room, Ru waits
  * rather than writing replies in their voice.
  */
-export function WaitingForPartner({ partner, me }: { partner: Profile; me: Profile }) {
+export function WaitingForPartner({ partner, me, compact }: { partner: Profile; me: Profile; compact?: boolean }) {
   const { busy, link, create } = useInvite();
+  if (compact)
+    return (
+      <section className="card-luxe mb-4 space-y-3 p-4" aria-live="polite">
+        <p className="text-sm text-muted-foreground">{partner.name} isn&rsquo;t in the live room yet. This page switches to your live chat on its own once they join from your newest invitation.</p>
+        {link ? <ProfileShare link={link} name={me.name} /> : (
+          <Button size="sm" disabled={busy} onClick={() => void create()}>{busy ? "Creating invitation…" : `Invite ${partner.name} to join`}</Button>
+        )}
+      </section>
+    );
   return (
     <section className="card-luxe space-y-5 p-6" role="status" aria-live="polite">
       <div className="flex items-start gap-4">
