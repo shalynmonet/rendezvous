@@ -68,6 +68,8 @@ function GiftsPage() {
           occasion,
           budget,
           tastes: custom ? [] : target.c.profile.tastes.map(({ category, label, entity_id }) => ({ category, label, entity_id })),
+          // Only lifestyle fields the person chose to share reach this profile; used as silent constraints.
+          lifestyle: custom ? undefined : target.c.profile.lifestyle,
           questions: custom ? q : undefined,
         },
       });
