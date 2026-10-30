@@ -33,7 +33,7 @@ export type SavedGiftGuide = {
   kind: "connection" | "custom";
   occasion: string;
   budget: string;
-  questions?: GiftQuestions;
+  questions?: GiftQuestions | undefined;
   guide: GiftGuide;
   at: string;
 };
