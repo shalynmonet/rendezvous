@@ -60,8 +60,7 @@ export function useInvite() {
           return;
         }
       } catch {
-        if (!stopped) toast.error("Could not check your invitation. Try refreshing.");
-        return;
+        // Temporary hiccup: keep checking rather than giving up silently.
       }
       if (!stopped) timer = setTimeout(poll, 2500);
     };
