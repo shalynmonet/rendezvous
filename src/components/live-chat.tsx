@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { roomPresence } from "@/lib/guest-chat.functions";
 import { Button } from "@/components/ui/button";
 import { ErrorNote, RueAvatar } from "@/components/rue";
 import {
@@ -49,6 +50,14 @@ export function LiveChat({ room }: { room: GuestRoom }) {
       }));
     }
   }, [access, room.id, room.token, mood]);
+  const ping = useServerFn(roomPresence);
+  // Let the other person know you're sitting in the room waiting for them.
+  useEffect(() => {
+    const here = () => { if (!document.hidden) void ping({ data: { room: room.id, token: room.token, here: true } }).catch(() => {}); };
+    here();
+    const t = setInterval(here, 20000);
+    return () => clearInterval(t);
+  }, [ping, room.id, room.token]);
   useEffect(() => {
     let stopped = false;
     let timer: ReturnType<typeof setTimeout>;
