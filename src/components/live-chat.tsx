@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { roomPresence } from "@/lib/guest-chat.functions";
 import { Button } from "@/components/ui/button";
 import { ErrorNote, RueAvatar } from "@/components/rue";
 import {
@@ -17,7 +16,7 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { Tool, ToolHeader, ToolContent, ToolOutput } from "@/components/ai-elements/tool";
-import { chatAccess } from "@/lib/guest-chat.functions";
+import { chatAccess, roomPresence } from "@/lib/guest-chat.functions";
 import type { GuestRoom, LiveState } from "@/lib/chat-schemas";
 import { setState } from "@/lib/store";
 import { ChatSave } from "./chat-save";
