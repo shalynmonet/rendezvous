@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { LifestyleSchema, describeGiftConstraints, assertGiftDiscretion } from "./lifestyle";
 import { GiftGuideSchema, GiftQuestionsSchema } from "./gift-schemas";
 
 const Taste = z.object({ category: z.enum(["artist", "film", "tv", "restaurant", "cuisine", "place", "book", "brand", "hobby"]), label: z.string().min(1).max(120), entity_id: z.string().optional() });
@@ -11,6 +12,7 @@ const GiftInput = z
     budget: z.string().max(40),
     tastes: z.array(Taste).max(40),
     questions: GiftQuestionsSchema.optional(),
+    lifestyle: LifestyleSchema,
   })
   .refine((d) => d.tastes.length > 0 || d.questions, { message: "Tell Ru a little about them first." });
 
@@ -29,11 +31,12 @@ export const giftGuide = createServerFn({ method: "POST" })
     ].filter(Boolean).join("\n");
     const { result, toolsUsed } = await runAgent({
       system: `Write a gift guide for ${recipient.name}. Occasion: ${data.occasion || "just because"}. Budget: ${data.budget || "flexible"}.
-Give 4 or 5 distinct, specific, real, purchasable gift ideas (or bookable experiences) within budget — varied categories, no gift cards, nothing generic. Use resolve_taste and get_affinities (e.g. book, brand, artist, movie) to find taste-matched picks. Each "why" cites their specific tastes or answers. "where_to_find" names a kind of shop or well-known retailer. Respect anything they want to avoid.`,
+Give 4 or 5 distinct, specific, real, purchasable gift ideas (or bookable experiences) within budget — varied categories, no gift cards, nothing generic. Use resolve_taste and get_affinities (e.g. book, brand, artist, movie) to find taste-matched picks. Each "why" cites their specific tastes or answers. "where_to_find" names a kind of shop or well-known retailer. Respect anything they want to avoid.${describeGiftConstraints(data.lifestyle)}`,
       prompt: about,
       finishSchema: GiftGuideSchema,
       finishDescription: "Submit the 4–5 idea gift guide.",
       lifestyleGuard: false,
+      validate: assertGiftDiscretion,
     });
     return { guide: result, toolsUsed };
   });

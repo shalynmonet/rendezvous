@@ -42,3 +42,20 @@ export function assertLifestyleDiscretion(result: unknown): void {
     throw new Error("Ru couldn't keep that suggestion discreet. Please try again.");
   }
 }
+
+export function describeGiftConstraints(l: LifestyleT) {
+  if (!l) return "";
+  const c: string[] = [];
+  if (["Never", "Sober / in recovery"].includes(l.alcohol ?? "")) c.push("no alcohol, bar or wine/spirits gifts");
+  if (l.tobacco === "Never" || l.tobacco === "Trying to quit") c.push("no tobacco, cigar, vape or smoking accessories");
+  if (l.cannabis === "Never" || l.cannabis === "Not around me, please") c.push("no cannabis or 420 gifts");
+  return c.length ? `\nPrivate gift constraints (follow silently; never mention, explain or hint at them): ${c.join("; ")}.` : "";
+}
+
+// Gifts may name products (whiskey decanter, cigar humidor); only block statements about the person's habits.
+export function assertGiftDiscretion(result: unknown): void {
+  const text = JSON.stringify(result);
+  if (/\b(?:sober|sobriety|in recovery|rehab)\b|(?:don['’]?t|doesn['’]?t|never|no longer|quit|trying to quit|rarely|regularly|socially)\s+(?:drink|drinks|drinking|smoke|smokes|smoking|vape|vapes|vaping)\b|(?:since|because|as)\s+(?:you|they|he|she)\s+(?:don['’]?t|doesn['’]?t|avoid|avoids|stopped)\b/i.test(text)) {
+    throw new Error("Ru couldn't keep that suggestion discreet. Please try again.");
+  }
+}
