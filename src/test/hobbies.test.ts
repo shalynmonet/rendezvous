@@ -32,7 +32,7 @@ describe("hobbies in the taste profile", () => {
     expect(await searchEntities("skating", "hobby")).toEqual([]);
     const [kept] = await resolveItems([{ category: "hobby", label: "Skating" }]);
     expect(kept).toEqual({ category: "hobby", label: "Skating" });
-    expect(kept.entity_id).toBeUndefined();
+    expect(kept?.entity_id).toBeUndefined();
   });
 
   it("keeps hobbies out of the private lifestyle strip", () => {
