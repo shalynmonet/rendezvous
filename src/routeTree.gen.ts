@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ConciergeRouteImport } from './routes/concierge'
 import { Route as ConnectionsRouteImport } from './routes/connections'
+import { Route as GiftsRouteImport } from './routes/gifts'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -54,6 +55,11 @@ const ConciergeRoute = ConciergeRouteImport.update({
 const ConnectionsRoute = ConnectionsRouteImport.update({
   id: '/connections',
   path: '/connections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiftsRoute = GiftsRouteImport.update({
+  id: '/gifts',
+  path: '/gifts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InviteRoute = InviteRouteImport.update({
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof ChatRoute
   '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
+  '/gifts': typeof GiftsRoute
   '/invite': typeof InviteRoute
   '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatRoute
   '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
+  '/gifts': typeof GiftsRoute
   '/invite': typeof InviteRoute
   '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/chat': typeof ChatRoute
   '/concierge': typeof ConciergeRoute
   '/connections': typeof ConnectionsRoute
+  '/gifts': typeof GiftsRoute
   '/invite': typeof InviteRoute
   '/plan': typeof PlanRoute
   '/profile': typeof ProfileRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/concierge'
     | '/connections'
+    | '/gifts'
     | '/invite'
     | '/plan'
     | '/profile'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/concierge'
     | '/connections'
+    | '/gifts'
     | '/invite'
     | '/plan'
     | '/profile'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/concierge'
     | '/connections'
+    | '/gifts'
     | '/invite'
     | '/plan'
     | '/profile'
@@ -226,6 +238,7 @@ export interface RootRouteChildren {
   ChatRoute: typeof ChatRoute
   ConciergeRoute: typeof ConciergeRoute
   ConnectionsRoute: typeof ConnectionsRoute
+  GiftsRoute: typeof GiftsRoute
   InviteRoute: typeof InviteRoute
   PlanRoute: typeof PlanRoute
   ProfileRoute: typeof ProfileRoute
@@ -280,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: '/connections'
       fullPath: '/connections'
       preLoaderRoute: typeof ConnectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gifts': {
+      id: '/gifts'
+      path: '/gifts'
+      fullPath: '/gifts'
+      preLoaderRoute: typeof GiftsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invite': {
@@ -362,6 +382,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatRoute: ChatRoute,
   ConciergeRoute: ConciergeRoute,
   ConnectionsRoute: ConnectionsRoute,
+  GiftsRoute: GiftsRoute,
   InviteRoute: InviteRoute,
   PlanRoute: PlanRoute,
   ProfileRoute: ProfileRoute,

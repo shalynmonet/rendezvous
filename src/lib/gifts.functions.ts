@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { GiftGuideSchema, GiftQuestionsSchema } from "./gift-schemas";
-import { conversationProfile } from "./lifestyle";
 
 const Taste = z.object({ category: z.enum(["artist", "film", "tv", "restaurant", "cuisine", "place", "book", "brand"]), label: z.string().min(1).max(120), entity_id: z.string().optional() });
 
@@ -20,9 +19,9 @@ export const giftGuide = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { runAgent } = await import("./agent.server");
     const { resolveItems } = await import("./qloo.server");
-    // Gifts use public tastes only; private lifestyle answers never reach the prompt.
+    // Gifts use public tastes only; the input schema strips private lifestyle answers.
     const tastes = (data.tastes.length ? await resolveItems(data.tastes) : []) as typeof data.tastes;
-    const recipient = conversationProfile({ name: data.name, tastes });
+    const recipient = { name: data.name, tastes };
     const q = data.questions;
     const about = [
       recipient.tastes.length ? `Saved tastes: ${recipient.tastes.map((t) => `${t.label} (${t.category}${t.entity_id ? `, qloo:${t.entity_id}` : ""})`).join("; ")}` : "",
