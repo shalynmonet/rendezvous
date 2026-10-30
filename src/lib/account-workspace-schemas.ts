@@ -4,7 +4,7 @@ import { conversationProfile } from "./lifestyle";
 
 const Room = z.object({ id: z.string().uuid(), token: GuestKeySchema, invite: GuestKeySchema.optional() });
 const Message = z.object({ sender: z.enum(["a", "b", "rue"]), content: z.string().max(20000) });
-const JsonValue: z.ZodType<unknown> = z.lazy(() => z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(JsonValue), z.record(z.string(), JsonValue)]));
+const JsonValue: z.ZodType<unknown> = z.lazy(() => z.union([z.string(), z.number(), z.boolean(), z.null(), z.undefined(), z.array(JsonValue), z.record(z.string(), JsonValue)]));
 export const WorkspaceSchema = z.object({
   me: TasteProfileSchema.nullable(),
   connections: z.array(z.object({ id: z.string().max(160), label: z.string().max(100), profile: TasteProfileSchema.transform(conversationProfile), demo: z.boolean().optional(), room: Room.optional(), addedAt: z.string().optional(), differentFrom: z.array(z.string().max(160)).max(200).optional() })).max(200),

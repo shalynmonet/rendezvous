@@ -72,7 +72,7 @@ function GiftsPage() {
         },
       });
       const key = custom ? `custom:${who.toLowerCase()}:${q.relationship.toLowerCase()}` : target.c.id;
-      const entry: SavedGiftGuide = { key, name: who, kind: target.kind, occasion, budget, questions: custom ? q : undefined, guide: r.guide, at: new Date().toISOString() };
+      const entry: SavedGiftGuide = { key, name: who, kind: target.kind, occasion, budget, ...(custom ? { questions: q } : {}), guide: r.guide, at: new Date().toISOString() };
       setShown(entry);
       setState((st) => ({ ...st, gifts: { ...st.gifts, [key]: entry } }));
     } catch (e) {
