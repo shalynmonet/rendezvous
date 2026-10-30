@@ -19,7 +19,8 @@ export const readAccountWorkspace = createServerFn({ method: "POST" }).middlewar
     for (const link of links ?? []) {
       const { error: accessError } = await context.supabase.rpc("guest_chat_access", { p_action: "read", p_room: link.room_id, p_token: link.participant_key });
       if (accessError) continue;
-      const connection = state.connections.find((c) => c.id === link.room_id);
+      // Saved partners carry a "live:<room>" id, so match both forms or the restored room never attaches.
+      const connection = state.connections.find((c) => c.id === link.room_id || c.id === `live:${link.room_id}`);
       if (connection) connection.room = { id: link.room_id, token: link.participant_key };
       if (raw["pendingRoomId"] === link.room_id) state.pendingRoom = { id: link.room_id, token: link.participant_key, ...(link.invitation_key ? { invite: link.invitation_key } : {}) };
     }
