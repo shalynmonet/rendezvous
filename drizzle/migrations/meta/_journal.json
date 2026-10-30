@@ -64,6 +64,13 @@
       "when": 1793234864646,
       "tag": "0008_lifestyle_sharing_consent",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793355617337,
+      "tag": "0009_room_presence",
+      "breakpoints": true
     }
   ]
 }

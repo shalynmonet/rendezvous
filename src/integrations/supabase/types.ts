@@ -116,7 +116,9 @@ export type Database = {
       guest_chats: {
         Row: {
           a_hash: string
+          a_seen_at: string | null
           b_hash: string | null
+          b_seen_at: string | null
           claim: string | null
           claimed_at: string | null
           expires_at: string
@@ -136,7 +138,9 @@ export type Database = {
         }
         Insert: {
           a_hash: string
+          a_seen_at?: string | null
           b_hash?: string | null
+          b_seen_at?: string | null
           claim?: string | null
           claimed_at?: string | null
           expires_at?: string
@@ -156,7 +160,9 @@ export type Database = {
         }
         Update: {
           a_hash?: string
+          a_seen_at?: string | null
           b_hash?: string | null
+          b_seen_at?: string | null
           claim?: string | null
           claimed_at?: string | null
           expires_at?: string
@@ -288,6 +294,10 @@ export type Database = {
           p_text?: string
           p_token?: string
         }
+        Returns: Json
+      }
+      guest_room_presence: {
+        Args: { p_here?: boolean; p_room: string; p_token: string }
         Returns: Json
       }
       guest_ruelette: {
