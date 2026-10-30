@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { GiftGuideSchema, GiftQuestionsSchema } from "./gift-schemas";
 
-const Taste = z.object({ category: z.enum(["artist", "film", "tv", "restaurant", "cuisine", "place", "book", "brand"]), label: z.string().min(1).max(120), entity_id: z.string().optional() });
+const Taste = z.object({ category: z.enum(["artist", "film", "tv", "restaurant", "cuisine", "place", "book", "brand", "hobby"]), label: z.string().min(1).max(120), entity_id: z.string().optional() });
 
 const GiftInput = z
   .object({

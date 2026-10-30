@@ -16,6 +16,7 @@ export const TasteProfileSchema = z.object({
           "place",
           "book",
           "brand",
+          "hobby",
         ]),
         label: z.string().min(1).max(120),
         entity_id: z.string().optional(),

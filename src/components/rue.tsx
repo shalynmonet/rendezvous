@@ -7,7 +7,7 @@ import ruPortrait from "@/assets/ru-portrait.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resolveTaste, type TasteT } from "@/lib/rue.functions";
-import { CATEGORIES, useStore, startDemo } from "@/lib/store";
+import { CATEGORIES, HOBBY_SUGGESTIONS, useStore, startDemo } from "@/lib/store";
 import { useAccountPeople } from "@/hooks/use-account-people";
 
 export const RUE_IMG = rueHero.url;
@@ -95,7 +95,8 @@ export function TasteEditor({ value, onChange }: { value: TasteT[]; onChange: (v
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (q.trim().length < 2) { setHits([]); return; }
+    // Hobbies are the person's own words, not Qloo entities, so nothing is looked up.
+    if (cat === "hobby" || q.trim().length < 2) { setHits([]); return; }
     const t = setTimeout(async () => {
       setBusy(true);
       try { const r = await search({ data: { label: q.trim(), category: cat } }); setHits(r.results); } finally { setBusy(false); }
@@ -114,7 +115,7 @@ export function TasteEditor({ value, onChange }: { value: TasteT[]; onChange: (v
         ))}
       </div>
       <div className="relative">
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`Add a favorite ${CATEGORIES.find((c) => c.id === cat)?.label.toLowerCase().replace(/s$/, "")}…`}
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={cat === "hobby" ? "Add a hobby — gym, skating, painting…" : `Add a favorite ${CATEGORIES.find((c) => c.id === cat)?.label.toLowerCase().replace(/s$/, "")}…`}
           onKeyDown={(e) => { if (e.key === "Enter" && q.trim()) { e.preventDefault(); add(hits[0] ? { category: cat, label: hits[0].name, entity_id: hits[0].id, name: hits[0].name } : { category: cat, label: q.trim() }); } }} />
         {busy && <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin text-muted-foreground" />}
         {hits.length > 0 && (
@@ -129,6 +130,17 @@ export function TasteEditor({ value, onChange }: { value: TasteT[]; onChange: (v
           </div>
         )}
       </div>
+      {cat === "hobby" && (
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">Tap the ones you actually do, or type your own — Ru plans dates around them.</p>
+          <div className="flex flex-wrap gap-2">
+            {HOBBY_SUGGESTIONS.filter((h) => !value.some((v) => v.label.toLowerCase() === h.toLowerCase())).map((h) => (
+              <button key={h} type="button" onClick={() => add({ category: "hobby", label: h })}
+                className="rounded-full border border-dashed border-border px-3 py-1 text-sm text-muted-foreground transition hover:border-gold hover:text-foreground">+ {h}</button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap gap-2">
         {value.map((t, i) => (
           <span key={i} className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-muted px-3 py-1 text-sm">

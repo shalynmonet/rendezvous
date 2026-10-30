@@ -39,6 +39,7 @@ export function qlooTools(): ToolSet {
           "place",
           "book",
           "brand",
+          "hobby",
         ]),
       }),
       execute: async ({ label, category }) =>
