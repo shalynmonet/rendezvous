@@ -147,6 +147,8 @@ export async function runAgent<T>(opts: {
   finishSchema: z.ZodType<T>;
   finishDescription: string;
   extraTools?: ToolSet;
+  /** Off only for flows that never receive lifestyle answers (e.g. gifts), where it just blocks wine or cigar gifts. */
+  lifestyleGuard?: boolean;
 }): Promise<{ result: T; toolsUsed: string[] }> {
   const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
@@ -175,7 +177,7 @@ export async function runAgent<T>(opts: {
     for (const c of s.toolCalls) {
       if (c.toolName === "finish") {
         const result = opts.finishSchema.parse(c.input);
-        assertLifestyleDiscretion(result);
+        if (opts.lifestyleGuard !== false) assertLifestyleDiscretion(result);
         return { result, toolsUsed };
       }
       toolsUsed.push(c.toolName);

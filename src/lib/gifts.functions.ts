@@ -33,6 +33,7 @@ Give 4 or 5 distinct, specific, real, purchasable gift ideas (or bookable experi
       prompt: about,
       finishSchema: GiftGuideSchema,
       finishDescription: "Submit the 4–5 idea gift guide.",
+      lifestyleGuard: false,
     });
     return { guide: result, toolsUsed };
   });
