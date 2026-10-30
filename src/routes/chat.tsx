@@ -67,7 +67,9 @@ function PartnerPicker({ s, onPick }: Ctx & { onPick: (id: string) => void }) {
     const withThread = threads
       .filter((t) => has(t.thread))
       .sort((a, b) => b.thread!.updatedAt.localeCompare(a.thread!.updatedAt));
-    return { group, ...(withThread[0] ?? threads.find((t) => !!t.c.room) ?? threads[0]!) };
+    // A live room you already share always wins, so there's never a reason to re-invite.
+    const live = threads.filter((t) => !!t.c.room).sort((a, b) => (b.thread?.updatedAt ?? "").localeCompare(a.thread?.updatedAt ?? ""));
+    return { group, ...(live[0] ?? withThread[0] ?? threads[0]!) };
   });
   const clash = cards.some((card) => card.group.clash);
   return (

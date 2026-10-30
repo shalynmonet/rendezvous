@@ -14,7 +14,7 @@ export function WaitingForPartner({ partner, me, compact }: { partner: Profile; 
   if (compact)
     return (
       <section className="card-luxe mb-4 space-y-3 p-4" aria-live="polite">
-        <p className="text-sm text-muted-foreground">{partner.name} isn&rsquo;t in the live room yet. This page switches to your live chat on its own once they join from your newest invitation.</p>
+        <p className="text-sm text-muted-foreground">{partner.name} isn&rsquo;t in the live room yet. Stay here — this switches to your live chat on its own once they join. You only ever have one invitation link; sharing it again reuses it.</p>
         {link ? <ProfileShare link={link} name={me.name} /> : (
           <Button size="sm" disabled={busy} onClick={() => void create()}>{busy ? "Creating invitation…" : `Invite ${partner.name} to join`}</Button>
         )}
