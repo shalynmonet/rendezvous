@@ -151,6 +151,14 @@ function PlanView({ me, active }: Ctx) {
                       {s.address}
                     </p>
                   )}
+                  {(s.when || s.event_url) && (
+                    <p className="mt-1 text-sm text-primary">
+                      {s.when}
+                      {s.event_url && (
+                        <a href={s.event_url} target="_blank" rel="noreferrer" className="ml-2 underline">Event details & tickets</a>
+                      )}
+                    </p>
+                  )}
                   <WhyChip>{s.reason}</WhyChip>
                   <Button
                     size="sm"
