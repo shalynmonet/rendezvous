@@ -2,7 +2,7 @@ import { describeLifestyle, type LifestyleT } from "./lifestyle";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const Category = z.enum(["artist", "film", "tv", "restaurant", "cuisine", "place", "book", "brand"]);
+const Category = z.enum(["artist", "film", "tv", "restaurant", "cuisine", "place", "book", "brand", "hobby"]);
 const Taste = z.object({ category: Category, label: z.string().min(1).max(120), entity_id: z.string().optional(), name: z.string().optional() });
 const Person = z.object({ name: z.string().min(1).max(60), tastes: z.array(Taste).max(40) });
 type P = z.infer<typeof Person>;

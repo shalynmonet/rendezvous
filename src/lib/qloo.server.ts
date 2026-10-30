@@ -1,10 +1,11 @@
 // Server-only Qloo taste graph client (hackathon environment).
 const BASE = "https://hackathon.api.qloo.com";
 
-export type TasteCategory = "artist" | "film" | "tv" | "restaurant" | "cuisine" | "place" | "book" | "brand";
+export type TasteCategory = "artist" | "film" | "tv" | "restaurant" | "cuisine" | "place" | "book" | "brand" | "hobby";
 export type TasteItem = { category: TasteCategory; label: string; entity_id?: string | undefined; name?: string | undefined };
 
-export const CATEGORY_TYPE: Record<TasteCategory, string> = {
+/** Hobbies have no Qloo entity, so they stay plain labels and are simply absent here. */
+export const CATEGORY_TYPE: Partial<Record<TasteCategory, string>> = {
   artist: "urn:entity:artist",
   film: "urn:entity:movie",
   tv: "urn:entity:tv_show",
@@ -59,7 +60,10 @@ function mapEntity(e: any): Entity {
 }
 
 export async function searchEntities(query: string, category: TasteCategory, take = 5): Promise<Entity[]> {
-  const d = await qloo("/search", { query, types: CATEGORY_TYPE[category], take });
+  const type = CATEGORY_TYPE[category];
+  // An untyped Qloo search answers "skating" with a videogame, so hobbies never query it.
+  if (!type) return [];
+  const d = await qloo("/search", { query, types: type, take });
   return (d.results ?? []).map(mapEntity);
 }
 
@@ -67,7 +71,7 @@ export async function searchEntities(query: string, category: TasteCategory, tak
 export async function resolveItems(items: TasteItem[]): Promise<TasteItem[]> {
   return Promise.all(
     items.map(async (it) => {
-      if (it.entity_id) return it;
+      if (it.entity_id || it.category === "hobby") return it;
       try {
         const [hit] = await searchEntities(it.label, it.category, 1);
         return hit ? { ...it, entity_id: hit.id, name: hit.name } : it;
