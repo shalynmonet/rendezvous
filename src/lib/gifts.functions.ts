@@ -21,7 +21,7 @@ export const giftGuide = createServerFn({ method: "POST" })
     const { runAgent } = await import("./agent.server");
     const { resolveItems } = await import("./qloo.server");
     // Gifts use public tastes only; private lifestyle answers never reach the prompt.
-    const tastes = data.tastes.length ? await resolveItems(data.tastes) : [];
+    const tastes = (data.tastes.length ? await resolveItems(data.tastes) : []) as typeof data.tastes;
     const recipient = conversationProfile({ name: data.name, tastes });
     const q = data.questions;
     const about = [

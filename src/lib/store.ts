@@ -34,6 +34,7 @@ export type State = {
   ruelette?: Record<string, unknown>;
   plans?: Record<string, unknown>;
   reveals?: Record<string, unknown>;
+  gifts?: Record<string, unknown>;
 };
 export type ChatMessage = { sender: "rue" | "a" | "b"; content: string };
 export type SavedChat = {

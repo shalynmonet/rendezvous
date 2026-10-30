@@ -11,6 +11,6 @@ export function mergeWorkspace(saved: State, local: State): State {
     connections: [...local.connections, ...saved.connections.filter((c) => !local.connections.some((l) => l.id === c.id))],
     chats, selectedChats: { ...saved.selectedChats, ...local.selectedChats },
     memories: [...local.memories ?? [], ...(saved.memories ?? []).filter((m) => !(local.memories ?? []).some((l) => l.id === m.id))],
-    plans: { ...saved.plans, ...local.plans }, reveals: { ...saved.reveals, ...local.reveals }, ruelette: { ...saved.ruelette, ...local.ruelette },
+    plans: { ...saved.plans, ...local.plans }, reveals: { ...saved.reveals, ...local.reveals }, ruelette: { ...saved.ruelette, ...local.ruelette }, gifts: { ...saved.gifts, ...local.gifts },
   };
 }
