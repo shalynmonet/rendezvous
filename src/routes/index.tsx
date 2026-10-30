@@ -15,16 +15,17 @@ export const Route = createFileRoute("/")({
         : []),
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "Rendezvous — Ru plans dates from your real tastes" },
+      { title: "Rendezvous - Let Ru host." },
       {
         name: "description",
         content:
-          "Ru, a houndstooth-scarfed fox, uses Qloo's taste graph to plan dates, reveal shared tastes, and host playful chats for two.",
+          "Rendezvous presents Ru, an AI date host with taste who runs games and keeps two people talking about what they actually love.",
       },
-      { property: "og:title", content: "Rendezvous — Ru knows." },
+      { property: "og:title", content: "Rendezvous - Let Ru host." },
       {
         property: "og:description",
-        content: "Taste-matched dates, reveals and games for two, powered by Qloo.",
+        content:
+          "Rendezvous presents Ru, an AI date host with taste who runs games and keeps two people talking about what they actually love.",
       },
     ],
   }),
