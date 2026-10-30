@@ -14,7 +14,7 @@ export const WorkspaceSchema = z.object({
   chats: z.record(z.string(), z.array(z.object({ id: z.string(), muted: z.boolean().optional(), mood: z.string(), messages: z.array(Message).max(1000), game: z.object({ type: z.string(), prompt: z.string(), options: z.array(z.string()) }).nullable(), scores: z.object({ a: z.number(), b: z.number() }), updatedAt: z.string(), resetAt: z.number().int().min(0).optional() })).max(200)).optional(),
   selectedChats: z.record(z.string(), z.string().nullable()).optional(),
   memories: z.array(z.object({ id: z.string(), connectionId: z.string(), activity: z.string(), milestone: z.string(), rating: z.number().min(1).max(5), notes: z.string(), commentary: z.string(), at: z.string() })).max(2000).optional(),
-  ruelette: z.record(z.string(), JsonValue).optional(), plans: z.record(z.string(), JsonValue).optional(), reveals: z.record(z.string(), JsonValue).optional(),
+  ruelette: z.record(z.string(), JsonValue).optional(), plans: z.record(z.string(), JsonValue).optional(), reveals: z.record(z.string(), JsonValue).optional(), gifts: z.record(z.string(), JsonValue).optional(),
 }).refine((data) => JSON.stringify(data).length <= 20_000_000, "Account data is too large. Try smaller photos.");
 
 export function withoutCapabilities(data: z.infer<typeof WorkspaceSchema>) {

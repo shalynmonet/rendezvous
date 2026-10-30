@@ -121,6 +121,7 @@ const NAV = [
   { to: "/chat", label: "Chat" },
   { to: "/ru-lette", label: "Ru-lette" },
   { to: "/plan", label: "Plan a date" },
+  { to: "/gifts", label: "Gifts" },
   { to: "/concierge", label: "Concierge" },
 ] as const;
 
